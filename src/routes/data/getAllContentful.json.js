@@ -1,5 +1,4 @@
 import { client } from '$lib/contentfulClient';
-//import { contentfulData } from 'src/store.js';
 
 export async function get() {
 	try {
