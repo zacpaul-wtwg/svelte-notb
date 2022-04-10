@@ -1,6 +1,6 @@
 <script context="module">
 	export async function load({ fetch }) {
-		const [{ allData }] = await fetch('/data/getAllContentful.json').then((results) => {
+		const { allData } = await fetch('/data/getAllContentful.json').then((results) => {
 			return results.json();
 		});
 
