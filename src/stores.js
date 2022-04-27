@@ -4,14 +4,13 @@ import { getProductCategories } from '@lib/comcash/getProductCategories';
 import { getRawProductData } from '@lib/comcash/getRawProductData';
 import { refineProductData } from '@lib/comcash/refineProductData';
 
-export const fetchProducts = function () {
-	async function get() {
-		const token = await getToken();
-		const productCategories = await getProductCategories(token);
-		const productBrands = await getProductBrands(token);
-		const productData = await getRawProductData(token);
-		return await refineProductData(productCategories, productBrands, productData);
-	}
-
-	return get();
+export const fetchProducts = async function () {
+	const token = await getToken();
+	const [productCategories, productBrands, productData] = await Promise.all([
+		getProductCategories(token),
+		getProductBrands(token),
+		getRawProductData(token),
+	]);
+		
+	return refineProductData(productCategories, productBrands, productData);
 };
