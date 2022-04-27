@@ -9,12 +9,12 @@ export async function get() {
 	const productCategories = await getProductCategories(token);
 	const productBrands = await getProductBrands(token);
 	const productData = await getRawProductData(token);
-	const productDataRefined = await refineProductData(productCategories, productBrands, productData);
+	const products = await refineProductData(productCategories, productBrands, productData);
 
 	return {
 		status: 200,
 		body: {
-			productDataRefined
+			products
 		}
 	};
 }
