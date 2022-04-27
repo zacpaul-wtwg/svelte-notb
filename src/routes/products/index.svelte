@@ -4,8 +4,13 @@
 	// Don't miss Svelte Summit: https://sveltesummit.com
 
 	import { fetchProducts } from '@stores';
+	import { empty } from 'svelte/internal';
 	let data = [];
-	console.log(fetchProducts().then((result) => (data = result)));
+	fetchProducts().then((result) => (data = result));
 </script>
 
-<pre>  {JSON.stringify(data)} </pre>
+{#if data.length === 0}
+	The products are loading
+{:else}
+	<pre>  {JSON.stringify(data)} </pre>
+{/if}
