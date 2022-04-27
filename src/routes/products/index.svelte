@@ -19,5 +19,10 @@
 </script>
 
 {#each products as product}
-	{product.title} <br />
+	<h2>{product.title}</h2>
+	<p>{product.imageThumb}</p>
+	<br />
+	<img src={product.imageThumb} alt="{product.title} IMAGE" />
+	<br />
+	<hr />
 {/each}

@@ -31,6 +31,7 @@ export const refineProductData = function (categories, brands, products) {
 				return {
 					//add ID
 					id: element.id,
+					imageThumb: element.imageUrl,
 					title: element.title,
 					price: element.price,
 					category: getCategoryById(element.categoryId),
