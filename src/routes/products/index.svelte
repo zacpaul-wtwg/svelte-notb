@@ -20,7 +20,7 @@
 
 {#each products as product}
 	<h2>{product.title}</h2>
-	<p>{product.imageThumb}</p>
+	<p>{product.description}</p>
 	<br />
 	<img src={product.imageThumb} alt="{product.title} IMAGE" />
 	<br />
