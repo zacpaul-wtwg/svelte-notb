@@ -4,7 +4,7 @@
 <nav>
 	<ul class="nav-list">
 		<li class="nav-link"><a href="/">Home</a></li>
-		<li class="nav-link"><a href="/">Products</a></li>
+		<li class="nav-link"><a href="/products">Products</a></li>
 		<li class="nav-drop">
 			<span>Pricing</span>
 			<ul id="pricing" class="dropdown-list">

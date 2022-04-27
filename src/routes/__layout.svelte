@@ -14,11 +14,9 @@
 
 <script>
 	import Navbar from '$lib/navbar/Navbar.svelte';
-
-	export let allData;
 	import '../app.css';
 	import FooterDescription from '$lib/footer/FooterDescription.svelte';
-	console.log(allData);
+	export let allData;
 </script>
 
 <header>
