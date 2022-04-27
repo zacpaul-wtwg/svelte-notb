@@ -7,20 +7,20 @@
 		<li class="nav-link"><a href="/products">Products</a></li>
 		<li class="nav-drop">
 			<span>Pricing</span>
-			<ul id="pricing" class="dropdown-list">
+			<!-- <ul id="pricing" class="dropdown-list">
 				<li class="dropdown-item"><a href="/pricing">Pricing Overview</a></li>
 				<li class="dropdown-item"><a href="/pricing#highroller">High Roller</a></li>
 				<li class="dropdown-item"><a href="/pricing#vip">VIP</a></li>
 				<li class="dropdown-item"><a href="/pricing#camp">Camp Programs</a></li>
 				<li class="dropdown-item"><a href="/pricing#caselot">Case Lot Specials</a></li>
-			</ul>
+			</ul> -->
 		</li>
 		<li class="nav-drop">
 			<span>FAQ</span>
-			<ul id="faq" class="dropdown-list">
+			<!-- <ul id="faq" class="dropdown-list">
 				<li class="dropdown-item"><a href="/faq">FAQ</a></li>
 				<li class="dropdown-item"><a href="/faq/statelaw">State Law</a></li>
-			</ul>
+			</ul> -->
 		</li>
 		<li class="nav-link"><a href="/contact">Contact</a></li>
 	</ul>

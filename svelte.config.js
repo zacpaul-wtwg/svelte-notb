@@ -13,8 +13,9 @@ const config = {
 			resolve: {
 				alias: {
 					// these are the aliases and paths to them
-					'@lib': path.resolve('./src/lib'),
-					'@stores': path.resolve('./src/stores.js')
+					$lib: path.resolve('./src/lib'),
+					$stores: path.resolve('./src/stores.js'),
+					$cc: path.resolve('./src/lib/comcash')
 				}
 			}
 		}
