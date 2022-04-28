@@ -7,7 +7,7 @@
 	//console.log(products);
 </script>
 
-{#each products as product}
+{#each products.productsFinal as product}
 	<div>
 		<a sveltekit:prefetch href={`/products/${product.id}`}>
 			<h2>{product.title}</h2>
@@ -19,3 +19,7 @@
 		</a>
 	</div>
 {/each}
+
+//create checkboxes for all attributes //when check box is selected, create array of all selected
+attributes //then iterate through products and check the custom attributes in each array if any
+attributes in checkbox array matchers //display matching products
