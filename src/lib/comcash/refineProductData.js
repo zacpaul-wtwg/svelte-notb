@@ -16,15 +16,25 @@ const getAttributeByTitle = function (array, title) {
 		return element.title === title;
 	})?.value;
 };
-
+//get the unique attributes of the full list from the product dump
+const getUniqueAttributes = function (string) {
+	const set = string.replace('  ', ' ').split(' ');
+	return [...new Set(set)];
+};
 export const refineProductIndexData = function (categories, brands, products) {
-	return (
-		products
-			//get only items that are active, these are items with a isSellableOnWeb === 1
-			.filter(function (product) {
-				return product.isSellableOnWeb === 1;
-			})
-			.map((element) => ({
+	let allAffects = '';
+	let allColors = '';
+	let allSounds = '';
+	const productsFinal = products
+		//get only items that are active, these are items with a isSellableOnWeb === 1
+		.filter(function (product) {
+			return product.isSellableOnWeb === 1;
+		})
+		.forEach(function (element) {
+			allAffects.concat(`${getAttributeByTitle(element.customAttributes, 'effects')} `);
+			allColors.concat(`${getAttributeByTitle(element.customAttributes, 'colors')} `);
+			allSounds.concat(`${getAttributeByTitle(element.customAttributes, 'sounds')} `);
+			return {
 				id: element.id,
 				imageThumb: element.imageUrl,
 				title: element.title,
@@ -32,9 +42,18 @@ export const refineProductIndexData = function (categories, brands, products) {
 				category: getCategoryById(categories, element.categoryId),
 				brand: getBrandById(brands, element.brandId),
 				description: getAttributeByTitle(element.customAttributes, 'description'),
-				featured: getAttributeByTitle(element.customAttributes, 'featured')
-			}))
-	);
+				featured: getAttributeByTitle(element.customAttributes, 'featured'),
+				effects: getAttributeByTitle(element.customAttributes, 'effects'),
+				colors: getAttributeByTitle(element.customAttributes, 'colors'),
+				sounds: getAttributeByTitle(element.customAttributes, 'sounds')
+			};
+		});
+
+	const effectSet = getUniqueAttributes(allAffects);
+	const colorSet = getUniqueAttributes(allColors);
+	const soundSet = getUniqueAttributes(allSounds);
+
+	return { productsFinal, effectSet, colorSet, soundSet };
 };
 
 export const refineProductDetailsData = function (categories, brands, element) {
@@ -58,3 +77,4 @@ export const refineProductDetailsData = function (categories, brands, element) {
 		youtubeId: getAttributeByTitle(element.customAttributes, 'youtube')
 	};
 };
+//			allAffects.concat(getAttributeByTitle(element.customAttributes, 'effects'))

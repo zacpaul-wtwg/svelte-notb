@@ -15,7 +15,7 @@
 	export let products;
 	let searchString = '';
 	$: searchStrings = searchString.toLowerCase().split(' ');
-	$: filteredProducts = products.filter(filterProducts(searchStrings));
+	$: filteredProducts = products.productsFinal.filter(filterProducts(searchStrings));
 </script>
 
 <div>
@@ -36,3 +36,4 @@
 		</div>
 	{/each}
 </div>
+
