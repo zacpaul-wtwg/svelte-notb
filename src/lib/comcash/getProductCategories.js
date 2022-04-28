@@ -1,11 +1,9 @@
-export const getProductCategories = async function (token) {
-	var myHeaders = new Headers();
-	myHeaders.append('Content-Type', 'application/json');
-	myHeaders.append('Authorization', `Bearer ${token.accessToken}`);
+import { getHeaders } from './getHeaders';
 
+export const getProductCategories = async function () {
 	var requestOptions = {
 		method: 'POST',
-		headers: myHeaders
+		headers: await getHeaders()
 	};
 
 	return fetch(

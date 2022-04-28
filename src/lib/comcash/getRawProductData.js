@@ -1,8 +1,6 @@
-export const getRawProductData = async function (token) {
-	var myHeaders = new Headers();
-	myHeaders.append('Content-Type', 'application/json');
-	myHeaders.append('Authorization', `Bearer ${token.accessToken}`);
+import { getHeaders } from './getHeaders';
 
+export const getRawProductData = async function () {
 	const raw = JSON.stringify({
 		offset: 0,
 		limit: 3000,
@@ -12,15 +10,29 @@ export const getRawProductData = async function (token) {
 
 	const requestOptions = {
 		method: 'POST',
-		headers: myHeaders,
+		headers: await getHeaders(),
 		body: raw
 	};
 
 	return fetch(
-		'https://ssl-openapi-northoftheborder.comcash.com/employee/product/list?session_id={{sessionId}}{{params}}',
+		'https://ssl-openapi-northoftheborder.comcash.com/employee/product/list',
 		requestOptions
-	)
-		.then((response) => response.json())
-		.then((result) => result)
-		.catch((error) => console.log('error', error));
+	).then((response) => response.json());
+};
+
+export const getSingleProductData = async function (productId) {
+	var raw = JSON.stringify({
+		productId
+	});
+
+	var requestOptions = {
+		method: 'POST',
+		headers: await getHeaders(),
+		body: raw
+	};
+
+	return fetch(
+		'https://ssl-openapi-northoftheborder.comcash.com/employee/product/view?{{params}}',
+		requestOptions
+	).then((response) => response.json());
 };
