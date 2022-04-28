@@ -18,23 +18,25 @@ const getAttributeByTitle = function (array, title) {
 };
 //get the unique attributes of the full list from the product dump
 const getUniqueAttributes = function (string) {
-	const set = string.replace('  ', ' ').split(' ');
-	return [...new Set(set)];
+	const set = string.toLowerCase().replace('  ', ' ').split(' ');
+	return [...new Set(set)].sort();
 };
 export const refineProductIndexData = function (categories, brands, products) {
 	let allAffects = '';
 	let allColors = '';
 	let allSounds = '';
-	const productsFinal = products
+	let productsFinal = [];
+
+	products
 		//get only items that are active, these are items with a isSellableOnWeb === 1
 		.filter(function (product) {
 			return product.isSellableOnWeb === 1;
 		})
 		.forEach(function (element) {
-			allAffects.concat(`${getAttributeByTitle(element.customAttributes, 'effects')} `);
-			allColors.concat(`${getAttributeByTitle(element.customAttributes, 'colors')} `);
-			allSounds.concat(`${getAttributeByTitle(element.customAttributes, 'sounds')} `);
-			return {
+			allAffects = allAffects + `${getAttributeByTitle(element.customAttributes, 'effects')} `;
+			allColors = allColors + `${getAttributeByTitle(element.customAttributes, 'colors')} `;
+			allSounds = allSounds + `${getAttributeByTitle(element.customAttributes, 'sounds')} `;
+			productsFinal.push({
 				id: element.id,
 				imageThumb: element.imageUrl,
 				title: element.title,
@@ -46,7 +48,7 @@ export const refineProductIndexData = function (categories, brands, products) {
 				effects: getAttributeByTitle(element.customAttributes, 'effects'),
 				colors: getAttributeByTitle(element.customAttributes, 'colors'),
 				sounds: getAttributeByTitle(element.customAttributes, 'sounds')
-			};
+			});
 		});
 
 	const effectSet = getUniqueAttributes(allAffects);
@@ -57,7 +59,7 @@ export const refineProductIndexData = function (categories, brands, products) {
 };
 
 export const refineProductDetailsData = function (categories, brands, element) {
-	console.log({ element });
+	//console.log({ element });
 	return {
 		id: element.id,
 		imageThumb: element.imageUrl,
