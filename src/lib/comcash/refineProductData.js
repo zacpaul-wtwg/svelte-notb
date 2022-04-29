@@ -16,15 +16,27 @@ const getAttributeByTitle = function (array, title) {
 		return element.title === title;
 	})?.value;
 };
+const badValues = [' ', 'undefined'];
+const getAttributeArrayByTitle = function (array, title) {
+	return (
+		getAttributeByTitle(array, title)
+			?.split(' ')
+			?.filter((v) => !badValues.includes(v)) ?? []
+	);
+};
 //get the unique attributes of the full list from the product dump
 const getUniqueAttributes = function (string) {
-	const set = string.toLowerCase().replace('  ', ' ').split(' ');
+	const set = string
+		.toLowerCase()
+		.replace('  ', ' ')
+		.split(' ')
+		.filter((v) => v != ' ');
 	return [...new Set(set)].sort();
 };
 export const refineProductIndexData = function (categories, brands, products) {
-	let allAffects = '';
-	let allColors = '';
-	let allSounds = '';
+	let allAffects = new Set();
+	let allColors = new Set();
+	let allSounds = new Set();
 	let productsFinal = [];
 
 	products
@@ -33,9 +45,11 @@ export const refineProductIndexData = function (categories, brands, products) {
 			return product.isSellableOnWeb === 1;
 		})
 		.forEach(function (element) {
-			allAffects = allAffects + `${getAttributeByTitle(element.customAttributes, 'effects')} `;
-			allColors = allColors + `${getAttributeByTitle(element.customAttributes, 'colors')} `;
-			allSounds = allSounds + `${getAttributeByTitle(element.customAttributes, 'sounds')} `;
+			getAttributeArrayByTitle(element.customAttributes, 'effects').forEach((v) =>
+				allAffects.add(v)
+			);
+			getAttributeArrayByTitle(element.customAttributes, 'colors').forEach((v) => allColors.add(v));
+			getAttributeArrayByTitle(element.customAttributes, 'sounds').forEach((v) => allSounds.add(v));
 			productsFinal.push({
 				id: element.id,
 				imageThumb: element.imageUrl,
@@ -45,17 +59,20 @@ export const refineProductIndexData = function (categories, brands, products) {
 				brand: getBrandById(brands, element.brandId),
 				description: getAttributeByTitle(element.customAttributes, 'description'),
 				featured: getAttributeByTitle(element.customAttributes, 'featured'),
-				effects: getAttributeByTitle(element.customAttributes, 'effects'),
-				colors: getAttributeByTitle(element.customAttributes, 'colors'),
-				sounds: getAttributeByTitle(element.customAttributes, 'sounds')
+				effects: getAttributeArrayByTitle(element.customAttributes, 'effects'),
+				colors: getAttributeArrayByTitle(element.customAttributes, 'colors'),
+				sounds: getAttributeArrayByTitle(element.customAttributes, 'sounds'),
+				searchableParts: element.title?.toLowerCase()?.split(' ') ?? []
 			});
 		});
 
-	const effectSet = getUniqueAttributes(allAffects);
-	const colorSet = getUniqueAttributes(allColors);
-	const soundSet = getUniqueAttributes(allSounds);
+	const availableFilters = {
+		colors: [...allColors],
+		sounds: [...allSounds],
+		effects: [...allAffects]
+	};
 
-	return { productsFinal, effectSet, colorSet, soundSet };
+	return { products: productsFinal, availableFilters };
 };
 
 export const refineProductDetailsData = function (categories, brands, element) {
