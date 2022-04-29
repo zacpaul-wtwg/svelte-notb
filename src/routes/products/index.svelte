@@ -3,14 +3,55 @@
 </script>
 
 <script>
-	const filterProducts =
-		(strings) =>
-		({ title }) => {
-			const productTitleParts = title.toLowerCase().split(' ');
+	const checkForUndefined = function (type) {
+		if (type === undefined) {
+			return 'unlisted';
+		} else {
+			return type;
+		}
+	};
+
+	const setBrandForSearch = function (brand) {
+		return 'deal-' + brand.replace(' FOR', '');
+	};
+	const stripSpaces = function (string) {
+		return string.replace(' ', '');
+	};
+
+	const filterProducts = function (strings) {
+		return function ({ title, effects, colors, sounds, category, brand }) {
+			const productTitleParts = checkForUndefined(title).toLowerCase().split(' ');
+			const productEffectsParts = checkForUndefined(effects)
+				.toLowerCase()
+				.split(' ')
+				.map((x) => `-fx-${x}`);
+			const productColorsParts = checkForUndefined(colors)
+				.toLowerCase()
+				.split(' ')
+				.map((x) => `-clr-${x}`);
+			const productSoundsParts = checkForUndefined(sounds)
+				.toLowerCase()
+				.split(' ')
+				.map((x) => `-snd-${x}`);
+			const productCategory = '-cat-' + stripSpaces(category).toLowerCase();
+			const productBrand = '-brnd-' + setBrandForSearch(brand).toLowerCase();
+
+			const productSearchableParts = [];
+			productSearchableParts.push(
+				...productTitleParts,
+				...productEffectsParts,
+				...productColorsParts,
+				...productSoundsParts,
+				productCategory,
+				productBrand
+			);
+			console.log(checkForUndefined(productSearchableParts));
+
 			return strings.every((str) =>
-				productTitleParts.some((titlePart) => titlePart.startsWith(str))
+				productSearchableParts.some((titlePart) => titlePart.startsWith(str))
 			);
 		};
+	};
 
 	export let products;
 	let searchString = '';
@@ -18,10 +59,11 @@
 	$: filteredProducts = products.productsFinal.filter(filterProducts(searchStrings));
 </script>
 
-<div>
+<div class="search-params">
 	<input type="text" bind:value={searchString} />
-	<div>Showing {filterProducts.length} of {products.length} results</div>
+	<div>Showing {filterProducts.length} of {products.productsFinal.length} results</div>
 </div>
+
 <div>
 	{#each filteredProducts as product}
 		<div>
@@ -37,4 +79,11 @@
 	{/each}
 </div>
 
-
+<style lang="scss">
+	.search-params {
+		position: fixed;
+		background-color: rgb(199, 199, 199);
+		width: 100%;
+		padding: 50px;
+	}
+</style>
