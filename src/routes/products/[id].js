@@ -10,7 +10,7 @@ export async function get({ params }) {
 		getProductBrands(),
 		getSingleProductData(id)
 	]);
-	console.log({ productData });
+
 	return {
 		status: 200,
 		body: {
