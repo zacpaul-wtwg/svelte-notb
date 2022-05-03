@@ -3,67 +3,38 @@
 </script>
 
 <script>
-	const checkForUndefined = function (type) {
-		if (type === undefined) {
-			return 'unlisted';
-		} else {
-			return type;
-		}
-	};
-
-	const setBrandForSearch = function (brand) {
-		return 'deal-' + brand.replace(' FOR', '');
-	};
-	const stripSpaces = function (string) {
-		return string.replace(' ', '');
-	};
-
-	const filterProducts = function (strings) {
-		return function ({ title, effects, colors, sounds, category, brand }) {
-			const productTitleParts = checkForUndefined(title).toLowerCase().split(' ');
-			const productEffectsParts = checkForUndefined(effects)
-				.toLowerCase()
-				.split(' ')
-				.map((x) => `-fx-${x}`);
-			const productColorsParts = checkForUndefined(colors)
-				.toLowerCase()
-				.split(' ')
-				.map((x) => `-clr-${x}`);
-			const productSoundsParts = checkForUndefined(sounds)
-				.toLowerCase()
-				.split(' ')
-				.map((x) => `-snd-${x}`);
-			const productCategory = '-cat-' + stripSpaces(category).toLowerCase();
-			const productBrand = '-brnd-' + setBrandForSearch(brand).toLowerCase();
-
-			const productSearchableParts = [];
-			productSearchableParts.push(
-				...productTitleParts,
-				...productEffectsParts,
-				...productColorsParts,
-				...productSoundsParts,
-				productCategory,
-				productBrand
-			);
-			console.log(checkForUndefined(productSearchableParts));
-
-			return strings.every((str) =>
-				productSearchableParts.some((titlePart) => titlePart.startsWith(str))
-			);
-		};
-	};
+	import MatchGroup from '$lib/matchGroup.svelte';
+	import { filterProducts } from '$lib/filter-utils';
 
 	export let products;
+	export let availableFilters;
+	$: categories = Object.keys(availableFilters);
+	let seletedFilters = Object.keys(availableFilters).reduce(
+		(value, key) => ({
+			...value,
+			[key]: []
+		}),
+		{}
+	);
+	$: readyFilters = Object.entries(seletedFilters).filter(([_, values]) => values.length > 0);
 	let searchString = '';
 	$: searchStrings = searchString.toLowerCase().split(' ');
-	$: filteredProducts = products.productsFinal.filter(filterProducts(searchStrings));
+	$: filteredProducts = products.filter(filterProducts(searchStrings, readyFilters));
 </script>
 
 <div class="search-params">
 	<input type="text" bind:value={searchString} />
-	<div>Showing {filterProducts.length} of {products.productsFinal.length} results</div>
+	<div>Showing {filterProducts.length} of {products.length} results</div>
+	<div>
+		{#each categories as category}
+			<MatchGroup
+				label={category}
+				values={availableFilters[category]}
+				bind:selectedValues={seletedFilters[category]}
+			/>
+		{/each}
+	</div>
 </div>
-
 <div>
 	{#each filteredProducts as product}
 		<div>
@@ -83,7 +54,11 @@
 	.search-params {
 		position: fixed;
 		background-color: rgb(199, 199, 199);
-		width: 100%;
+		width: 200px;
+		right: 0;
+		top: 0;
+		bottom: 0;
 		padding: 50px;
+		overflow-y: auto;
 	}
 </style>
