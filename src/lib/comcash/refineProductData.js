@@ -18,13 +18,14 @@ const getAttributeByTitle = function (array, title) {
 };
 //get the unique attributes of the full list from the product dump
 const getUniqueAttributes = function (string) {
-	const set = string.toLowerCase().replace('  ', ' ').split(' ');
+	const set = string.replace('  ', ' ').split(' ').toLowerCase();
 	return [...new Set(set)].sort();
 };
+
 export const refineProductIndexData = function (categories, brands, products) {
-	let allAffects = '';
-	let allColors = '';
-	let allSounds = '';
+	// let allAffects = '';
+	// let allColors = '';
+	// let allSounds = '';
 	let productsFinal = [];
 
 	products
@@ -33,16 +34,16 @@ export const refineProductIndexData = function (categories, brands, products) {
 			return product.isSellableOnWeb === 1;
 		})
 		.forEach(function (element) {
-			allAffects = allAffects + `${getAttributeByTitle(element.customAttributes, 'effects')} `;
-			allColors = allColors + `${getAttributeByTitle(element.customAttributes, 'colors')} `;
-			allSounds = allSounds + `${getAttributeByTitle(element.customAttributes, 'sounds')} `;
+			// allAffects = allAffects + getAttributeByTitle(element.customAttributes, 'effects') + ' ';
+			// allColors = allColors + getAttributeByTitle(element.customAttributes, 'colors') + ' ';
+			// allSounds = allSounds + getAttributeByTitle(element.customAttributes, 'sounds') + ' ';
 			productsFinal.push({
 				id: element.id,
 				imageThumb: element.imageUrl,
 				title: element.title,
 				price: element.price,
 				category: getCategoryById(categories, element.categoryId),
-				brand: getBrandById(brands, element.brandId),
+				deal: getBrandById(brands, element.brandId),
 				description: getAttributeByTitle(element.customAttributes, 'description'),
 				featured: getAttributeByTitle(element.customAttributes, 'featured'),
 				effects: getAttributeByTitle(element.customAttributes, 'effects'),
@@ -51,11 +52,11 @@ export const refineProductIndexData = function (categories, brands, products) {
 			});
 		});
 
-	const effectSet = getUniqueAttributes(allAffects);
-	const colorSet = getUniqueAttributes(allColors);
-	const soundSet = getUniqueAttributes(allSounds);
+	// const effectSet = getUniqueAttributes(allAffects);
+	// const colorSet = getUniqueAttributes(allColors);
+	// const soundSet = getUniqueAttributes(allSounds);
 
-	return { productsFinal, effectSet, colorSet, soundSet };
+	return { productsFinal };
 };
 
 export const refineProductDetailsData = function (categories, brands, element) {

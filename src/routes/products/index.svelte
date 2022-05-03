@@ -19,32 +19,9 @@
 	};
 
 	const filterProducts = function (strings) {
-		return function ({ title, effects, colors, sounds, category, brand }) {
-			const productTitleParts = checkForUndefined(title).toLowerCase().split(' ');
-			const productEffectsParts = checkForUndefined(effects)
-				.toLowerCase()
-				.split(' ')
-				.map((x) => `-fx-${x}`);
-			const productColorsParts = checkForUndefined(colors)
-				.toLowerCase()
-				.split(' ')
-				.map((x) => `-clr-${x}`);
-			const productSoundsParts = checkForUndefined(sounds)
-				.toLowerCase()
-				.split(' ')
-				.map((x) => `-snd-${x}`);
-			const productCategory = '-cat-' + stripSpaces(category).toLowerCase();
-			const productBrand = '-brnd-' + setBrandForSearch(brand).toLowerCase();
+		return function ({ title }) {
+			const productSearchableParts = checkForUndefined(title).toLowerCase().split(' ');
 
-			const productSearchableParts = [];
-			productSearchableParts.push(
-				...productTitleParts,
-				...productEffectsParts,
-				...productColorsParts,
-				...productSoundsParts,
-				productCategory,
-				productBrand
-			);
 			console.log(checkForUndefined(productSearchableParts));
 
 			return strings.every((str) =>
