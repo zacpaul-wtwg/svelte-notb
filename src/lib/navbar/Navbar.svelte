@@ -1,28 +1,44 @@
 <script>
+	export let allData;
+	export const navItems = [
+		{
+			label: 'Home',
+			link: '/',
+			class: 'nav-link'
+		},
+		{
+			label: 'Products',
+			link: '/products',
+			class: 'nav-link'
+		},
+		{
+			label: 'Pricing',
+			link: '/pricing',
+			class: 'nav-link'
+		},
+		{
+			label: 'FAQ',
+			link: '/faq',
+			class: 'nav-link'
+		},
+		{
+			label: 'Contact',
+			link: '/contact',
+			class: 'nav-link'
+		}
+	];
 </script>
 
 <nav>
 	<ul class="nav-list">
-		<li class="nav-link"><a href="/">Home</a></li>
-		<li class="nav-link"><a href="/products">Products</a></li>
-		<li class="nav-drop">
-			<span>Pricing</span>
-			<!-- <ul id="pricing" class="dropdown-list">
-				<li class="dropdown-item"><a href="/pricing">Pricing Overview</a></li>
-				<li class="dropdown-item"><a href="/pricing#highroller">High Roller</a></li>
-				<li class="dropdown-item"><a href="/pricing#vip">VIP</a></li>
-				<li class="dropdown-item"><a href="/pricing#camp">Camp Programs</a></li>
-				<li class="dropdown-item"><a href="/pricing#caselot">Case Lot Specials</a></li>
-			</ul> -->
+		<li>
+			<img src="https://via.placeholder.com/150x60.png?text=logo" alt="North of the Border Logo" />
 		</li>
-		<li class="nav-drop">
-			<span>FAQ</span>
-			<!-- <ul id="faq" class="dropdown-list">
-				<li class="dropdown-item"><a href="/faq">FAQ</a></li>
-				<li class="dropdown-item"><a href="/faq/statelaw">State Law</a></li>
-			</ul> -->
-		</li>
-		<li class="nav-link"><a href="/contact">Contact</a></li>
+		{#each navItems as item}
+			<li class={item.class}>
+				<a href={item.link}>{item.label}</a>
+			</li>
+		{/each}
 	</ul>
 </nav>
 

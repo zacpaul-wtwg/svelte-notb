@@ -3,6 +3,7 @@
 </script>
 
 <script>
+	import { slugify } from '$lib/utility/slugify';
 	import MatchGroup from '$lib/matchGroup.svelte';
 	import { filterProducts } from '$lib/filter-utils';
 
@@ -38,7 +39,11 @@
 <div>
 	{#each filteredProducts as product}
 		<div>
-			<a sveltekit:prefetch href={`/products/${product.id}`}>
+			<a
+				sveltekit:prefetch
+				href={`/products/${product.id}/${slugify(product.title)}`}
+				target="_blank"
+			>
 				<h2>{product.title}</h2>
 				<p>{product.description}</p>
 				<br />

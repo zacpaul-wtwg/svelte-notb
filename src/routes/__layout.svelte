@@ -20,7 +20,7 @@
 </script>
 
 <header>
-	<Navbar />
+	<Navbar {allData} />
 </header>
 <main>
 	<slot />
