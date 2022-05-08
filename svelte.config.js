@@ -8,7 +8,12 @@ import path from 'path';
 const config = {
 	kit: {
 		adapter: adapter(),
-		// add from here, plus the import path from 'path'
+		prerender: {
+			crawl: true,
+			enabled: true,
+			onError: 'continue',
+			default: true
+		},
 		vite: {
 			resolve: {
 				alias: {

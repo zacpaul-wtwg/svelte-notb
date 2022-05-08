@@ -1,4 +1,6 @@
 <script context="module">
+	export const prerender = true;
+
 	export async function load({ fetch }) {
 		const [{ allData }] = await Promise.all([
 			fetch('/data/getAllContentful.json').then((results) => results.json())
