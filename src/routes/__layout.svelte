@@ -13,18 +13,27 @@
 </script>
 
 <script>
-	import Navbar from '$lib/navbar/Navbar.svelte';
+	import Navbar from '$lib/components/navbar/Navbar.svelte';
 	import '../app.css';
-	import FooterDescription from '$lib/footer/FooterDescription.svelte';
+	import Footer from '$lib/components/footer/Footer.svelte';
 	export let allData;
 </script>
 
 <header>
-	<Navbar {allData} />
+	<Navbar />
 </header>
+
 <main>
 	<slot />
 </main>
-<footer>
-	<FooterDescription {allData} />
-</footer>
+
+<Footer {allData} />
+
+<style>
+	header {
+		height: 60px;
+	}
+	main {
+		min-height: 75vh;
+	}
+</style>

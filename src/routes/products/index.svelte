@@ -6,6 +6,7 @@
 	import { slugify } from '$lib/utility/slugify';
 	import MatchGroup from '$lib/matchGroup.svelte';
 	import { filterProducts } from '$lib/filter-utils';
+	import PageTitle from '$lib/components/title/PageTitle.svelte';
 
 	export let products;
 	export let availableFilters;
@@ -22,6 +23,8 @@
 	$: searchStrings = searchString.toLowerCase().split(' ');
 	$: filteredProducts = products.filter(filterProducts(searchStrings, readyFilters));
 </script>
+
+<PageTitle pageTitle={'Products'} />
 
 <div class="search-params">
 	<input type="text" bind:value={searchString} />
@@ -58,7 +61,7 @@
 <style lang="scss">
 	.search-params {
 		position: fixed;
-		background-color: rgb(199, 199, 199);
+		background-color: var(--off-white);
 		width: 200px;
 		right: 0;
 		top: 0;

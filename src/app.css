@@ -1,1 +1,35 @@
-/* Write your global styles here, in PostCSS syntax */
+@import url(wtwg-reset.css);
+@import url(../static/fonts/langdon/stylesheet.css);
+:root {
+		--grey: rgb(17, 17, 17);
+        --grey-accent: rgb(37, 37, 37);
+        --yellow: rgb(220 237 34);
+        --red: rgb(145, 25, 0);
+        --red-faded: rgb(87, 61, 56);
+        --off-white: rgb(218, 218, 218);
+
+	}
+
+body {
+    font-family: sans-serif;
+		background-image: url('/grunge.svg');
+		background-size: cover;
+		background-position: center;
+}
+
+a {
+    color: var(--red);
+    text-decoration: underline;
+    font-weight: bold;
+}
+
+a:visited {
+    color: var(--red-faded);
+
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: langdon;
+    text-transform: uppercase;
+}
+
