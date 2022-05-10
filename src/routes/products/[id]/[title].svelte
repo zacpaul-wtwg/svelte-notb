@@ -1,5 +1,5 @@
 <script>
-	import PageTitle from '$lib/components/title/PageTitle.svelte';
+	import PageTitle from '$lib/components/PageTitle.svelte';
 
 	export let product;
 </script>

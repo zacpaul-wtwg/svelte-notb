@@ -1,12 +1,14 @@
 @import url(wtwg-reset.css);
 @import url(../static/fonts/langdon/stylesheet.css);
+@import url(ribbon.css);
 :root {
-		--grey: rgb(17, 17, 17);
+		--grey: #111111;
         --grey-accent: rgb(37, 37, 37);
-        --yellow: rgb(220 237 34);
-        --red: rgb(145, 25, 0);
+        --yellow: #dced22;
+        --red: #911900;
         --red-faded: rgb(87, 61, 56);
         --off-white: rgb(218, 218, 218);
+        --white: rgb(255, 255, 255);
 
 	}
 

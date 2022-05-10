@@ -15,7 +15,7 @@
 <script>
 	import HomeNews from '$lib/components/news/homeNews.svelte';
 	import Hero from '$lib/components/hero/Hero.svelte';
-	import PageTitle from '$lib/components/title/PageTitle.svelte';
+	import PageTitle from '$lib/components/PageTitle.svelte';
 	export let allData;
 </script>
 

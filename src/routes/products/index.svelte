@@ -6,7 +6,7 @@
 	import { slugify } from '$lib/utility/slugify';
 	import MatchGroup from '$lib/matchGroup.svelte';
 	import { filterProducts } from '$lib/filter-utils';
-	import PageTitle from '$lib/components/title/PageTitle.svelte';
+	import PageTitle from '$lib/components/PageTitle.svelte';
 
 	export let products;
 	export let availableFilters;

@@ -1,0 +1,123 @@
+	.red-ribbon {
+		width: 206px;
+		position: absolute;
+		left: 50%;
+		margin-left: -103px;
+		text-align: center;
+		font-size: 16px !important;
+		background: #911900;
+		background: linear-gradient(to bottom, #911900, #911900);
+		font-family: Langdon;
+	}
+
+	.red-ribbon p {
+		font-size: 31px !important;
+		color: #ffffff;
+		text-shadow: #141414 0 1px 0;
+		margin: 0px;
+		padding: 5px 10px;
+	}
+
+	.red-ribbon:before,
+	.red-ribbon:after {
+		content: '';
+		position: absolute;
+		display: block;
+		bottom: -1em;
+		border: 1.5em solid #821600;
+		z-index: -1;
+	}
+
+	.red-ribbon:before {
+		left: -2em;
+		border-right-width: 1.5em;
+		border-left-color: transparent;
+	}
+
+	.red-ribbon:after {
+		right: -2em;
+		border-left-width: 1.5em;
+		border-right-color: transparent;
+	}
+
+	.red-ribbon .red-ribbon-content:before,
+	.red-ribbon .red-ribbon-content:after {
+		border-color: #4d0d00 transparent transparent transparent;
+		position: absolute;
+		display: block;
+		border-style: solid;
+		bottom: -1em;
+		content: '';
+	}
+
+	.red-ribbon .red-ribbon-content:before {
+		left: 0;
+		border-width: 1em 0 0 1em;
+	}
+
+	.red-ribbon .red-ribbon-content:after {
+		right: 0;
+		border-width: 1em 1em 0 0;
+	}
+
+	.yellow-ribbon {
+		width: 206px;
+		position: absolute;
+		left: 50%;
+		margin-left: -103px;
+		text-align: center;
+		font-size: 16px !important;
+		background: #dced22;
+		background: linear-gradient(to bottom, #dced22, #dced22);
+		font-family: Langdon;
+	}
+
+	.yellow-ribbon p {
+		font-size: 31px !important;
+		color: #111111;
+		text-shadow: #141414 0 1px 0;
+		margin: 0px;
+		padding: 5px 10px;
+	}
+
+	.yellow-ribbon:before,
+	.yellow-ribbon:after {
+		content: '';
+		position: absolute;
+		display: block;
+		bottom: -1em;
+		border: 1.5em solid #b9c71d;
+		z-index: -1;
+	}
+
+	.yellow-ribbon:before {
+		left: -2em;
+		border-right-width: 1.5em;
+		border-left-color: transparent;
+	}
+
+	.yellow-ribbon:after {
+		right: -2em;
+		border-left-width: 1.5em;
+		border-right-color: transparent;
+	}
+
+	.yellow-ribbon .yellow-ribbon-content:before,
+	.yellow-ribbon .yellow-ribbon-content:after {
+		border-color: #5a610e transparent transparent transparent;
+		position: absolute;
+		display: block;
+		border-style: solid;
+		bottom: -1em;
+		content: '';
+	}
+
+	.yellow-ribbon .yellow-ribbon-content:before {
+		left: 0;
+		border-width: 1em 0 0 1em;
+	}
+
+	.yellow-ribbon .yellow-ribbon-content:after {
+		right: 0;
+		border-width: 1em 1em 0 0;
+	}
