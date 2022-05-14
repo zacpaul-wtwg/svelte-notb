@@ -1,5 +1,5 @@
 <script>
-	export let pageTitle = 'Home';
+	export let pageTitle = 'Fireworks';
 </script>
 
 <svelte:head>

@@ -1,100 +1,41 @@
-<section id="">
-	<h2>Pricing Overview</h2>
-	<p>
-		Lorem ipsum dolor sit amet consectetur adipisicing elit. Non eum consequatur ipsum voluptas
-		fugiat ex? Provident perferendis sapiente laborum earum ipsa recusandae, amet natus quia illo
-		porro incidunt laudantium sint. Lorem ipsum dolor sit amet consectetur adipisicing elit. Non eum
-		consequatur ipsum voluptas fugiat ex? Provident perferendis sapiente laborum earum ipsa
-		recusandae, amet natus quia illo porro incidunt laudantium sint. Lorem ipsum dolor sit amet
-		consectetur adipisicing elit. Non eum consequatur ipsum voluptas fugiat ex? Provident
-		perferendis sapiente laborum earum ipsa recusandae, amet natus quia illo porro incidunt
-		laudantium sint. Lorem ipsum dolor sit amet consectetur adipisicing elit. Non eum consequatur
-		ipsum voluptas fugiat ex? Provident perferendis sapiente laborum earum ipsa recusandae, amet
-		natus quia illo porro incidunt laudantium sint. Lorem ipsum dolor sit amet consectetur
-		adipisicing elit. Non eum consequatur ipsum voluptas fugiat ex? Provident perferendis sapiente
-		laborum earum ipsa recusandae, amet natus quia illo porro incidunt laudantium sint. Lorem ipsum
-		dolor sit amet consectetur adipisicing elit. Non eum consequatur ipsum voluptas fugiat ex?
-		Provident perferendis sapiente laborum earum ipsa recusandae, amet natus quia illo porro
-		incidunt laudantium sint.
-	</p>
-</section>
-<section id="highroller">
-	<h2>High Roller</h2>
-	<p>
-		Lorem ipsum dolor sit amet consectetur adipisicing elit. Non eum consequatur ipsum voluptas
-		fugiat ex? Provident perferendis sapiente laborum earum ipsa recusandae, amet natus quia illo
-		porro incidunt laudantium sint. Lorem ipsum dolor sit amet consectetur adipisicing elit. Non eum
-		consequatur ipsum voluptas fugiat ex? Provident perferendis sapiente laborum earum ipsa
-		recusandae, amet natus quia illo porro incidunt laudantium sint. Lorem ipsum dolor sit amet
-		consectetur adipisicing elit. Non eum consequatur ipsum voluptas fugiat ex? Provident
-		perferendis sapiente laborum earum ipsa recusandae, amet natus quia illo porro incidunt
-		laudantium sint. Lorem ipsum dolor sit amet consectetur adipisicing elit. Non eum consequatur
-		ipsum voluptas fugiat ex? Provident perferendis sapiente laborum earum ipsa recusandae, amet
-		natus quia illo porro incidunt laudantium sint. Lorem ipsum dolor sit amet consectetur
-		adipisicing elit. Non eum consequatur ipsum voluptas fugiat ex? Provident perferendis sapiente
-		laborum earum ipsa recusandae, amet natus quia illo porro incidunt laudantium sint. Lorem ipsum
-		dolor sit amet consectetur adipisicing elit. Non eum consequatur ipsum voluptas fugiat ex?
-		Provident perferendis sapiente laborum earum ipsa recusandae, amet natus quia illo porro
-		incidunt laudantium sint.
-	</p>
-</section>
-<section id="vip">
-	<h2>VIP</h2>
-	<p>
-		Lorem ipsum dolor sit amet consectetur adipisicing elit. Non eum consequatur ipsum voluptas
-		fugiat ex? Provident perferendis sapiente laborum earum ipsa recusandae, amet natus quia illo
-		porro incidunt laudantium sint. Lorem ipsum dolor sit amet consectetur adipisicing elit. Non eum
-		consequatur ipsum voluptas fugiat ex? Provident perferendis sapiente laborum earum ipsa
-		recusandae, amet natus quia illo porro incidunt laudantium sint. Lorem ipsum dolor sit amet
-		consectetur adipisicing elit. Non eum consequatur ipsum voluptas fugiat ex? Provident
-		perferendis sapiente laborum earum ipsa recusandae, amet natus quia illo porro incidunt
-		laudantium sint. Lorem ipsum dolor sit amet consectetur adipisicing elit. Non eum consequatur
-		ipsum voluptas fugiat ex? Provident perferendis sapiente laborum earum ipsa recusandae, amet
-		natus quia illo porro incidunt laudantium sint. Lorem ipsum dolor sit amet consectetur
-		adipisicing elit. Non eum consequatur ipsum voluptas fugiat ex? Provident perferendis sapiente
-		laborum earum ipsa recusandae, amet natus quia illo porro incidunt laudantium sint. Lorem ipsum
-		dolor sit amet consectetur adipisicing elit. Non eum consequatur ipsum voluptas fugiat ex?
-		Provident perferendis sapiente laborum earum ipsa recusandae, amet natus quia illo porro
-		incidunt laudantium sint.
-	</p>
-</section>
-<section id="camp">
-	<h2>Camp Programs</h2>
-	<p>
-		Lorem ipsum dolor sit amet consectetur adipisicing elit. Non eum consequatur ipsum voluptas
-		fugiat ex? Provident perferendis sapiente laborum earum ipsa recusandae, amet natus quia illo
-		porro incidunt laudantium sint. Lorem ipsum dolor sit amet consectetur adipisicing elit. Non eum
-		consequatur ipsum voluptas fugiat ex? Provident perferendis sapiente laborum earum ipsa
-		recusandae, amet natus quia illo porro incidunt laudantium sint. Lorem ipsum dolor sit amet
-		consectetur adipisicing elit. Non eum consequatur ipsum voluptas fugiat ex? Provident
-		perferendis sapiente laborum earum ipsa recusandae, amet natus quia illo porro incidunt
-		laudantium sint. Lorem ipsum dolor sit amet consectetur adipisicing elit. Non eum consequatur
-		ipsum voluptas fugiat ex? Provident perferendis sapiente laborum earum ipsa recusandae, amet
-		natus quia illo porro incidunt laudantium sint. Lorem ipsum dolor sit amet consectetur
-		adipisicing elit. Non eum consequatur ipsum voluptas fugiat ex? Provident perferendis sapiente
-		laborum earum ipsa recusandae, amet natus quia illo porro incidunt laudantium sint. Lorem ipsum
-		dolor sit amet consectetur adipisicing elit. Non eum consequatur ipsum voluptas fugiat ex?
-		Provident perferendis sapiente laborum earum ipsa recusandae, amet natus quia illo porro
-		incidunt laudantium sint.
-	</p>
-</section>
-<section id="caselot">
-	<h2>Case Lot</h2>
-	<p>
-		Lorem ipsum dolor sit amet consectetur adipisicing elit. Non eum consequatur ipsum voluptas
-		fugiat ex? Provident perferendis sapiente laborum earum ipsa recusandae, amet natus quia illo
-		porro incidunt laudantium sint. Lorem ipsum dolor sit amet consectetur adipisicing elit. Non eum
-		consequatur ipsum voluptas fugiat ex? Provident perferendis sapiente laborum earum ipsa
-		recusandae, amet natus quia illo porro incidunt laudantium sint. Lorem ipsum dolor sit amet
-		consectetur adipisicing elit. Non eum consequatur ipsum voluptas fugiat ex? Provident
-		perferendis sapiente laborum earum ipsa recusandae, amet natus quia illo porro incidunt
-		laudantium sint. Lorem ipsum dolor sit amet consectetur adipisicing elit. Non eum consequatur
-		ipsum voluptas fugiat ex? Provident perferendis sapiente laborum earum ipsa recusandae, amet
-		natus quia illo porro incidunt laudantium sint. Lorem ipsum dolor sit amet consectetur
-		adipisicing elit. Non eum consequatur ipsum voluptas fugiat ex? Provident perferendis sapiente
-		laborum earum ipsa recusandae, amet natus quia illo porro incidunt laudantium sint. Lorem ipsum
-		dolor sit amet consectetur adipisicing elit. Non eum consequatur ipsum voluptas fugiat ex?
-		Provident perferendis sapiente laborum earum ipsa recusandae, amet natus quia illo porro
-		incidunt laudantium sint.
-	</p>
-</section>
+<script context="module">
+	import Pricing from './pricing.svelte';
+	export async function load({ fetch }) {
+		const { allData } = await fetch('/data/getAllContentful.json').then((results) => {
+			return results.json();
+		});
+
+		return {
+			props: {
+				allData
+			}
+		};
+	}
+</script>
+
+<script>
+	import PageTitle from '$lib/components/PageTitle.svelte';
+	import SvelteMarkdown from 'svelte-markdown';
+
+	export let allData;
+</script>
+
+<PageTitle pageTitle={'Pricing'} />
+
+{#each allData.pricing as entry}
+	<section>
+		<div>
+			<h3>
+				{entry.title}
+			</h3>
+			<p><SvelteMarkdown source={entry.entry} /></p>
+		</div>
+	</section>
+{/each}
+
+<style>
+	:global(ul) {
+		list-style: disc;
+		padding-left: 2em;
+	}
+</style>

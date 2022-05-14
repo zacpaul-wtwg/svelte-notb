@@ -60,6 +60,10 @@
 	img {
 		width: 100%;
 	}
+	th {
+		text-align: left;
+		font-size: 1.25em;
+	}
 	footer {
 		background-color: var(--grey);
 		color: white;

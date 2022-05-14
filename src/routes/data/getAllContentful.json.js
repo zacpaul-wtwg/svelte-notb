@@ -14,13 +14,23 @@ export async function get() {
 			content_type: 'hours'
 		});
 
+		const faq = await client.getEntries({
+			content_type: 'faq'
+		});
+
+		const pricing = await client.getEntries({
+			content_type: 'pricing'
+		});
+
 		return {
 			status: 200,
 			body: {
 				allData: {
 					newsPosts: newsPosts.items[0].fields,
 					footerDescription: footerDescription.items[0].fields,
-					hours: hours.items[0].fields
+					hours: hours.items[0].fields,
+					faq: faq.items.map((x) => x.fields),
+					pricing: pricing.items.map((x) => x.fields)
 				}
 			}
 		};

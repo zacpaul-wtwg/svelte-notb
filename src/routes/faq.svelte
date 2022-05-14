@@ -13,16 +13,12 @@
 </script>
 
 <script>
-	import HomeNews from '$lib/components/news/homeNews.svelte';
-	import Hero from '$lib/components/hero/Hero.svelte';
-	import PageTitle from '$lib/components/PageTitle.svelte';
+	import Accordion from '$lib/components/accordion.svelte';
 	export let allData;
 </script>
 
-<svelte:head>
-	<title>NOTB Fireworks</title>
-</svelte:head>
-<Hero />
 <section>
-	<HomeNews {allData} />
+	{#each allData.faq as entry}
+		<Accordion title={entry.title} answer={entry.answer} />
+	{/each}
 </section>

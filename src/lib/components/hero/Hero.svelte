@@ -1,5 +1,6 @@
 <script>
 	import ButtonLink from '$lib/components/ButtonLink.svelte';
+	import Ribbon from '../ribbon.svelte';
 </script>
 
 <div class="hero">
@@ -9,14 +10,11 @@
 			<h1 class="title">north of the border<br /><span class="fireworks">fireworks</span></h1>
 			<div class="deals everything">all items</div>
 			<div class="deals rotate">
-				<div class="red-ribbon">
-					<div class="red-ribbon-content"><p><b>2 FOR 1</b></p></div>
+				<Ribbon bgColor={'red'} fontColor={'white'} string={'2 for 1'} />
+				<div class="or">
+					<span>or</span>
 				</div>
-				<br />
-				<span class="or">or</span>
-				<div class="yellow-ribbon">
-					<div class="yellow-ribbon-content"><p><b>3 FOR 1</b></p></div>
-				</div>
+				<Ribbon bgColor={'yellow'} fontColor={'grey'} string={'3 for 1'} />
 			</div>
 		</div>
 	</div>
@@ -49,7 +47,6 @@
 	}
 	.deals {
 		font-size: 2.5em;
-		letter-spacing: 0.125em;
 		font-family: langdon;
 		text-transform: uppercase;
 	}
@@ -63,10 +60,25 @@
 		z-index: 1;
 	}
 	.or {
-		transform: translateX(100px);
-		display: inline-block;
-		box-shadow: 14px 14px 31px 7px rgba(0, 0, 0, 0.77);
+		transform: translateX(3em);
+		display: flex;
 		font-weight: bolder;
+		font-size: 1em;
+		width: 1.5em;
+		height: 1.5em;
+		background: var(--grey);
+		justify-content: center;
+		align-items: center;
+		border-radius: 50%;
+		margin: -0.2em;
+		position: relative;
+		z-index: 3;
+		line-height: 0px;
+	}
+	.or span {
+		position: relative;
+		top: 2px;
+		left: 0px;
 	}
 	.red-ribbon {
 		margin-left: -150px;
