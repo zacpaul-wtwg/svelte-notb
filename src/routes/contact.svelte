@@ -1,5 +1,5 @@
 <section>
-	<form name="contact" method="POST" data-netlify="true">
+	<form name="contact" method="POST" action="/" data-netlify="true">
 		<input type="hidden" name="subject" value="General Inquiry from NOTBFireworks.com" />
 		<p>
 			<label>Your Name: <input type="text" name="name" /></label>
