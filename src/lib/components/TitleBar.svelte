@@ -16,7 +16,7 @@
 <style lang="scss">
 	div {
 		width: 100%;
-		background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('hero-bg.jpg') center;
+		background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('/hero-bg.jpg') center;
 		color: var(--white);
 		display: flex;
 		justify-content: center;
