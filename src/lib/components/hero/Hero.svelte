@@ -35,7 +35,7 @@
 	.hero {
 		width: 100%;
 		height: calc(100vh - 60px);
-		background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('hero-bg.jpg');
+		background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('/hero-bg.jpg');
 		display: flex;
 		justify-content: center;
 		align-items: center;
