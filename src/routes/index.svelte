@@ -15,7 +15,7 @@
 <script>
 	import HomeNews from '$lib/components/news/homeNews.svelte';
 	import Hero from '$lib/components/hero/Hero.svelte';
-	import PageTitle from '$lib/components/PageTitle.svelte';
+	import Container from '$lib/components/elements/Container.svelte';
 	export let allData;
 </script>
 
@@ -23,6 +23,6 @@
 	<title>NOTB Fireworks</title>
 </svelte:head>
 <Hero />
-<section>
+<Container>
 	<HomeNews {allData} />
-</section>
+</Container>

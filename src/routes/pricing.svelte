@@ -14,28 +14,36 @@
 </script>
 
 <script>
+	import Container from '$lib/components/elements/Container.svelte';
 	import PageTitle from '$lib/components/PageTitle.svelte';
+	import TitleBar from '$lib/components/TitleBar.svelte';
 	import SvelteMarkdown from 'svelte-markdown';
 
 	export let allData;
 </script>
 
-<PageTitle pageTitle={'Pricing'} />
-
-{#each allData.pricing as entry}
+<TitleBar title={'Pricing'} />
+<Container>
 	<section>
-		<div>
-			<h3>
-				{entry.title}
-			</h3>
-			<p><SvelteMarkdown source={entry.entry} /></p>
-		</div>
+		{#each allData.pricing as entry}
+			<article>
+				<div>
+					<h3>
+						{entry.title}
+					</h3>
+					<p class="md"><SvelteMarkdown source={entry.entry} /></p>
+				</div>
+			</article>
+		{/each}
 	</section>
-{/each}
+</Container>
 
 <style>
-	:global(ul) {
+	.md > :global(ul) {
 		list-style: disc;
 		padding-left: 2em;
+	}
+	section {
+		flex-direction: column;
 	}
 </style>

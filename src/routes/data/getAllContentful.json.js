@@ -29,8 +29,8 @@ export async function get() {
 					newsPosts: newsPosts.items[0].fields,
 					footerDescription: footerDescription.items[0].fields,
 					hours: hours.items[0].fields,
-					faq: faq.items.map((x) => x.fields),
-					pricing: pricing.items.map((x) => x.fields)
+					faq: faq.items.map((x) => x.fields).sort((a, b) => a.order - b.order),
+					pricing: pricing.items.map((x) => x.fields).sort((a, b) => a.order - b.order)
 				}
 			}
 		};

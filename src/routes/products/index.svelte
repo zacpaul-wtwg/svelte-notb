@@ -7,6 +7,8 @@
 	import MatchGroup from '$lib/matchGroup.svelte';
 	import { filterProducts } from '$lib/filter-utils';
 	import PageTitle from '$lib/components/PageTitle.svelte';
+	import TitleBar from '$lib/components/TitleBar.svelte';
+	import Container from '$lib/components/elements/Container.svelte';
 
 	export let products;
 	export let availableFilters;
@@ -24,8 +26,6 @@
 	$: filteredProducts = products.filter(filterProducts(searchStrings, readyFilters));
 </script>
 
-<PageTitle pageTitle={'Products'} />
-
 <div class="search-params">
 	<input type="text" bind:value={searchString} />
 	<div>Showing {filterProducts.length} of {products.length} results</div>
@@ -39,24 +39,27 @@
 		{/each}
 	</div>
 </div>
-<div>
-	{#each filteredProducts as product}
-		<div>
-			<a
-				sveltekit:prefetch
-				href={`/products/${product.id}/${slugify(product.title)}`}
-				target="_blank"
-			>
-				<h2>{product.title}</h2>
-				<p>{product.description}</p>
-				<br />
-				<img src={product.imageThumb} alt="{product.title} IMAGE" />
-				<br />
-				<hr />
-			</a>
-		</div>
-	{/each}
-</div>
+<TitleBar title={'Products'} />
+<Container>
+	<div>
+		{#each filteredProducts as product}
+			<div>
+				<a
+					sveltekit:prefetch
+					href={`/products/${product.id}/${slugify(product.title)}`}
+					target="_blank"
+				>
+					<h2>{product.title}</h2>
+					<p>{product.description}</p>
+					<br />
+					<img src={product.imageThumb} alt="{product.title} IMAGE" />
+					<br />
+					<hr />
+				</a>
+			</div>
+		{/each}
+	</div>
+</Container>
 
 <style lang="scss">
 	.search-params {

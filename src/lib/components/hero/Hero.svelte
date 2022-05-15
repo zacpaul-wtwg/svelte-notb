@@ -1,5 +1,5 @@
 <script>
-	import ButtonLink from '$lib/components/ButtonLink.svelte';
+	import ButtonLink from '$lib/components/elements/ButtonLink.svelte';
 	import Ribbon from '../ribbon.svelte';
 </script>
 

@@ -1,27 +1,51 @@
-<script context="module">
-	//export const prerender = false;
+<script>
+	import Address from '$lib/components/Address.svelte';
+	import Button from '$lib/components/elements/Button.svelte';
+	import Container from '$lib/components/elements/Container.svelte';
+	import TitleBar from '$lib/components/TitleBar.svelte';
 </script>
 
-<section>
-	<div>
-		<form name="contact" method="POST" action="/" data-netlify="true">
+<TitleBar title={'Contact Us'} />
+
+<Container>
+	<div class="display">
+		<Address />
+		<form name="contact" method="POST" action="/submit" data-netlify="true">
 			<input type="hidden" name="form-name" value="contact" />
 			<input type="hidden" name="subject" value="General Inquiry from NOTBFireworks.com" />
 			<p>
-				<label>Name: <input type="text" name="name" /></label>
+				<label for="name">Name: </label>
+				<br /><input type="text" name="name" />
 			</p>
 			<p>
-				<label>Your Email: <input type="email" name="email" /></label>
+				<label for="email">Your Email: </label>
+				<br /><input type="email" name="email" />
 			</p>
 			<p>
-				<label>Message: <textarea name="message" value="12:36 test with prerender on" /></label>
+				<label for="message">Message: </label>
+				<br /><textarea name="message" />
 			</p>
 			<p>
-				<button type="submit">Send</button>
+				<Button>Send</Button>
 			</p>
 		</form>
 	</div>
-</section>
+</Container>
 
-<style>
+<style lang="scss">
+	div {
+		max-width: 1024px;
+		display: inline-block;
+	}
+	form {
+		width: 750px;
+		input,
+		textarea {
+			width: 100%;
+		}
+	}
+	.display {
+		display: flex;
+		flex-wrap: wrap;
+	}
 </style>

@@ -14,11 +14,18 @@
 
 <script>
 	import Accordion from '$lib/components/accordion.svelte';
+	import Container from '$lib/components/elements/Container.svelte';
+	import TitleBar from '$lib/components/TitleBar.svelte';
 	export let allData;
 </script>
 
-<section>
-	{#each allData.faq as entry}
-		<Accordion title={entry.title} answer={entry.answer} />
-	{/each}
-</section>
+<TitleBar title={'Frequently Asked Questions'} />
+<Container>
+	<section>
+		{#each allData.faq as entry}
+			<article>
+				<Accordion title={entry.title} answer={entry.answer} />
+			</article>
+		{/each}
+	</section>
+</Container>

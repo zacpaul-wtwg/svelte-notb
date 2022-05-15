@@ -1,5 +1,6 @@
 <script>
 	import SvelteMarkdown from 'svelte-markdown';
+	import Address from '../Address.svelte';
 	export let allData;
 </script>
 
@@ -9,7 +10,7 @@
 		<SvelteMarkdown source={allData.footerDescription.body} />
 	</div>
 	<div class="hours footer-section">
-		<h3>Hours of Operation</h3>
+		<div class="footer-header">Hours of Operation</div>
 		<table>
 			{#if allData.hours.areSpecialHoursActive}
 				<tr>
@@ -52,11 +53,18 @@
 			</tr>
 		</table>
 	</div>
-	<div class="contact footer-section"><h3>Contact Us</h3></div>
-	<div class="newsletter footer-section"><h3>Join Newsletter</h3></div>
+	<div class="contact footer-section">
+		<div class="footer-header">Contact Us</div>
+		<Address />
+	</div>
 </footer>
 
 <style>
+	.footer-header {
+		font-family: langdon;
+		font-size: 1.7em;
+		text-transform: uppercase;
+	}
 	img {
 		width: 100%;
 	}
@@ -88,10 +96,10 @@
 
 	@media screen and (max-width: 1475px) {
 		.footer-section {
-			width: 40%;
+			width: 27%;
 		}
 	}
-	@media screen and (max-width: 768px) {
+	@media screen and (max-width: 986px) {
 		.footer-section {
 			width: 100%;
 		}
