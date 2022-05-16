@@ -38,6 +38,7 @@ export const refineProductIndexData = function (categories, brands, products) {
 	let allAffects = new Set();
 	let allColors = new Set();
 	let allSounds = new Set();
+	let allDepartments = new Set();
 	let productsFinal = [];
 
 	products
@@ -45,12 +46,16 @@ export const refineProductIndexData = function (categories, brands, products) {
 		.filter(function (product) {
 			return product.isSellableOnWeb === 1;
 		})
+		.filter(function (product) {
+			return product.status === '1';
+		})
 		.forEach(function (element) {
 			getAttributeArrayByTitle(element.customAttributes, 'effects').forEach((v) =>
 				allAffects.add(v)
 			);
 			getAttributeArrayByTitle(element.customAttributes, 'colors').forEach((v) => allColors.add(v));
 			getAttributeArrayByTitle(element.customAttributes, 'sounds').forEach((v) => allSounds.add(v));
+			allDepartments.add(getCategoryById(categories, element.categoryId));
 			productsFinal.push({
 				id: element.id,
 				imageThumb: element.imageUrl,
@@ -73,7 +78,9 @@ export const refineProductIndexData = function (categories, brands, products) {
 		effects: [...allAffects]
 	};
 
-	return { products: productsFinal, availableFilters };
+	const departments = [...allDepartments];
+
+	return { products: productsFinal, availableFilters, departments };
 };
 
 export const refineProductDetailsData = function (categories, brands, element) {

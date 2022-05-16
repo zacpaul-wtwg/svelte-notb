@@ -12,7 +12,7 @@
 	a:visited {
 		background-color: var(--grey);
 		color: white;
-		text-decoration: none;
+		text-decoration: underline;
 		padding: 1em 2em 1em 2em;
 		margin-top: 25px;
 		font-family: Langdon;
@@ -21,6 +21,8 @@
 		transition: 0.4s;
 		box-shadow: inset 0px 0px 0px 5px rgb(255, 255, 255);
 		background-color: rgb(255, 255, 255, 0);
+		letter-spacing: 0.1em;
+		font-weight: 100;
 	}
 	a:hover {
 		background-color: var(--grey);

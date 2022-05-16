@@ -4,19 +4,27 @@
 </script>
 
 <div>
-	<h1>{allData.newsPosts.title}</h1>
+	<div>
+		<h1>{allData.newsPosts.title}</h1>
+		<em>{allData.newsPosts.date}</em>
+	</div>
 	<SvelteMarkdown source={allData.newsPosts.body} />
 </div>
 
-<style>
-	h1 {
+<style lang="scss">
+	div > div {
 		transform: rotate(-7deg);
 		background: var(--grey);
-		display: inline-block;
+		display: inline-flex;
 		padding: 0.25em 1em 0 1em;
 		position: relative;
 		top: -28px;
 		left: -1em;
 		color: var(--white);
+		flex-direction: column;
+		align-items: flex-end;
+		h1 {
+			line-height: 1em;
+		}
 	}
 </style>

@@ -12,12 +12,14 @@
 	export let fontColor = 'white';
 	export let bgColor = 'grey';
 	export let string = 'to be determined';
+	export let padding = '1.75';
 </script>
 
 <div
 	style={`
 		--font-color: ${getClass(fontColor)};
 		--bg-color: ${getClass(bgColor)};
+		--r-padding: ${padding}
 	`}
 >
 	{string}
@@ -36,8 +38,8 @@
 		text-align: center;
 		position: relative;
 		font-family: Langdon;
-		padding-right: calc($font-size * 1.75);
-		padding-left: calc($font-size * 1.75);
+		padding-right: calc($font-size * var(--r-padding));
+		padding-left: calc($font-size * var(--r-padding));
 	}
 
 	div:before,
@@ -50,7 +52,7 @@
 		display: block;
 		transform: skewY(20deg);
 		position: absolute;
-		z-index: -1;
+		z-index: -100;
 	}
 
 	div:before {

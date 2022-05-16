@@ -68,7 +68,7 @@
 		position: fixed;
 		width: 100%;
 		top: 0;
-		z-index: 1;
+		z-index: 3;
 	}
 
 	.inner {
@@ -179,7 +179,7 @@
 		color: #fff;
 		text-decoration: none;
 		display: flex;
-		height: 61px;
+		height: var(--nav-height);
 		align-items: center;
 		padding: 0 10px;
 		font-size: 13px;
