@@ -1,15 +1,9 @@
 <script>
 	import { slugify } from '$lib/utility/slugify';
 	import Ribbon from './ribbon.svelte';
+	import { getThumb } from '$lib/utility/imageThumb';
 	export let product;
 
-	export const getThumb = function (image) {
-		if (image) {
-			return image.replace('pos_', 'thumb_');
-		}
-
-		return 'product-placeholder.jpg';
-	};
 	export const getColor = function (deal) {
 		let bg;
 		let text;

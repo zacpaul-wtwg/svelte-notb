@@ -87,7 +87,7 @@ export const refineProductDetailsData = function (categories, brands, element) {
 	//console.log({ element });
 	return {
 		id: element.id,
-		imageThumb: element.imageUrl,
+		images: element.images,
 		title: element.title,
 		price: element.price,
 		category: getCategoryById(categories, element.categoryId),
@@ -104,4 +104,3 @@ export const refineProductDetailsData = function (categories, brands, element) {
 		youtubeId: getAttributeByTitle(element.customAttributes, 'youtube')
 	};
 };
-//			allAffects.concat(getAttributeByTitle(element.customAttributes, 'effects'))
