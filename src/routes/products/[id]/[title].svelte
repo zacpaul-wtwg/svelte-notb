@@ -35,23 +35,13 @@
 		</div>
 		<div class="details-container">
 			<div class="ribbon-container">
-				{#if product.brand === '2FOR'}
+				{#if product.brand === '2 FOR'}
 					<h3 class="ribbon">
-						<Ribbon
-							bgColor={'red'}
-							fontColor={'white'}
-							padding={'1'}
-							string={`2 for $${product.price}`}
-						/>
+						<Ribbon bgColor={'red'} fontColor={'white'} padding={'1'} string={`${product.price}`} />
 					</h3>
 				{:else}
 					<h3 class="ribbon">
-						<Ribbon
-							bgColor={'red'}
-							fontColor={'white'}
-							padding={'1'}
-							string={`2 for $${product.price}`}
-						/>
+						<Ribbon bgColor={'red'} fontColor={'white'} padding={'1'} string={`${product.price}`} />
 					</h3>
 				{/if}
 			</div>
