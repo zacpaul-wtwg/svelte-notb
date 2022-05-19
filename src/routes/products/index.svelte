@@ -4,20 +4,26 @@
 
 <script>
 	import MatchGroup from '$lib/matchGroup.svelte';
-	import { filterProducts } from '$lib/filter-utils';
+	import { filterProducts, sortProducts } from '$lib/filter-utils';
 	import TitleBar from '$lib/components/TitleBar.svelte';
 	import ProductCard from '$lib/components/ProductCard.svelte';
 
 	export let products;
 	export let availableFilters;
 
-	export let pricing = 'All Pricing';
-	export let pricingOptions = ['All Pricing', '2 FOR 1', '3 FOR 1'];
+	export let pricing = 'ALL PRICING';
+	export let pricingOptions = ['ALL PRICING', '2 FOR 1', '3 FOR 1'];
 
 	export let departments;
-	export let department = 'All Departments';
+	export let department = 'ALL DEPARTMENTS';
 
-	console.log(departments);
+	export let sortMethod = 'title';
+	export let sortOptions = [
+		{ display: 'LOWEST PRICE FIRST', value: 'lowestPriceFirst' },
+		{ display: 'HIGHEST PRICE FIRST', value: 'highestPriceFirst' },
+		{ display: 'NEWEST FIRST', value: 'newestFirst' },
+		{ display: 'OLDEST FIRST', value: 'oldestFirst' }
+	];
 
 	$: categories = Object.keys(availableFilters);
 	let selectedFilters = Object.keys(availableFilters).reduce(
@@ -33,6 +39,7 @@
 	$: filteredProducts = products.filter(
 		filterProducts(searchStrings, readyFilters, pricing, department)
 	);
+	$: sortedProducts = sortProducts(filteredProducts, sortMethod);
 </script>
 
 <TitleBar title="Products: {department}" />
@@ -42,7 +49,7 @@
 		<h3>Search:</h3>
 		<input type="text" bind:value={searchString} />
 		{#if searchString.length > 0}
-			<div>Showing {filteredProducts.length} results <br /> of {products.length} items</div>
+			<div>Showing {sortedProducts.length} results <br /> of {products.length} items</div>
 		{/if}
 	</div>
 
@@ -55,7 +62,6 @@
 				<option value={item.replace(' 1', '')}>{item}</option>
 			{/each}
 		</select>
-		(selected value: {pricing})
 	</div>
 
 	<div class="filter-group">
@@ -63,12 +69,24 @@
 			<h3>Departments:</h3>
 		</label>
 		<select bind:value={department}>
-			<option value="All Departments">All Departments</option>
+			<option value="ALL DEPARTMENTS">ALL DEPARTMENTS</option>
 			{#each departments as dept}
 				<option value={dept}>{dept}</option>
 			{/each}
 		</select>
-		(selected value: {department})
+	</div>
+
+	<div class="filter-group">
+		<label for="departments">
+			<h3>Sort By:</h3>
+		</label>
+		<select bind:value={sortMethod}>
+			<option value="title">TITLE</option>
+			{#each sortOptions as sortOption}
+				<option value={sortOption.value}>{sortOption.display}</option>
+			{/each}
+		</select>
+		{sortMethod}
 	</div>
 
 	<div class="boxes filter-group">
@@ -84,7 +102,7 @@
 </div>
 
 <div class="card-container">
-	{#each filteredProducts as product}
+	{#each sortedProducts as product}
 		<ProductCard {product} />
 	{/each}
 </div>

@@ -4,8 +4,8 @@ export const getRawProductData = async function () {
 	const raw = JSON.stringify({
 		offset: 0,
 		limit: 3000,
-		sort: 'price',
-		order: 'desc'
+		sort: 'title',
+		order: 'asc'
 	});
 
 	const requestOptions = {

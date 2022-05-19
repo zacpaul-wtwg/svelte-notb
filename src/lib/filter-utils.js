@@ -30,14 +30,14 @@ const checkForFilterMatch = (product, filters) =>
 //we also want to make a condition where the user can see all items regardless of pricing, by default
 //the value is 'All Pricing', so if('All Pricing') return true
 const checkPricingMatch = function ({ deal }, option) {
-	if (option === 'All Pricing') {
+	if (option === 'ALL PRICING') {
 		return true;
 	}
 	return deal === option;
 };
 
 const checkDepartmentMatch = function ({ category }, option) {
-	if (option === 'All Departments') {
+	if (option === 'ALL DEPARTMENTS') {
 		return true;
 	}
 	return category === option;
@@ -52,3 +52,16 @@ export const filterProducts = (strings, filters, pricing, department) => (produc
 	checkForFilterMatch(product, filters) &&
 	checkPricingMatch(product, pricing) &&
 	checkDepartmentMatch(product, department);
+
+//sorting functions go below
+export const sortProducts = function (filteredProducts, sortMethod) {
+	const value = {
+		title: { option: 'title', a: 1, b: -1 },
+		lowestPriceFirst: { option: 'price', a: 1, b: -1 },
+		highestPriceFirst: { option: 'price', a: -1, b: 1 },
+		newestFirst: { option: 'id', a: -1, b: 1 },
+		oldestFirst: { option: 'id', a: 1, b: -1 }
+	}[sortMethod];
+
+	return filteredProducts.sort((a, b) => (a[value.option] > b[value.option] ? value.a : value.b));
+};

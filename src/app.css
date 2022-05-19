@@ -63,8 +63,13 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .container-contents {
-    max-width: 1024px;
+    width: 1024px;
     margin: 2em;
+}
+@media screen and (max-width:1024px){
+  .container-contents {
+    width:100%;
+  }
 }
 
 hr {

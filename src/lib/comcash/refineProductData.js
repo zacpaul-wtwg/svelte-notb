@@ -60,7 +60,7 @@ export const refineProductIndexData = function (categories, brands, products) {
 				id: element.id,
 				imageThumb: element.imageUrl,
 				title: element.title,
-				price: element.price,
+				price: Number(element.price),
 				category: getCategoryById(categories, element.categoryId),
 				deal: getBrandById(brands, element.brandId),
 				description: getAttributeByTitle(element.customAttributes, 'description'),

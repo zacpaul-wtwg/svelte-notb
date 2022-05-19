@@ -1,4 +1,6 @@
 <script>
+	//available props are: fontColor, bgColor, padding
+
 	export const getClass = function (color) {
 		return (
 			{
@@ -11,7 +13,7 @@
 
 	export let fontColor = 'white';
 	export let bgColor = 'grey';
-	export let string = 'to be determined';
+	export let string = 'TO BE DETERMINED';
 	export let padding = '1.75';
 </script>
 
@@ -50,17 +52,17 @@
 		height: calc($font-size * 0.9);
 		content: '';
 		display: block;
-		transform: skewY(20deg);
+		transform: skewY(10deg);
 		position: absolute;
 		z-index: -100;
 	}
 
 	div:before {
-		top: 10px;
+		top: 5px;
 		left: 0;
 	}
 	div:after {
-		top: -10px;
+		top: -5px;
 		right: 0;
 	}
 </style>
