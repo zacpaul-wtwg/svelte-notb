@@ -5,6 +5,7 @@
 <script>
 	import Container from '$lib/components/elements/Container.svelte';
 	import Ribbon from '$lib/components/ribbon.svelte';
+	import SpecTable from '$lib/components/SpecTable.svelte';
 	import TitleBar from '$lib/components/TitleBar.svelte';
 	import { each } from 'svelte/internal';
 
@@ -18,6 +19,27 @@
 <Container>
 	<div class="product-container">
 		<div class="image-container">
+			<div class="ribbon-container">
+				{#if product.brand === '2 FOR'}
+					<h3 class="ribbon">
+						<Ribbon
+							bgColor={'red'}
+							fontColor={'white'}
+							padding={'1'}
+							string={`${product.brand} $${product.price}`}
+						/>
+					</h3>
+				{:else}
+					<h3 class="ribbon">
+						<Ribbon
+							bgColor={'yellow'}
+							fontColor={'grey'}
+							padding={'1'}
+							string={`${product.brand} $${product.price}`}
+						/>
+					</h3>
+				{/if}
+			</div>
 			{#if product.images.length < 1}
 				<div class="images">
 					<img src={'/product-placeholder.jpg'} alt={`${product.title} placeholder image`} />
@@ -32,23 +54,17 @@
 					</div>
 				{/each}
 			{/if}
+			<iframe
+				src="https://www.youtube.com/embed/{product.youtubeId}?autoplay=1&mute=1"
+				allowfullscreen
+				title="youtube video of {product.title}"
+			/>
 		</div>
 		<div class="details-container">
-			<div class="ribbon-container">
-				{#if product.brand === '2 FOR'}
-					<h3 class="ribbon">
-						<Ribbon bgColor={'red'} fontColor={'white'} padding={'1'} string={`${product.price}`} />
-					</h3>
-				{:else}
-					<h3 class="ribbon">
-						<Ribbon bgColor={'red'} fontColor={'white'} padding={'1'} string={`${product.price}`} />
-					</h3>
-				{/if}
-			</div>
 			<h2>Description:</h2>
 			<p>{product.description}</p>
 			<div class="attributes">
-				<div class="colors-list">
+				<div class="colors-list list">
 					<h2>Colors:</h2>
 					<ul>
 						{#each colorsArray as color}
@@ -62,7 +78,7 @@
 						{/each}
 					</ul>
 				</div>
-				<div class="effects-list">
+				<div class="effects-list list">
 					<h2>Effects:</h2>
 					<ul>
 						{#each effectsArray as effect}
@@ -75,7 +91,7 @@
 						{/each}
 					</ul>
 				</div>
-				<div class="sounds-list">
+				<div class="sounds-list list">
 					<h2>Sounds:</h2>
 					<ul>
 						{#each soundsArray as sound}
@@ -89,6 +105,13 @@
 					</ul>
 				</div>
 			</div>
+			<h2>Specifications:</h2>
+			<SpecTable
+				height={product.height}
+				duration={product.duration}
+				type={product.type}
+				shots={product.shotCount}
+			/>
 		</div>
 	</div>
 </Container>
@@ -118,8 +141,8 @@
 	.ribbon {
 		font-size: 1.5em;
 		position: relative;
-		left: -5em;
-		top: -1em;
+		left: -0.75em;
+		top: 0.75em;
 		z-index: 3;
 		transform: rotate(-7deg);
 	}
@@ -136,5 +159,21 @@
 		flex-wrap: wrap;
 		justify-content: space-evenly;
 		align-items: flex-start;
+		@media screen and (max-width: 370px) {
+			flex-direction: column;
+		}
+	}
+	.list {
+		min-width: 100px;
+	}
+	@media screen and (max-width: 968px) {
+		.details-container {
+			width: 100%;
+		}
+		.image-container {
+			display: flex;
+			flex-direction: column;
+			width: 100%;
+		}
 	}
 </style>

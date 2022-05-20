@@ -3,6 +3,7 @@
 </script>
 
 <script>
+	import { slide, scale, fly, crossfade } from 'svelte/transition';
 	import MatchGroup from '$lib/matchGroup.svelte';
 	import { filterProducts, sortProducts } from '$lib/filter-utils';
 	import TitleBar from '$lib/components/TitleBar.svelte';
@@ -40,66 +41,87 @@
 		filterProducts(searchStrings, readyFilters, pricing, department)
 	);
 	$: sortedProducts = sortProducts(filteredProducts, sortMethod);
+	$: filter = true;
 </script>
 
 <TitleBar title="Products: {department}" />
 
-<div class="search-params">
-	<div class="filter-group">
-		<h3>Search:</h3>
-		<input type="text" bind:value={searchString} />
-		{#if searchString.length > 0}
-			<div>Showing {sortedProducts.length} results <br /> of {products.length} items</div>
-		{/if}
-	</div>
+{#if filter}
+	<button
+		transition:fly={{ x: -400, duration: 1000 }}
+		class="filter-toggle filter-on"
+		on:click={() => (filter = !filter)}
+	>
+		Hide filter
+	</button>
+{:else}
+	<button
+		transition:fly={{ x: -400, duration: 1000 }}
+		class="filter-toggle filter-off"
+		on:click={() => (filter = !filter)}
+	>
+		Show Filters
+	</button>
+{/if}
 
-	<div class="filter-group">
-		<label for="brand">
-			<h3>Pricing:</h3>
-		</label>
-		<select bind:value={pricing}>
-			{#each pricingOptions as item}
-				<option value={item.replace(' 1', '')}>{item}</option>
+{#if filter}
+	<div transition:fly={{ x: -400, duration: 1000 }} class="search-params">
+		<div class="filter-group">
+			<h3>Search:</h3>
+			<input type="text" bind:value={searchString} />
+			{#if searchString.length > 0}
+				<div>Showing {sortedProducts.length} results <br /> of {products.length} items</div>
+			{/if}
+		</div>
+
+		<div class="filter-group">
+			<label for="brand">
+				<h3>Pricing:</h3>
+			</label>
+			<select bind:value={pricing}>
+				{#each pricingOptions as item}
+					<option value={item.replace(' 1', '')}>{item}</option>
+				{/each}
+			</select>
+		</div>
+
+		<div class="filter-group">
+			<label for="departments">
+				<h3>Departments:</h3>
+			</label>
+			<select bind:value={department}>
+				<option value="ALL DEPARTMENTS">ALL DEPARTMENTS</option>
+				{#each departments as dept}
+					<option value={dept}>{dept}</option>
+				{/each}
+			</select>
+		</div>
+
+		<div class="filter-group">
+			<label for="departments">
+				<h3>Sort By:</h3>
+			</label>
+			<select bind:value={sortMethod}>
+				<option value="title">TITLE</option>
+				{#each sortOptions as sortOption}
+					<option value={sortOption.value}>{sortOption.display}</option>
+				{/each}
+			</select>
+			{sortMethod}
+		</div>
+
+		<div class="boxes filter-group">
+			{#each categories as category}
+				<hr />
+				<MatchGroup
+					label={category}
+					values={availableFilters[category]}
+					bind:selectedValues={selectedFilters[category]}
+				/>
 			{/each}
-		</select>
+		</div>
 	</div>
-
-	<div class="filter-group">
-		<label for="departments">
-			<h3>Departments:</h3>
-		</label>
-		<select bind:value={department}>
-			<option value="ALL DEPARTMENTS">ALL DEPARTMENTS</option>
-			{#each departments as dept}
-				<option value={dept}>{dept}</option>
-			{/each}
-		</select>
-	</div>
-
-	<div class="filter-group">
-		<label for="departments">
-			<h3>Sort By:</h3>
-		</label>
-		<select bind:value={sortMethod}>
-			<option value="title">TITLE</option>
-			{#each sortOptions as sortOption}
-				<option value={sortOption.value}>{sortOption.display}</option>
-			{/each}
-		</select>
-		{sortMethod}
-	</div>
-
-	<div class="boxes filter-group">
-		{#each categories as category}
-			<hr />
-			<MatchGroup
-				label={category}
-				values={availableFilters[category]}
-				bind:selectedValues={selectedFilters[category]}
-			/>
-		{/each}
-	</div>
-</div>
+{/if}
 
 <div class="card-container">
 	{#each sortedProducts as product}
@@ -113,9 +135,9 @@
 		top: var(--nav-height);
 		height: calc(100vh - var(--nav-height));
 		width: 15em;
-		padding: 1em 1em 1em 1em;
+		padding: 4em 1em 1em 1em;
 		background: var(--off-white);
-		z-index: 2;
+		z-index: 4;
 		overflow: scroll;
 	}
 	.boxes {
@@ -127,7 +149,7 @@
 		flex-wrap: wrap;
 		gap: 1.5em;
 		padding: 1em;
-		margin-left: 300px;
+		justify-content: center;
 	}
 	.filter-group {
 		margin-top: 1em;
@@ -135,5 +157,21 @@
 	input,
 	select {
 		width: 12em;
+	}
+	.filter-toggle {
+		position: fixed;
+		z-index: 10;
+		margin-left: 1em;
+		font-size: 1.5em;
+	}
+	.filter-on {
+		top: 2em;
+	}
+	.filter-off {
+		bottom: 1em;
+	}
+
+	button {
+		background: var(--white);
 	}
 </style>

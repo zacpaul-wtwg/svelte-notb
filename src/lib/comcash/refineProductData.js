@@ -94,13 +94,13 @@ export const refineProductDetailsData = function (categories, brands, element) {
 		brand: getBrandById(brands, element.brandId),
 		description: getAttributeByTitle(element.customAttributes, 'description'),
 		featured: getAttributeByTitle(element.customAttributes, 'featured'),
-		duration: getAttributeByTitle(element.customAttributes, 'duration'),
-		type: getAttributeByTitle(element.customAttributes, 'type'),
-		shotCount: getAttributeByTitle(element.customAttributes, 'shot count'),
 		effects: getAttributeByTitle(element.customAttributes, 'effects'),
 		colors: getAttributeByTitle(element.customAttributes, 'colors'),
 		sounds: getAttributeByTitle(element.customAttributes, 'sounds'),
+		youtubeId: getAttributeByTitle(element.customAttributes, 'youtube'),
 		height: getAttributeByTitle(element.customAttributes, 'height'),
-		youtubeId: getAttributeByTitle(element.customAttributes, 'youtube')
+		duration: getAttributeByTitle(element.customAttributes, 'duration'),
+		shotCount: getAttributeByTitle(element.customAttributes, 'shot count'),
+		type: getAttributeByTitle(element.customAttributes, 'type')
 	};
 };
