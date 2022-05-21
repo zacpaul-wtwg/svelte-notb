@@ -3,7 +3,7 @@
 	import TitleBar from '$lib/components/TitleBar.svelte';
 </script>
 
+<TitleBar title={'Price List'} />
 <Container>
-	<TitleBar title={'Price List'} />
 	<p>Price List Coming Soon</p>
 </Container>
