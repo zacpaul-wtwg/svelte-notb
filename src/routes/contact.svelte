@@ -5,7 +5,10 @@
 	import TitleBar from '$lib/components/TitleBar.svelte';
 </script>
 
-<TitleBar title={'Contact Us'} />
+<TitleBar
+	title={'Contact Us'}
+	description={'Contact us for any questions you may have, inventory queries, or state and federal laws regarding consumer fireworks.'}
+/>
 
 <Container>
 	<div class="display">

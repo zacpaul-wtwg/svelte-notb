@@ -3,7 +3,7 @@
 	import TitleBar from '$lib/components/TitleBar.svelte';
 </script>
 
-<TitleBar title={'Price List'} />
+<TitleBar title={'Price List'} description="North of the Border Printable Price List. " />
 <Container>
 	<p>Price List Coming Soon</p>
 </Container>

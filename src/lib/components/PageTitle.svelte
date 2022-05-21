@@ -1,7 +1,9 @@
 <script>
-	export let pageTitle = 'Fireworks';
+	export let title = 'Fireworks';
+	export let description = '';
 </script>
 
 <svelte:head>
-	<title>{pageTitle} | NOTB Fireworks</title>
+	<title>{title} | NOTB Fireworks</title>
+	<meta name="description" content={description} />
 </svelte:head>

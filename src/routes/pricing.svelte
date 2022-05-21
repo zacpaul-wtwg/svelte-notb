@@ -22,7 +22,10 @@
 	export let allData;
 </script>
 
-<TitleBar title={'Pricing'} />
+<TitleBar
+	title={'Pricing'}
+	description={'See our vip loyalty program, high roller rollback program, and camp and military discount information'}
+/>
 <Container>
 	<section>
 		{#each allData.pricing as entry}

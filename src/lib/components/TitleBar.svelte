@@ -1,12 +1,12 @@
 <script>
-	import Container from './elements/Container.svelte';
 	import PageTitle from './PageTitle.svelte';
 
 	export let title = 'North of the Border Fireworks';
+	export let description = '';
 	export let subtitle = '';
 </script>
 
-<PageTitle pageTitle={title} />
+<PageTitle {title} {description} />
 <div class="main">
 	<div class="main-container">
 		<div class="title-container">

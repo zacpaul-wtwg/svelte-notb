@@ -1,12 +1,12 @@
 <script>
-	import Faq from './faq.svelte';
-	import Button from '$lib/components/elements/Button.svelte';
 	import Container from '$lib/components/elements/Container.svelte';
 	import TitleBar from '$lib/components/TitleBar.svelte';
 </script>
 
 <TitleBar title={'Form Submitted Successfully'} />
-
+<svelte:head>
+	<meta name="robots" content="noindex" />
+</svelte:head>
 <Container>
 	<div class="display">
 		<address>

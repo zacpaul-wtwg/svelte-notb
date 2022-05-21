@@ -19,7 +19,10 @@
 	export let allData;
 </script>
 
-<TitleBar title={'Frequently Asked Questions'} />
+<TitleBar
+	title={'Frequently Asked Questions'}
+	description={'Frequently asked questions about the PA state laws, the safe use of fireworks, our pricing options, and more.'}
+/>
 <Container>
 	<section>
 		{#each allData.faq as entry}
