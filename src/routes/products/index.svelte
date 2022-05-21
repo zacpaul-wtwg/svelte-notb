@@ -172,7 +172,7 @@
 		bottom: 1em;
 	}
 
-	:global(.main-container) {
+	:global(.detoggle .main-container) {
 		justify-content: center;
 	}
 	.detoggle {

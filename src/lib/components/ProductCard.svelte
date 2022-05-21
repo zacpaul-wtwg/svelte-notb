@@ -25,7 +25,6 @@
 
 	$: link = `/products/${product.id}/${slugify(product.title)}`;
 	$: ribbonColor = getColor(product.deal);
-	console.log(product.price);
 </script>
 
 <section class="card" on:click={goToProduct(link)}>
