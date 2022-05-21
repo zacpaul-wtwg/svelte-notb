@@ -3,7 +3,7 @@
 </script>
 
 <script>
-	import { slide, scale, fly, crossfade } from 'svelte/transition';
+	import { fly } from 'svelte/transition';
 	import MatchGroup from '$lib/matchGroup.svelte';
 	import { filterProducts, sortProducts } from '$lib/filter-utils';
 	import TitleBar from '$lib/components/TitleBar.svelte';
@@ -43,26 +43,6 @@
 	$: sortedProducts = sortProducts(filteredProducts, sortMethod);
 	$: filter = true;
 </script>
-
-<TitleBar title="Products: {department}" />
-
-{#if filter}
-	<button
-		transition:fly={{ x: -400, duration: 1000 }}
-		class="filter-toggle filter-on"
-		on:click={() => (filter = !filter)}
-	>
-		Hide filter
-	</button>
-{:else}
-	<button
-		transition:fly={{ x: -400, duration: 1000 }}
-		class="filter-toggle filter-off"
-		on:click={() => (filter = !filter)}
-	>
-		Show Filters
-	</button>
-{/if}
 
 {#if filter}
 	<div transition:fly={{ x: -400, duration: 1000 }} class="search-params">
@@ -107,7 +87,6 @@
 					<option value={sortOption.value}>{sortOption.display}</option>
 				{/each}
 			</select>
-			{sortMethod}
 		</div>
 
 		<div class="boxes filter-group">
@@ -123,10 +102,31 @@
 	</div>
 {/if}
 
-<div class="card-container">
-	{#each sortedProducts as product}
-		<ProductCard {product} />
-	{/each}
+{#if filter}
+	<button
+		transition:fly={{ x: -400, duration: 1000 }}
+		class="filter-toggle filter-on"
+		on:click={() => (filter = !filter)}
+	>
+		Hide Filters
+	</button>
+{:else}
+	<button
+		transition:fly={{ x: -400, duration: 1000 }}
+		class="filter-toggle filter-off"
+		on:click={() => (filter = !filter)}
+	>
+		Show Filters
+	</button>
+{/if}
+<div class="detoggle" on:click={() => (filter ? (filter = !filter) : filter)}>
+	<TitleBar title="Products: {department}" subtitle="Pricing: {pricing}" />
+
+	<div class="card-container">
+		{#each sortedProducts as product}
+			<ProductCard {product} />
+		{/each}
+	</div>
 </div>
 
 <style lang="scss">
@@ -137,7 +137,7 @@
 		width: 15em;
 		padding: 4em 1em 1em 1em;
 		background: var(--off-white);
-		z-index: 4;
+		z-index: 6;
 		overflow: scroll;
 	}
 	.boxes {
@@ -150,6 +150,7 @@
 		gap: 1.5em;
 		padding: 1em;
 		justify-content: center;
+		margin-top: 1em;
 	}
 	.filter-group {
 		margin-top: 1em;
@@ -171,7 +172,10 @@
 		bottom: 1em;
 	}
 
-	button {
-		background: var(--white);
+	:global(.main-container) {
+		justify-content: center;
+	}
+	.detoggle {
+		position: relative;
 	}
 </style>
