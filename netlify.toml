@@ -4,3 +4,25 @@
 
 [functions]
   node_bundler = "esbuild"
+
+[[redirects]]
+  from = "/shop.php"
+  to = "/products"
+  status = 301
+  force = false
+  conditions = {Language = ["en","es"], Country = ["US"]}
+
+[[redirects]]
+  from = "/contact.php"
+  to = "/contact"
+  status = 301
+  force = false
+  conditions = {Language = ["en","es"], Country = ["US"]}
+
+[[redirects]]
+  from = "/campdays.php"
+  to = "/pricing"
+  status = 301
+  force = false
+  conditions = {Language = ["en","es"], Country = ["US"]}
+
