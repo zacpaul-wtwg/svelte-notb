@@ -42,7 +42,7 @@
 
 <nav>
 	<div class="inner">
-		<img src="/logo_large.png" alt="North of the Border Logo" />
+		<a href="/"><img src="/logo_large.png" alt="North of the Border Logo" /></a>
 		<div on:click={handleMobileIconClick} class={`mobile-icon${showMobileMenu ? ' active' : ''}`}>
 			<div class="middle-line" />
 		</div>
