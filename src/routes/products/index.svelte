@@ -120,7 +120,9 @@
 	</button>
 {/if}
 <div class="detoggle" on:click={() => (filter ? (filter = !filter) : filter)}>
-	<TitleBar title="Products: {department}" subtitle="Pricing: {pricing}" />
+	<div>
+		<TitleBar title="Products: {department}" subtitle="Pricing: {pricing}" />
+	</div>
 
 	<div class="card-container">
 		{#each sortedProducts as product}

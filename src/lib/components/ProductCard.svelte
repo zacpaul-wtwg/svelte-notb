@@ -2,7 +2,6 @@
 	import { slugify } from '$lib/utility/slugify';
 	import Ribbon from './ribbon.svelte';
 	import { getThumb } from '$lib/utility/imageThumb';
-	import { goto, prefetch, prefetchRoutes } from '$app/navigation';
 	export let product;
 
 	export const getColor = function (deal) {
@@ -20,7 +19,7 @@
 	};
 
 	export const goToProduct = function (link) {
-		return (window.location = link);
+		return (window.open = link);
 	};
 
 	$: link = `/products/${product.id}/${slugify(product.title)}`;
