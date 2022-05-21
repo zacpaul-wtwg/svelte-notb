@@ -1,2 +1,5 @@
 /shop.php       /products
 /contact.php    /contact
+/programs/*     /pricing
+/productpages/* /products
+/pricelist.php  /pricelist
