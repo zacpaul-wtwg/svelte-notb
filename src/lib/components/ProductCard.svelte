@@ -18,36 +18,32 @@
 		return { bg, text };
 	};
 
-	export const goToProduct = function (link) {
-		return (window.open = link);
-	};
-
 	$: link = `/products/${product.id}/${slugify(product.title)}`;
 	$: ribbonColor = getColor(product.deal);
 </script>
 
-<section class="card" on:click={goToProduct(link)}>
+<section class="card">
 	<a href={`/products/${product.id}/${slugify(product.title)}`} target="_blank">
 		<div class="title">
 			<h2>{product.title}</h2>
 		</div>
-	</a>
-	<div class="ribbon-container">
-		<div class="ribbon">
-			<h4>
-				<Ribbon
-					string={`${product.deal} $${product.price.toFixed(2)}`}
-					bgColor={ribbonColor.bg}
-					fontColor={ribbonColor.text}
-					padding={'.5'}
-				/>
-			</h4>
+		<div class="ribbon-container">
+			<div class="ribbon">
+				<h4>
+					<Ribbon
+						string={`${product.deal} $${product.price.toFixed(2)}`}
+						bgColor={ribbonColor.bg}
+						fontColor={ribbonColor.text}
+						padding={'.5'}
+					/>
+				</h4>
+			</div>
 		</div>
-	</div>
 
-	<div class="image-container">
-		<img src={getThumb(product.imageThumb)} alt="{product.title} IMAGE" />
-	</div>
+		<div class="image-container">
+			<img src={getThumb(product.imageThumb)} alt="{product.title} IMAGE" />
+		</div>
+	</a>
 	<h3>{product.category}</h3>
 	<p>{product.description}</p>
 </section>
@@ -59,7 +55,6 @@
 		display: block;
 		position: relative;
 		z-index: 3;
-		cursor: pointer;
 	}
 
 	.title {
