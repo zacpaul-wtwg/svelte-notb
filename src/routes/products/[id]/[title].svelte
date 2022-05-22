@@ -16,7 +16,7 @@
 	export let effectsArray = product.effects.split(' ');
 	export let soundsArray = product.sounds.split(' ');
 
-	export const schema = `	{
+	export const schema = `{
 		"@context": "https://schema.org/",
 		"@type": "Product",
 		"name": "${product.title}",
@@ -33,8 +33,7 @@
 			"price": "${product.price}",
 			"itemCondition": "https://schema.org/NewCondition",
 			"availability": "https://schema.org/InStock"
-		}
-	`;
+		}`;
 </script>
 
 <TitleBar
