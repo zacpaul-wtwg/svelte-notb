@@ -19,7 +19,7 @@
 	export const schema = `{
 		"@context": "https://schema.org/",
 		"@type": "Product",
-		"name": "${product.title}",
+		"name": "${product.title.replace('"', 'INCH')}",
 		"description": "${product.description}",
 			"author": {
 			"@type": "Person",
