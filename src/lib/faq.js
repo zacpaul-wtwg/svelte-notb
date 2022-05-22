@@ -2,15 +2,17 @@ export const loadFaq = function (faqs) {
 	const newLocal = '<script type="application/ld+json">';
 	let faqsString = '';
 	faqs.map((element) => {
-		faqsString = `{
-            ${faqsString}
-            "@type":"Question", 
-            "name":"${element.title}",
-            "acceptedAnswer": {
-                "@type": "Answer",
-                "text": "${element.answer}"
-            },
-        }`;
+		faqsString =
+			faqsString +
+			`
+                {
+                "@type":"Question", 
+                "name":"${element.title}",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "${element.answer}"
+                },
+        `;
 	});
 
 	const content = `
