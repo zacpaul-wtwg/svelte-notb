@@ -30,6 +30,7 @@ const config = {
 	preprocess: [
 		sveltePreprocess(),
 		preprocess({
+			preserve: ['ld+json'],
 			postcss: true
 		}),
 		mdsvex({

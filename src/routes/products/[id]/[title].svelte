@@ -7,12 +7,34 @@
 	import Ribbon from '$lib/components/ribbon.svelte';
 	import SpecTable from '$lib/components/SpecTable.svelte';
 	import TitleBar from '$lib/components/TitleBar.svelte';
-	import { slugify, slugify } from '$lib/utility/slugify';
+	import { slugify } from '$lib/utility/slugify';
+	import { stringify } from 'postcss';
+	import { loadSchema } from './schema';
 
 	export let product;
 	export let colorsArray = product.colors.split(' ');
 	export let effectsArray = product.effects.split(' ');
 	export let soundsArray = product.sounds.split(' ');
+
+	export const schema = `	{
+		"@context": "https://schema.org/",
+		"@type": "Product",
+		"name": "${product.title}",
+		"description": "${product.description}",
+			"author": {
+			"@type": "Person",
+			"name": "Kelly McElligot"
+			}
+		},
+		"offers": {
+			"@type": "Offer",
+			"url": "https://notbfireworks.com/products/${product.id}/${slugify(product.title)}",
+			"priceCurrency": "USD",
+			"price": "${product.price}",
+			"itemCondition": "https://schema.org/NewCondition",
+			"availability": "https://schema.org/InStock"
+		}
+	`;
 </script>
 
 <TitleBar
@@ -20,30 +42,8 @@
 	subtitle={`Department: ${product.category}`}
 	description={product.description}
 />
-
 <svelte:head>
-	<script type="application/ld+json">
-    {
-      "@context": "https://schema.org/",
-      "@type": "Product",
-      "name": product.title,
-      "image": product.images,
-      "description": product.description,
-        "author": {
-          "@type": "Person",
-          "name": "Kelly McElligot"
-        }
-      },
-      "offers": {
-        "@type": "Offer",
-        "url": "https://notbfireworks.com/products/" + product.id + "/" + slugify(product.title),
-        "priceCurrency": "USD",
-        "price": product.price,
-        "itemCondition": "https://schema.org/NewCondition",
-        "availability": "https://schema.org/InStock"
-      }
-    }
-	</script>
+	{@html loadSchema(schema)}
 </svelte:head>
 <Container>
 	<div class="product-container">
