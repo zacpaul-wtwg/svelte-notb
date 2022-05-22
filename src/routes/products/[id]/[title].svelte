@@ -21,11 +21,6 @@
 		"@type": "Product",
 		"name": "${product.title.replace('"', 'INCH')}",
 		"description": "${product.description}",
-			"author": {
-			"@type": "Person",
-			"name": "Kelly McElligot"
-			}
-		},
 		"offers": {
 			"@type": "Offer",
 			"url": "https://notbfireworks.com/products/${product.id}/${slugify(product.title)}",
