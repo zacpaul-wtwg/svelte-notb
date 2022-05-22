@@ -4,7 +4,7 @@ export const loadFaq = function (faqs) {
 	faqs.map((element) => {
 		faqsString = `
             ${faqsString}
-            "@type":"FAQPage", 
+            "@type":"Question", 
             "name":"${element.title}",
             "acceptedAnswer": {
                 "@type": "Answer",
@@ -15,7 +15,7 @@ export const loadFaq = function (faqs) {
 
 	const content = `
         "@context": "https://schema.org",
-        "@type": "Question",
+        "@type": "FAQPage",
         "mainEntity": [${faqsString}]
     `;
 	const newLocal2 = '</script>';
