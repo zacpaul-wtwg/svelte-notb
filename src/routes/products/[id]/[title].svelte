@@ -16,6 +16,9 @@
 	export let effectsArray = product.effects.split(' ');
 	export let soundsArray = product.sounds.split(' ');
 
+	export const date = new Date();
+	export const newDate = new Date(date.setMonth(date.getMonth() + 1));
+
 	export const schema = `{
 		"@context": "https://schema.org/",
 		"@type": "Product",
@@ -26,6 +29,7 @@
 			"url": "https://notbfireworks.com/products/${product.id}/${slugify(product.title)}",
 			"priceCurrency": "USD",
 			"price": "${product.price}",
+			"priceValidUntil": "${newDate}",
 			"itemCondition": "https://schema.org/NewCondition",
 			"availability": "https://schema.org/InStock"
 		}
