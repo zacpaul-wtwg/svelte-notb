@@ -15,7 +15,7 @@ export const loadFaq = function (faqs) {
 
 	const content = `
         "@context": "https://schema.org",
-        "@type": "FAQPage",
+        "@type": "Question",
         "mainEntity": [${faqsString}]
     `;
 	const newLocal2 = '</script>';
