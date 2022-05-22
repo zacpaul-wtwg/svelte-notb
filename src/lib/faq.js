@@ -4,14 +4,14 @@ export const loadFaq = function (faqs) {
 	faqs.map((element) => {
 		faqsString =
 			faqsString +
-			`
-                {
+			`{
                 "@type":"Question", 
                 "name":"${element.title}",
-                "acceptedAnswer": {
-                    "@type": "Answer",
-                    "text": "${element.answer}"
-                },
+                    "acceptedAnswer": {
+                        "@type": "Answer",
+                        "text": "${element.answer}"
+                    }
+            },
         `;
 	});
 
