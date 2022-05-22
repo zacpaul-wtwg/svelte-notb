@@ -13,9 +13,11 @@
 			<h1>
 				{title}
 			</h1>
-			<h2>
-				{subtitle}
-			</h2>
+			{#if subtitle !== ''}
+				<h2>
+					{subtitle}
+				</h2>
+			{/if}
 		</div>
 	</div>
 </div>

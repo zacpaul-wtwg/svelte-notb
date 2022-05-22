@@ -15,7 +15,11 @@
 	export let soundsArray = product.sounds.split(' ');
 </script>
 
-<TitleBar title={product.title} subtitle={`Department: ${product.category}`} />
+<TitleBar
+	title={product.title}
+	subtitle={`Department: ${product.category}`}
+	description={product.description}
+/>
 <Container>
 	<div class="product-container">
 		<div class="image-container">
