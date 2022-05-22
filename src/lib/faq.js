@@ -2,7 +2,7 @@ export const loadFaq = function (faqs) {
 	const newLocal = '<script type="application/ld+json">';
 	let faqsString = '';
 	faqs.map((element) => {
-		faqsString = `
+		faqsString = `{
             ${faqsString}
             "@type":"Question", 
             "name":"${element.title}",
@@ -10,7 +10,7 @@ export const loadFaq = function (faqs) {
                 "@type": "Answer",
                 "text": "${element.answer}"
             },
-        `;
+        }`;
 	});
 
 	const content = `
