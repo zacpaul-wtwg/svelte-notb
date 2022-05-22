@@ -7,7 +7,7 @@
 	import Ribbon from '$lib/components/ribbon.svelte';
 	import SpecTable from '$lib/components/SpecTable.svelte';
 	import TitleBar from '$lib/components/TitleBar.svelte';
-	import { each } from 'svelte/internal';
+	import { slugify, slugify } from '$lib/utility/slugify';
 
 	export let product;
 	export let colorsArray = product.colors.split(' ');
@@ -20,6 +20,31 @@
 	subtitle={`Department: ${product.category}`}
 	description={product.description}
 />
+
+<svelte:head>
+	<script type="application/ld+json">
+    {
+      "@context": "https://schema.org/",
+      "@type": "Product",
+      "name": product.title,
+      "image": product.images,
+      "description": product.description,
+        "author": {
+          "@type": "Person",
+          "name": "Kelly McElligot"
+        }
+      },
+      "offers": {
+        "@type": "Offer",
+        "url": "https://notbfireworks.com/products/" + product.id + "/" + slugify(product.title),
+        "priceCurrency": "USD",
+        "price": product.price,
+        "itemCondition": "https://schema.org/NewCondition",
+        "availability": "https://schema.org/InStock"
+      }
+    }
+	</script>
+</svelte:head>
 <Container>
 	<div class="product-container">
 		<div class="image-container">
