@@ -1,3 +1,4 @@
+import { sentenceify } from './utility/slugify';
 export const loadFaq = function (faqs) {
 	const newLocal = '<script type="application/ld+json">';
 	let faqsString = '';
@@ -9,7 +10,7 @@ export const loadFaq = function (faqs) {
                 "name":"${element.title}",
                     "acceptedAnswer": {
                         "@type": "Answer",
-                        "text": "${element.answer}"
+                        "text": "${sentenceify(element.answer)}"
                     }
             },
         `;

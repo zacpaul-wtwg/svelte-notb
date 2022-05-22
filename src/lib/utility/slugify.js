@@ -14,3 +14,16 @@ export const slugify = function (string) {
 		.replace(/^-+/, '') // Trim - from start of text
 		.replace(/-+$/, ''); // Trim - from end of text
 };
+
+export const sentenceify = function (string) {
+	return string
+		.toString()
+		.toLowerCase()
+		.replaceAll('[', ' ')
+		.replaceAll(']', ' ')
+		.replaceAll('(', ' ')
+		.replaceAll(')', ' ')
+		.replaceAll('"', ' ')
+		.replace(/[\n\r]+/g, '')
+		.replace(/\s{2,10}/g, ' ');
+};
