@@ -9,7 +9,6 @@
 	import TitleBar from '$lib/components/TitleBar.svelte';
 	import { slugify } from '$lib/utility/slugify';
 	import { stringify } from 'postcss';
-	import { loadSchema } from './schema';
 
 	export let product;
 	export let colorsArray = product.colors.split(' ');
@@ -19,21 +18,21 @@
 	export const date = new Date();
 	export const newDate = new Date(date.setMonth(date.getMonth() + 1));
 
-	export const schema = `{
-		"@context": "https://schema.org/",
-		"@type": "Product",
-		"name": "${product.title.replace('"', 'INCH')}",
-		"description": "${product.description}",
-		"offers": {
-			"@type": "Offer",
-			"url": "https://notbfireworks.com/products/${product.id}/${slugify(product.title)}",
-			"priceCurrency": "USD",
-			"price": "${product.price}",
-			"priceValidUntil": "${newDate}",
-			"itemCondition": "https://schema.org/NewCondition",
-			"availability": "https://schema.org/InStock"
-		}
-	}`;
+	// export const schema = `{
+	// 	"@context": "https://schema.org/",
+	// 	"@type": "Product",
+	// 	"name": "${product.title.replace('"', 'INCH')}",
+	// 	"description": "${product.description}",
+	// 	"offers": {
+	// 		"@type": "Offer",
+	// 		"url": "https://notbfireworks.com/product/${product.id}/${slugify(product.title)}",
+	// 		"priceCurrency": "USD",
+	// 		"price": "${product.price}",
+	// 		"priceValidUntil": "${newDate}",
+	// 		"itemCondition": "https://schema.org/NewCondition",
+	// 		"availability": "https://schema.org/InStock"
+	// 	}
+	// }`;
 </script>
 
 <TitleBar
@@ -41,9 +40,7 @@
 	subtitle={`Department: ${product.category}`}
 	description={product.description}
 />
-<svelte:head>
-	{@html loadSchema(schema)}
-</svelte:head>
+
 <Container>
 	<div class="product-container">
 		<div class="image-container">

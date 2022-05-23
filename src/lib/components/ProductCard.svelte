@@ -18,12 +18,12 @@
 		return { bg, text };
 	};
 
-	$: link = `/products/${product.id}/${slugify(product.title)}`;
+	$: link = `/product/${product.id}/${slugify(product.title)}`;
 	$: ribbonColor = getColor(product.deal);
 </script>
 
 <section class="card">
-	<a href={`/products/${product.id}/${slugify(product.title)}`} target="_blank">
+	<a href={`/product/${product.id}/${slugify(product.title)}`} target="_blank">
 		<div class="title">
 			<h2>{product.title}</h2>
 		</div>

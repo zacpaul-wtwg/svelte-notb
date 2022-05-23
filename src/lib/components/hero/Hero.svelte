@@ -18,7 +18,7 @@
 			</div>
 		</div>
 	</div>
-	<ButtonLink destination={'products'} label={'Go to Products'} />
+	<ButtonLink destination={'product'} label={'Go to Products'} />
 </div>
 
 <style>

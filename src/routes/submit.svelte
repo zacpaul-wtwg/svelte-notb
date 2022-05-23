@@ -43,7 +43,7 @@
 			<p>
 				Our product page is now tied directly into our in-store inventory system. You can find
 				up-to-date product information like, item price, effects, colors, sounds, and more on our
-				<a href="/products"> Product Page</a>.
+				<a href="/product"> Product Page</a>.
 			</p>
 		</div>
 	</div>

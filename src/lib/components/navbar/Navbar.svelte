@@ -10,7 +10,7 @@
 	// List of navigation items
 	const navItems = [
 		{ label: 'Home', href: '/' },
-		{ label: 'Products', href: '/products' },
+		{ label: 'Products', href: '/product' },
 		{ label: 'Pricing', href: '/pricing' },
 		{ label: 'FAQ', href: '/faq' },
 		{ label: 'Contact', href: '/contact' }
