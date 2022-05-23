@@ -25,7 +25,7 @@
 	description={'Frequently asked questions about the PA state laws, the safe use of fireworks, our pricing options, and more.'}
 />
 <svelte:head>
-	{@html loadFaq(allData.faq)}
+	{loadFaq(allData.faq)}
 </svelte:head>
 <Container>
 	<section>
