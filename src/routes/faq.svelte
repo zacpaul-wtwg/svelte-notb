@@ -24,9 +24,7 @@
 	title={'Frequently Asked Questions'}
 	description={'Frequently asked questions about the PA state laws, the safe use of fireworks, our pricing options, and more.'}
 />
-<svelte:head>
-	{loadFaq(allData.faq)}
-</svelte:head>
+
 <Container>
 	<section>
 		{#each allData.faq as entry}
