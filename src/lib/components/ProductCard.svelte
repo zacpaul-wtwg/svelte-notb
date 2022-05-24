@@ -2,6 +2,7 @@
 	import { slugify } from '$lib/utility/slugify';
 	import Ribbon from './ribbon.svelte';
 	import { getThumb } from '$lib/utility/imageThumb';
+	import { sentenceify } from '$lib/utility/slugify';
 	export let product;
 
 	export const getColor = function (deal) {
@@ -29,22 +30,22 @@
 		</div>
 		<div class="ribbon-container">
 			<div class="ribbon">
-				<h4>
+				<h3>
 					<Ribbon
 						string={`${product.deal} $${product.price.toFixed(2)}`}
 						bgColor={ribbonColor.bg}
 						fontColor={ribbonColor.text}
 						padding={'.5'}
 					/>
-				</h4>
+				</h3>
 			</div>
 		</div>
 
 		<div class="image-container">
-			<img src={getThumb(product.imageThumb)} alt="{product.title} IMAGE" />
+			<img src={getThumb(product.imageThumb)} alt="IMAGE OF {sentenceify(product.title)}" />
 		</div>
 	</a>
-	<h3>{product.category}</h3>
+	<h4>{product.category}</h4>
 	<p>{product.description}</p>
 </section>
 

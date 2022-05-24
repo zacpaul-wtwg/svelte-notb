@@ -5,7 +5,7 @@
 
 <div>
 	<div>
-		<h1>{allData.newsPosts.title}</h1>
+		<h2>{allData.newsPosts.title}</h2>
 		<em>{allData.newsPosts.date}</em>
 	</div>
 	<SvelteMarkdown source={allData.newsPosts.body} />
