@@ -11,9 +11,9 @@
 	import { stringify } from 'postcss';
 
 	export let product;
-	export let colorsArray = product.colors.split(' ');
-	export let effectsArray = product.effects.split(' ');
-	export let soundsArray = product.sounds.split(' ');
+	export let colorsArray = product.colors?.split(' ') ?? ['unlisted'];
+	export let effectsArray = product.effects?.split(' ') ?? ['unlisted'];
+	export let soundsArray = product.sounds?.split(' ') ?? ['unlisted'];
 
 	export const date = new Date();
 	export const newDate = new Date(date.setMonth(date.getMonth() + 1));
