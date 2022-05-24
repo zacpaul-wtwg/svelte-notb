@@ -85,12 +85,14 @@
 		sounds
 	</button>
 
-	<p class="noprint">
-		If you select too many columns for your printable pricelist, you may need to set your print-job
-		to landscape. This may result in a larger print job. To reduce the amount of printing you have
-		to do, remove columns and set to portrait.
-	</p>
-	<p><strong>Information below the line will print.</strong></p>
+	<div class="noprint">
+		<p>
+			If you select too many columns for your printable pricelist, you may need to set your
+			print-job to landscape. This may result in a larger print job. To reduce the amount of
+			printing you have to do, remove columns and set to portrait.
+		</p>
+		<p><strong>Information below the line will print.</strong></p>
+	</div>
 	<hr />
 	<img src="/logo_large_inverse.png" alt="North of the Border Logo" />
 	<p>
@@ -101,7 +103,7 @@
 	<table id="tg-1oY8l" class="tg table-sort remember-sort">
 		<thead>
 			<tr>
-				<th class="tg-0pky disable-sort">ID</th>
+				<th class="tg-0lax disable-sort">ID</th>
 				<th class="tg-0lax">Title</th>
 				<th class="tg-0lax">Department</th>
 				<th class="tg-0lax">Pricing</th>

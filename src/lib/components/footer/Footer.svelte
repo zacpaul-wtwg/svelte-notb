@@ -2,6 +2,13 @@
 	import SvelteMarkdown from 'svelte-markdown';
 	import Address from '../Address.svelte';
 	export let allData;
+
+	export let date = function (string) {
+		if (string) {
+			const dateArray = string.split('-');
+			return `${dateArray[1]}-${dateArray[2]}-${dateArray[0]}`;
+		}
+	};
 </script>
 
 <footer>
@@ -12,14 +19,45 @@
 	<div class="hours footer-section">
 		<div class="footer-header">Hours of Operation</div>
 		<table>
-			{#if allData.hours.areSpecialHoursActive}
-				<tr>
-					<th colspan="2"><em>Special & Holiday Hours:</em></th>
-				</tr>
-				<tr>
-					<td colspan="2"><SvelteMarkdown source={allData.hours.specialHours} /></td>
-				</tr>
-			{/if}
+			{#each allData.specialHours as occasion}
+				{#if occasion.isActive}
+					{#if occasion.dayOneDate}
+						<tr>
+							<th colspan="2">{occasion.occasion}</th>
+						</tr>
+					{/if}
+					{#if occasion.dayOneDate}
+						<tr>
+							<td> <strong>{new Date(date(occasion.dayOneDate)).toDateString()}</strong></td>
+							<td>{occasion.dayOneHours}</td>
+						</tr>
+					{/if}
+					{#if occasion.dayTwoDate}
+						<tr>
+							<td> <strong>{new Date(date(occasion.dayTwoDate)).toDateString()}</strong></td>
+							<td>{occasion.dayTwoHours}</td>
+						</tr>
+					{/if}
+					{#if occasion.dayThreeDate}
+						<tr>
+							<td> <strong>{new Date(date(occasion.dayThreeDate)).toDateString()}</strong></td>
+							<td>{occasion.dayThreeHours}</td>
+						</tr>
+					{/if}
+					{#if occasion.dayFourDate}
+						<tr>
+							<td> <strong>{new Date(date(occasion.dayFourDate)).toDateString()}</strong></td>
+							<td>{occasion.dayFourHours}</td>
+						</tr>
+					{/if}
+					{#if occasion.dayFiveDate}
+						<tr>
+							<td> <strong>{new Date(date(occasion.dayFiveDate)).toDateString()}</strong></td>
+							<td>{occasion.dayFiveHours}</td>
+						</tr>
+					{/if}
+				{/if}
+			{/each}
 			<tr>
 				<th colspan="2"><em>Regular Hours:</em></th>
 			</tr>
