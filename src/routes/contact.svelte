@@ -18,15 +18,15 @@
 			<input type="hidden" name="subject" value="General Inquiry from NOTBFireworks.com" />
 			<p>
 				<label for="name">Name: </label>
-				<br /><input type="text" name="name" />
+				<br /><input id="name" type="text" name="name" />
 			</p>
 			<p>
 				<label for="email">Your Email: </label>
-				<br /><input type="email" name="email" />
+				<br /><input id="email" type="email" name="email" />
 			</p>
 			<p>
 				<label for="message">Message: </label>
-				<br /><textarea name="message" />
+				<br /><textarea id="message" name="message" />
 			</p>
 			<p>
 				<Button>Send</Button>
