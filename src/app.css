@@ -97,3 +97,10 @@ hr {
 		background-color: var(--grey);
 		box-shadow: none;
 	}
+
+  footer 	a {
+		color: var(--yellow);
+	}
+	footer a:visited {
+		color: var(--grey-light);
+	}

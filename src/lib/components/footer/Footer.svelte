@@ -59,7 +59,7 @@
 	</div>
 </footer>
 
-<style>
+<style lang="scss">
 	.footer-header {
 		font-family: langdon;
 		font-size: 1.7em;
@@ -92,13 +92,6 @@
 		width: 300px;
 		padding: 20px;
 		border-bottom: var(--grey-accent) solid thin;
-	}
-
-	a {
-		color: var(--white);
-	}
-	a:visited {
-		color: var(--grey-light);
 	}
 
 	@media screen and (max-width: 1475px) {
