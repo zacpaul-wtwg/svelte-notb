@@ -12,6 +12,7 @@
 		{ label: 'Home', href: '/' },
 		{ label: 'Products', href: '/product' },
 		{ label: 'Pricing', href: '/pricing' },
+		{ label: 'Pricelist', href: '/product/pricelist' },
 		{ label: 'FAQ', href: '/faq' },
 		{ label: 'Contact', href: '/contact' }
 	];

@@ -2,6 +2,6 @@
 /shop /products
 /contact.php /contact
 /programs/* /pricing
-/pricelist.php /pricelist
+/pricelist.php /product/pricelist
 /products /product/404 404
 /productpages /product/404 404

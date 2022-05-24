@@ -7,8 +7,6 @@
 	import Ribbon from '$lib/components/ribbon.svelte';
 	import SpecTable from '$lib/components/SpecTable.svelte';
 	import TitleBar from '$lib/components/TitleBar.svelte';
-	import { slugify } from '$lib/utility/slugify';
-	import { stringify } from 'postcss';
 
 	export let product;
 	export let colorsArray = product.colors?.split(' ') ?? ['unlisted'];
