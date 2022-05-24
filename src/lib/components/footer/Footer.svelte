@@ -94,6 +94,13 @@
 		border-bottom: var(--grey-accent) solid thin;
 	}
 
+	a {
+		color: var(--white);
+	}
+	a:visited {
+		color: var(--grey-light);
+	}
+
 	@media screen and (max-width: 1475px) {
 		.footer-section {
 			width: 27%;

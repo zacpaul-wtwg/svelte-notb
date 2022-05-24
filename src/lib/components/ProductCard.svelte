@@ -42,7 +42,7 @@
 		</div>
 
 		<div class="image-container">
-			<img src={getThumb(product.imageThumb)} alt="IMAGE OF {sentenceify(product.title)}" />
+			<img src={getThumb(product.imageThumb)} alt="{sentenceify(product.title)} product" />
 		</div>
 	</a>
 	<h4>{product.category}</h4>

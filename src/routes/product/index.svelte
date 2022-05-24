@@ -48,7 +48,7 @@
 	<div transition:fly={{ x: -400, duration: 1000 }} class="search-params">
 		<div class="filter-group">
 			<label for="search"> <h3>Search:</h3></label>
-			<input name="search" type="text" bind:value={searchString} />
+			<input id="search" type="text" bind:value={searchString} />
 			{#if searchString.length > 0}
 				<div>Showing {sortedProducts.length} results <br /> of {products.length} items</div>
 			{/if}
@@ -58,7 +58,7 @@
 			<label for="pricing">
 				<h3>Pricing:</h3>
 			</label>
-			<select name="pricing" bind:value={pricing}>
+			<select id="pricing" bind:value={pricing}>
 				{#each pricingOptions as item}
 					<option value={item.replace(' 1', '')}>{item}</option>
 				{/each}
@@ -69,7 +69,7 @@
 			<label for="departments">
 				<h3>Departments:</h3>
 			</label>
-			<select name="departments" bind:value={department}>
+			<select id="departments" bind:value={department}>
 				<option value="ALL DEPARTMENTS">ALL DEPARTMENTS</option>
 				{#each departments as dept}
 					<option value={dept}>{dept}</option>
@@ -81,7 +81,7 @@
 			<label for="sort-method">
 				<h3>Sort By:</h3>
 			</label>
-			<select name="sort-method" bind:value={sortMethod}>
+			<select id="sort-method" bind:value={sortMethod}>
 				<option value="title">TITLE</option>
 				{#each sortOptions as sortOption}
 					<option value={sortOption.value}>{sortOption.display}</option>
