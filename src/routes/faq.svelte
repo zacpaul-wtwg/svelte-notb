@@ -18,42 +18,40 @@
 	import Accordion from '$lib/components/accordion.svelte';
 	import Container from '$lib/components/elements/Container.svelte';
 	import TitleBar from '$lib/components/TitleBar.svelte';
-	import { sentenceify } from '$lib/utility/slugify';
 	export let allData;
 
 	onMount(() => {
 		const scriptEl = document.createElement('script');
 		scriptEl.setAttribute('type', 'application/ld+json');
-		scriptEl.setAttribute('id', 'rsde');
+		scriptEl.setAttribute('id', 'structured-content');
 		document.querySelector('head').appendChild(scriptEl);
 
-		const generateFaq = function (objArray) {
-			let faqString = '';
-			let c;
-			objArray.map((element, index) => {
-				objArray.length === index + 1 ? (c = '') : (c = ',');
-				faqString = `${faqString}{
-					"@type": "Question",
-					"name": "${element.title}",
-					"acceptedAnswer": {
-						"@type": "Answer",
-						"text": "${sentenceify(element.answer)}"
-					}
-				}${c}`;
+		const fullObject = {};
+		fullObject['@context'] = 'https://schema.org';
+		fullObject['@type'] = 'FAQPage';
+
+		console.log(fullObject);
+		const mainEntity = function (objArray) {
+			let array = [];
+			objArray.map((element) => {
+				let objects = {};
+				let acceptedAnswer = {};
+				objects['@type'] = 'Question';
+				objects.name = element.title;
+				acceptedAnswer['@type'] = 'Answer';
+				acceptedAnswer.text = element.answer;
+
+				objects.acceptedAnswer = acceptedAnswer;
+				console.log(array);
+				array.push(objects);
 			});
 
-			return faqString;
+			return array;
 		};
 
-		document.querySelector('#rsde').innerHTML = `
-			{
-				"@context": "https://schema.org",
-				"@type": "FAQPage",
-				"mainEntity": [
-					${generateFaq(allData.faq)}
-				]
-			}
-		`;
+		fullObject.mainEntity = mainEntity(allData.faq);
+
+		document.querySelector('#structured-content').innerHTML = JSON.stringify(fullObject);
 	});
 </script>
 
