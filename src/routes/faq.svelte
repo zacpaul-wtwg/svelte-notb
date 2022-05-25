@@ -13,11 +13,50 @@
 </script>
 
 <script>
+	import { onMount } from 'svelte';
 	import Accordion from '$lib/components/accordion.svelte';
 	import Container from '$lib/components/elements/Container.svelte';
 	import TitleBar from '$lib/components/TitleBar.svelte';
-	import { loadFaq } from '$lib/faq';
+	import { sentenceify } from '$lib/utility/slugify';
 	export let allData;
+
+	onMount(() => {
+		const scriptEl = document.createElement('script');
+		scriptEl.setAttribute('type', 'application/ld+json');
+		scriptEl.setAttribute('id', 'rsde');
+		document.querySelector('head').appendChild(scriptEl);
+
+		const generateFaq = function (objArray) {
+			let faqString = '';
+			let i = 0;
+			let c;
+			objArray.map((element) => {
+				i++;
+				objArray.length === i ? (c = '') : (c = ',');
+				faqString = `${faqString}
+				{
+					"@type": "Question",
+					"name": "${element.title}",
+					"acceptedAnswer": {
+						"@type": "Answer",
+						"text": "${sentenceify(element.answer)}"
+					}
+				}${c}`;
+			});
+
+			return faqString;
+		};
+
+		document.querySelector('#rsde').innerHTML = `
+			{
+				"@context": "https://schema.org",
+				"@type": "FAQPage",
+				"mainEntity": [{
+					${generateFaq(allData.faq)}
+				}]
+			}
+		`;
+	});
 </script>
 
 <TitleBar

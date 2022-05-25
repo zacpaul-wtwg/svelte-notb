@@ -26,12 +26,13 @@ const config = {
 			}
 		}
 	},
-
 	preprocess: [
-		sveltePreprocess(),
 		preprocess({
 			preserve: ['ld+json'],
 			postcss: true
+		}),
+		sveltePreprocess({
+			preserve: ['ld+json']
 		}),
 		mdsvex({
 			extensions: ['.md']

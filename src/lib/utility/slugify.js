@@ -18,7 +18,6 @@ export const slugify = function (string) {
 export const sentenceify = function (string) {
 	return string
 		.toString()
-		.toLowerCase()
 		.replaceAll('[', ' ')
 		.replaceAll(']', ' ')
 		.replaceAll('(', ' ')
