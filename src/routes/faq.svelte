@@ -26,14 +26,15 @@
 		scriptEl.setAttribute('id', 'structured-content');
 		document.querySelector('head').appendChild(scriptEl);
 
-		const fullObject = {};
-		fullObject['@context'] = 'https://schema.org';
-		fullObject['@type'] = 'FAQPage';
+		const structuredData = {};
+		structuredData['@context'] = 'https://schema.org';
+		structuredData['@type'] = 'FAQPage';
 
-		console.log(fullObject);
+		console.log(structuredData);
 		const mainEntity = function (objArray) {
 			let array = [];
 			objArray.map((element) => {
+				//instantiate objects for additionw
 				let objects = {};
 				let acceptedAnswer = {};
 				objects['@type'] = 'Question';
@@ -49,11 +50,13 @@
 			return array;
 		};
 
-		fullObject.mainEntity = mainEntity(allData.faq);
+		structuredData.mainEntity = mainEntity(allData.faq);
 
-		document.querySelector('#structured-content').innerHTML = JSON.stringify(fullObject);
+		document.querySelector('#structured-content').innerHTML = JSON.stringify(structuredData);
 	});
 </script>
+
+<svelte:head />
 
 <TitleBar
 	title={'Frequently Asked Questions'}
