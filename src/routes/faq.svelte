@@ -1,4 +1,5 @@
 <script context="module">
+	import Index from './index.svelte';
 	export async function load({ fetch }) {
 		const { allData } = await fetch('/data/getAllContentful.json').then((results) => {
 			return results.json();
@@ -28,13 +29,10 @@
 
 		const generateFaq = function (objArray) {
 			let faqString = '';
-			let i = 0;
 			let c;
-			objArray.map((element) => {
-				i++;
-				objArray.length === i ? (c = '') : (c = ',');
-				faqString = `${faqString}
-				{
+			objArray.map((element, index) => {
+				objArray.length === index + 1 ? (c = '') : (c = ',');
+				faqString = `${faqString}{
 					"@type": "Question",
 					"name": "${element.title}",
 					"acceptedAnswer": {
@@ -51,9 +49,9 @@
 			{
 				"@context": "https://schema.org",
 				"@type": "FAQPage",
-				"mainEntity": [{
+				"mainEntity": [
 					${generateFaq(allData.faq)}
-				}]
+				]
 			}
 		`;
 	});
