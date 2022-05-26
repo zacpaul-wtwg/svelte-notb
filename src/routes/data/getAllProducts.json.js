@@ -12,6 +12,6 @@ export async function get() {
 
 	return {
 		status: 200,
-		body: refineProductIndexData(productCategories, productBrands, productData)
+		body: { things: refineProductIndexData(productCategories, productBrands, productData) }
 	};
 }

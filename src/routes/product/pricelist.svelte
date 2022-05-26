@@ -1,12 +1,12 @@
 <script context="module">
 	export async function load({ fetch }) {
-		const { products } = await fetch('../data/getAllProducts.json').then((results) => {
+		const { things } = await fetch('../data/getAllProducts.json').then((results) => {
 			return results.json();
 		});
 
 		return {
 			props: {
-				products
+				things
 			}
 		};
 	}
@@ -15,7 +15,7 @@
 <script>
 	import Container from '$lib/components/elements/Container.svelte';
 	import TitleBar from '$lib/components/TitleBar.svelte';
-	import { sortProducts } from '$lib/filter-utils';
+	import { each } from 'svelte/internal';
 
 	export const verticalize = function (array) {
 		return array.join(', ');
@@ -26,16 +26,31 @@
 	$: colors = false;
 	$: sounds = false;
 
-	console.log();
-	export let products;
-	export let sortedProducts = products.sort();
-</script>
+	export let things;
+	export let departments = things.departments.sort();
 
-<svelte:head><meta charset="UTF-8" /></svelte:head>
+	$: departmentFilter = 'all departments';
+	$: products = things.products;
+	$: departmentFilter;
+	$: filteredProducts = products;
+	$: sortedProducts = filteredProducts
+		.filter((x) => x.category === departmentFilter || departmentFilter === 'all departments')
+		.sort();
+
+	console.log(departments);
+</script>
 
 <TitleBar title={'Price List'} description="North of the Border Printable Price List. " />
 <Container>
 	<button on:click={() => window.print()}>Print</button>
+	<label for="department-filter"><h3>Department Filter:</h3></label>
+	<select name="department-filter" id="department-filter" bind:value={departmentFilter}>
+		<option value="all departments" default>ALL DEPARTMENTS</option>
+		{#each departments as department}
+			<option value={department}>{department}</option>
+		{/each}
+	</select>
+	<hr />
 	<!-- //TODO: refactor buttons, create component. -->
 	<button
 		class:description
