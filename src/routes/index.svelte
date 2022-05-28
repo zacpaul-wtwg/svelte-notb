@@ -13,8 +13,8 @@
 </script>
 
 <script>
-	import HomeNews from '$lib/components/news/homeNews.svelte';
-	import Hero from '$lib/components/hero/Hero.svelte';
+	import HomeNews from '$lib/components/HomeNews.svelte';
+	import Hero from '$lib/components/Hero.svelte';
 	import Container from '$lib/components/elements/Container.svelte';
 	export let allData;
 </script>

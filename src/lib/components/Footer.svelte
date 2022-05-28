@@ -1,12 +1,12 @@
 <script>
 	import SvelteMarkdown from 'svelte-markdown';
-	import Address from '../Address.svelte';
+	import Address from './Address.svelte';
 	export let allData;
 
 	export let date = function (string) {
 		if (string) {
 			const dateArray = string.split('-');
-			return `${dateArray[1]}-${dateArray[2]}-${dateArray[0]}`;
+			return `${dateArray[1]}/${dateArray[2]}/${dateArray[0]}`;
 		}
 	};
 </script>

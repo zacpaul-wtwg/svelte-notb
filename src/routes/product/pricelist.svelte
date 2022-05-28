@@ -13,9 +13,9 @@
 </script>
 
 <script>
+	import ColumnButton from '$lib/components/ColumnButton.svelte';
 	import Container from '$lib/components/elements/Container.svelte';
 	import TitleBar from '$lib/components/TitleBar.svelte';
-	import { each } from 'svelte/internal';
 
 	export const verticalize = function (array) {
 		return array.join(', ');
@@ -44,61 +44,24 @@
 <Container>
 	<button on:click={() => window.print()}>Print</button>
 	<label for="department-filter"><h3>Department Filter:</h3></label>
-	<select name="department-filter" id="department-filter" bind:value={departmentFilter}>
+	<select
+		name="department-filter"
+		id="department-filter"
+		bind:value={departmentFilter}
+		class="noprint"
+	>
 		<option value="all departments" default>ALL DEPARTMENTS</option>
 		{#each departments as department}
 			<option value={department}>{department}</option>
 		{/each}
 	</select>
-	<hr />
+	<hr class="noprint" />
 	<!-- //TODO: refactor buttons, create component. -->
-	<button
-		class:description
-		class="column-selector"
-		on:click={() => {
-			description = !description;
-		}}
-	>
-		<span class:description>add<br /></span>
-		<span class:description={!description}>remove<br /></span>
-		description
-	</button>
 
-	<button
-		class:effects
-		class="column-selector"
-		on:click={() => {
-			effects = !effects;
-		}}
-	>
-		<span class:effects>add<br /></span>
-		<span class:description={!effects}>remove<br /></span>
-		effects
-	</button>
-
-	<button
-		class:colors
-		class="column-selector"
-		on:click={() => {
-			colors = !colors;
-		}}
-	>
-		<span class:colors>add<br /></span>
-		<span class:description={!colors}>remove<br /></span>
-		colors
-	</button>
-
-	<button
-		class:sounds
-		class="column-selector"
-		on:click={() => {
-			sounds = !sounds;
-		}}
-	>
-		<span class:sounds>add<br /></span>
-		<span class:description={!sounds}>remove<br /></span>
-		sounds
-	</button>
+	<ColumnButton bind:toggle={description} title={'description'} />
+	<ColumnButton bind:toggle={effects} title={'effects'} />
+	<ColumnButton bind:toggle={colors} title={'colors'} />
+	<ColumnButton bind:toggle={sounds} title={'sounds'} />
 
 	<div class="noprint">
 		<p>
@@ -108,13 +71,14 @@
 		</p>
 		<p><strong>Information below the line will print.</strong></p>
 	</div>
-	<hr />
+	<hr class="noprint" />
 	<img src="/logo_large_inverse.png" alt="North of the Border Logo" />
 	<p>
 		These prices are current as of, <strong>{new Date().toDateString()}</strong>. The information
 		here is updated automatically whenever it is changed in the store on our point-of-sale system.
 		Prices and availability are subject to change and the price is not guaranteed at the counter.
 	</p>
+	<h2 class="doprint">{departmentFilter}</h2>
 	<table id="tg-1oY8l" class="tg table-sort remember-sort">
 		<thead>
 			<tr>
@@ -201,45 +165,10 @@
 		padding: 10px 5px;
 		word-break: normal;
 	}
-	.tg .tg-0pky {
-		border-color: inherit;
-		text-align: left;
-		vertical-align: top;
-	}
+
 	.tg .tg-0lax {
 		text-align: left;
 		vertical-align: top;
-	}
-	.tg-sort-header::-moz-selection {
-		background: 0 0;
-	}
-	.tg-sort-header::selection {
-		background: 0 0;
-	}
-	.tg-sort-header {
-		cursor: pointer;
-	}
-	.tg-sort-header:after {
-		content: '';
-		float: right;
-		margin-top: 7px;
-		border-width: 0 5px 5px;
-		border-style: solid;
-		border-color: #404040 transparent;
-		visibility: hidden;
-	}
-	.tg-sort-header:hover:after {
-		visibility: visible;
-	}
-	.tg-sort-asc:after,
-	.tg-sort-asc:hover:after,
-	.tg-sort-desc:after {
-		visibility: visible;
-		opacity: 0.4;
-	}
-	.tg-sort-desc:after {
-		border-bottom: none;
-		border-width: 5px 5px 0;
 	}
 
 	tr:nth-child(odd) {
@@ -252,32 +181,6 @@
 		text-transform: uppercase;
 		font-size: 1em !important;
 		letter-spacing: 0.1em;
-	}
-	button {
-		margin: 1em;
-		transition: ease 0s !important;
-	}
-	.column-selector {
-		font-size: 1em;
-		font-family: sans-serif;
-		border: none;
-		display: inline-block;
-	}
-
-	span.colors,
-	span.sounds,
-	span.effects,
-	span.description {
-		display: none;
-	}
-
-	button.description,
-	button.effects,
-	button.sounds,
-	button.colors {
-		background-color: var(--red);
-		border: 0.25em solid var(--red);
-		margin: 0.75em;
 	}
 
 	img {
@@ -302,6 +205,11 @@
 		}
 		.noprint {
 			display: none;
+		}
+		.doprint {
+			display: block !important;
+			font-family: sans-serif;
+			font-weight: 900;
 		}
 	}
 </style>
