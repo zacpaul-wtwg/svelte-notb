@@ -7,6 +7,7 @@
 	import { getThumb } from '$lib/utility/imageThumb';
 	import Article from '$lib/components/Article.svelte';
 	import ShortenSentence from '$lib/utility/ShortenSentence.svelte';
+	import { slugify } from '$lib/utility/slugify';
 
 	export const sortedProducts = things.products.filter((x) => x.featured === 'yes');
 	export const productIdArray = sortedProducts.map((x) => x.id);
@@ -49,47 +50,52 @@
 		<label for={id}>{id}</label>
 	</div>
 {/each} -->
-<div class="article-container">
+<div
+	class="article-container"
+	on:mouseenter={() => (haltRiffle = true)}
+	on:mouseleave={() => (haltRiffle = false)}
+>
 	<Article title={'Monthly Featured Items'} date={monthName}>
-		<div on:mouseenter={() => (haltRiffle = true)} on:mouseleave={() => (haltRiffle = false)}>
-			<div class="carousel-container">
-				<div class="item" style="height: {h}px;">
-					{#each sortedProducts as product}
-						{#if product.id === selectedId}
-							<div class="content" transition:blur bind:clientHeight={h}>
-								<div aria-live="polite" aria-atomic="true" class="liveregion">
-									Item {arrayRiffle} of {itemCount}, product {product.title}
-								</div>
-								<div class="image-container">
-									<img src={getThumb(product.imageThumb)} alt="featured product {product.title}" />
-								</div>
-								<div class="sub-content">
-									<h3 class="title">{product.title}</h3>
-									<h4>department: {product.category}</h4>
-									<p class="description">
-										<ShortenSentence string={product.description}>
-											...<strong>READ MORE</strong>
-										</ShortenSentence>
-									</p>
-								</div>
+		<div class="carousel-container">
+			<div class="item" style="height: {h}px;">
+				{#each sortedProducts as product}
+					{#if product.id === selectedId}
+						<div class="content" transition:blur bind:clientHeight={h}>
+							<div aria-live="polite" aria-atomic="true" class="liveregion">
+								Item {arrayRiffle} of {itemCount}, product {product.title}
 							</div>
-						{/if}
-					{/each}
-				</div>
+							<div class="image-container">
+								<img src={getThumb(product.imageThumb)} alt="featured product {product.title}" />
+							</div>
+							<div class="sub-content">
+								<h3 class="title">{product.title}</h3>
+								<h4>department: {product.category}</h4>
+								<p class="description">
+									<ShortenSentence string={product.description}>...</ShortenSentence> <br />
+								</p>
+								<p>
+									<a href={`/product/${product.id}/${slugify(product.title)}`} target="_blank">
+										READ MORE ABOUT {product.title}
+									</a>
+								</p>
+							</div>
+						</div>
+					{/if}
+				{/each}
 			</div>
-			<button
-				class="riffle-left riffle"
-				on:click={(x) => (0 !== arrayRiffle ? arrayRiffle-- : arrayRiffle)}
-			>
-				<img src="arrow-left.svg" alt="left arrow icon" class="arrow" />
-			</button>
-			<button
-				class="riffle-right riffle"
-				on:click={(x) => (sortedProducts.length - 1 !== arrayRiffle ? arrayRiffle++ : arrayRiffle)}
-			>
-				<img src="arrow-right.svg" alt="left arrow icon" class="arrow" />
-			</button>
 		</div>
+		<button
+			class="riffle-left riffle"
+			on:click={(x) => (0 !== arrayRiffle ? arrayRiffle-- : arrayRiffle)}
+		>
+			<img src="arrow-left.svg" alt="left arrow icon" class="arrow" />
+		</button>
+		<button
+			class="riffle-right riffle"
+			on:click={(x) => (sortedProducts.length - 1 !== arrayRiffle ? arrayRiffle++ : arrayRiffle)}
+		>
+			<img src="arrow-right.svg" alt="left arrow icon" class="arrow" />
+		</button>
 	</Article>
 </div>
 
