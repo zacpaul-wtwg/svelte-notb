@@ -64,8 +64,25 @@
 							<div aria-live="polite" aria-atomic="true" class="liveregion">
 								Item {arrayRiffle} of {itemCount}, product {product.title}
 							</div>
-							<div class="image-container">
-								<img src={getThumb(product.imageThumb)} alt="featured product {product.title}" />
+							<div class="left-content">
+								<div class="image-container">
+									<img src={getThumb(product.imageThumb)} alt="featured product {product.title}" />
+								</div>
+								<div class="buttons">
+									<button
+										class="riffle-left riffle"
+										on:click={(x) => (0 !== arrayRiffle ? arrayRiffle-- : arrayRiffle)}
+									>
+										<img src="arrow-left.svg" alt="left arrow icon" class="arrow" />
+									</button>
+									<button
+										class="riffle-right riffle"
+										on:click={(x) =>
+											sortedProducts.length - 1 !== arrayRiffle ? arrayRiffle++ : arrayRiffle}
+									>
+										<img src="arrow-right.svg" alt="left arrow icon" class="arrow" />
+									</button>
+								</div>
 							</div>
 							<div class="sub-content">
 								<h3 class="title">{product.title}</h3>
@@ -84,18 +101,6 @@
 				{/each}
 			</div>
 		</div>
-		<button
-			class="riffle-left riffle"
-			on:click={(x) => (0 !== arrayRiffle ? arrayRiffle-- : arrayRiffle)}
-		>
-			<img src="arrow-left.svg" alt="left arrow icon" class="arrow" />
-		</button>
-		<button
-			class="riffle-right riffle"
-			on:click={(x) => (sortedProducts.length - 1 !== arrayRiffle ? arrayRiffle++ : arrayRiffle)}
-		>
-			<img src="arrow-right.svg" alt="left arrow icon" class="arrow" />
-		</button>
 	</Article>
 </div>
 
@@ -190,9 +195,13 @@
 			padding: none;
 			margin: 0em;
 		}
+		.buttons {
+			display: flex;
+			align-content: center;
+			justify-content: space-around;
+		}
 		.title {
 			display: inline-block;
-			margin-top: 1em;
 			width: calc(100% - 2em);
 		}
 	}
