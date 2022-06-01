@@ -14,6 +14,7 @@
 
 <script>
 	import ColumnButton from '$lib/components/ColumnButton.svelte';
+	import Button from '$lib/components/elements/Button.svelte';
 	import Container from '$lib/components/elements/Container.svelte';
 	import TitleBar from '$lib/components/TitleBar.svelte';
 
@@ -42,7 +43,7 @@
 
 <TitleBar title={'Price List'} description="North of the Border Printable Price List. " />
 <Container>
-	<button on:click={() => window.print()}>Print</button>
+	<Button on:click={() => window.print()}>Print</Button>
 	<label for="department-filter"><h3>Department Filter:</h3></label>
 	<select
 		name="department-filter"
