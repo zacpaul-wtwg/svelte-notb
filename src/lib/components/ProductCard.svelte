@@ -19,7 +19,6 @@
 		return { bg, text };
 	};
 
-	$: link = `/product/${product.id}/${slugify(product.title)}`;
 	$: ribbonColor = getColor(product.deal);
 </script>
 

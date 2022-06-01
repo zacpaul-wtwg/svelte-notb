@@ -4,9 +4,14 @@
 			return results.json();
 		});
 
+		const { things } = await fetch('../data/getAllProducts.json').then((results) => {
+			return results.json();
+		});
+
 		return {
 			props: {
-				allData
+				allData,
+				things
 			}
 		};
 	}
@@ -16,7 +21,9 @@
 	import HomeNews from '$lib/components/HomeNews.svelte';
 	import Hero from '$lib/components/Hero.svelte';
 	import Container from '$lib/components/elements/Container.svelte';
+	import Featured from '$lib/components/Featured.svelte';
 	export let allData;
+	export let things;
 </script>
 
 <svelte:head>
@@ -29,4 +36,5 @@
 <Hero />
 <Container>
 	<HomeNews {allData} />
+	<Featured {things} />
 </Container>
