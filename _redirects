@@ -5,4 +5,4 @@
 /pricelist.php /product/pricelist
 /products /product
 /products/* /product/404 404
-/productpages /product/404 404
+/productpages/* /product/404 404
