@@ -1,7 +1,7 @@
 <address>
 	<div class="aside-object">
 		<h2>Phone:</h2>
-		<a href="tel: 5072265111">(570) 226-5111</a>
+		<a href="tel: 5702265111">(570) 226-5111</a>
 	</div>
 	<div class="aside-object">
 		<h3>Address:</h3>
