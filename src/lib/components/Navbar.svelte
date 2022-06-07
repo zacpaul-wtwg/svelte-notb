@@ -13,6 +13,7 @@
 		{ label: 'Products', href: '/product' },
 		{ label: 'Pricing', href: '/pricing' },
 		{ label: 'Pricelist', href: '/product/pricelist' },
+		{ label: 'Wishlist', href: '/product/wishlist' },
 		{ label: 'FAQ', href: '/faq' },
 		{ label: 'Contact', href: '/contact' }
 	];

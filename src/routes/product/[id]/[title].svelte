@@ -63,7 +63,7 @@
 					</h3>
 				{/if}
 			</div>
-			{#if product.images.length < 1}
+			{#if product.images?.length ?? 0 < 1}
 				<div class="images">
 					<img src={'/product-placeholder.jpg'} alt={`${product.title} placeholder image`} />
 				</div>

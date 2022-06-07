@@ -3,8 +3,6 @@
 </script>
 
 <script>
-	import Link from './Link.svelte';
-
 	import { fly } from 'svelte/transition';
 	import MatchGroup from '$lib/matchGroup.svelte';
 	import { filterProducts, sortProducts } from '$lib/filter-utils';

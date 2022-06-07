@@ -12,7 +12,7 @@ const getBrandById = function (brands, brandId) {
 };
 //get the value for the custom attrubute title
 const getAttributeByTitle = function (array, title) {
-	return array.find(function (element) {
+	return array?.find(function (element) {
 		return element.title === title;
 	})?.value;
 };

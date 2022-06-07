@@ -43,7 +43,10 @@
 
 <TitleBar title={'Price List'} description="North of the Border Printable Price List. " />
 <Container>
-	<Button on:click={() => window.print()}>Print</Button>
+	<div on:click={() => window.print()}>
+		<Button>Print</Button>
+	</div>
+
 	<label for="department-filter"><h3>Department Filter:</h3></label>
 	<select
 		name="department-filter"

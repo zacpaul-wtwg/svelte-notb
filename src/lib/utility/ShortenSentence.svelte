@@ -1,7 +1,11 @@
 <script>
 	export let string;
-	export let length = 50;
-	export let sentenceAsArray = string.split(' ');
+	export let altString = 'Description coming soon!';
+	if (string === undefined) {
+		string = altString;
+	}
+	export let length = 25;
+	export let sentenceAsArray = string?.split(' ');
 	export const sentenceLength = sentenceAsArray.length;
 </script>
 

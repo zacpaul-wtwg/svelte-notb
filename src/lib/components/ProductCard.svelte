@@ -3,6 +3,8 @@
 	import Ribbon from './ribbon.svelte';
 	import { getThumb } from '$lib/utility/imageThumb';
 	import { sentenceify } from '$lib/utility/slugify';
+	import ShortenSentence from '$lib/utility/ShortenSentence.svelte';
+	import Clickers from './Clickers.svelte';
 	export let product;
 
 	export const getColor = function (deal) {
@@ -45,7 +47,10 @@
 		</div>
 	</a>
 	<h4>{product.category}</h4>
-	<p>{product.description}</p>
+	<p>
+		<ShortenSentence string={product.description}>...</ShortenSentence>
+	</p>
+	<Clickers {product} />
 </section>
 
 <style lang="scss">
@@ -55,6 +60,7 @@
 		display: block;
 		position: relative;
 		z-index: 3;
+		padding-bottom: 5em;
 	}
 
 	.title {
