@@ -90,7 +90,7 @@
 												changeQuantity(item.id, 'del');
 											}}
 										>
-											<img src="/trashcan.svg" alt="trash can icon" />
+											<img src="/trashcan.svg" xlink:href="/trashcan.svg" alt="trash can icon" />
 										</button>
 									</div>
 								</td>
