@@ -54,7 +54,7 @@
 						<th class="tg-0pky">ID</th>
 						<th class="tg-0pky">Title</th>
 						<th class="tg-0pky">Quantity</th>
-						<th class="tg-0pky">VIP Price</th>
+						<th class="tg-0pky">Regular/VIP Price</th>
 						<th class="tg-0pky">Hi-Roller Price</th>
 						<th class="tg-0pky print-hide">add/remove</th>
 					</tr>
