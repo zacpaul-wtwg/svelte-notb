@@ -1,4 +1,5 @@
 <script>
+	// #region imports
 	import { slugify } from '$lib/utility/slugify';
 	import Ribbon from './ribbon.svelte';
 	import { getThumb } from '$lib/utility/imageThumb';
@@ -6,7 +7,9 @@
 	import ShortenSentence from '$lib/utility/ShortenSentence.svelte';
 	import Clickers from './Clickers.svelte';
 	export let product;
+	// #endregion
 
+	// #region Functions
 	export const getColor = function (deal) {
 		let bg;
 		let text;
@@ -20,20 +23,30 @@
 
 		return { bg, text };
 	};
+	// #endregion
 
+	// #region Reactive Variables
 	$: ribbonColor = getColor(product.deal);
+	$: description = product.description;
+	$: title = product.title;
+	$: price = product.price.toFixed(2);
+	$: id = product.id;
+	$: deal = product.deal;
+	$: category = product.category;
+	$: imageThumb = product.imageThumb;
+	// #endregion
 </script>
 
 <section class="card">
-	<a href={`/product/${product.id}/${slugify(product.title)}`} target="_blank">
+	<a href={`/product/${id}/${slugify(title)}`} target="_blank">
 		<div class="title">
-			<h2>{product.title}</h2>
+			<h2>{title}</h2>
 		</div>
 		<div class="ribbon-container">
 			<div class="ribbon">
 				<h3>
 					<Ribbon
-						string={`${product.deal} $${product.price.toFixed(2)}`}
+						string={`${deal} $${price}`}
 						bgColor={ribbonColor.bg}
 						fontColor={ribbonColor.text}
 						padding={'.5'}
@@ -43,12 +56,12 @@
 		</div>
 
 		<div class="image-container">
-			<img src={getThumb(product.imageThumb)} alt="{sentenceify(product.title)} product" />
+			<img src={getThumb(imageThumb)} alt="{sentenceify(title)} product" />
 		</div>
 	</a>
-	<h4>{product.category}</h4>
+	<h4>{category}</h4>
 	<p>
-		<ShortenSentence string={product.description}>...</ShortenSentence>
+		<ShortenSentence string={description}>...</ShortenSentence>
 	</p>
 	<Clickers {product} />
 </section>

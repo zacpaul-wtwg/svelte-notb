@@ -11,15 +11,13 @@
 
 	export let products;
 	export let availableFilters;
-
-	export let pricing = 'ALL PRICING';
-	export let pricingOptions = ['ALL PRICING', '2 FOR 1', '3 FOR 1'];
-
 	export let departments;
-	export let department = 'ALL DEPARTMENTS';
 
-	export let sortMethod = 'title';
-	export let sortOptions = [
+	$: pricing = 'ALL PRICING';
+	$: pricingOptions = ['ALL PRICING', '2 FOR 1', '3 FOR 1'];
+	$: department = 'ALL DEPARTMENTS';
+	$: sortMethod = 'title';
+	$: sortOptions = [
 		{ display: 'LOWEST PRICE FIRST', value: 'lowestPriceFirst' },
 		{ display: 'HIGHEST PRICE FIRST', value: 'highestPriceFirst' },
 		{ display: 'NEWEST FIRST', value: 'newestFirst' },
@@ -35,7 +33,7 @@
 		{}
 	);
 	$: readyFilters = Object.entries(selectedFilters).filter(([_, values]) => values.length > 0);
-	let searchString = '';
+	$: searchString = '';
 	$: searchStrings = searchString.toLowerCase().split(' ');
 	$: filteredProducts = products.filter(
 		filterProducts(searchStrings, readyFilters, pricing, department)
