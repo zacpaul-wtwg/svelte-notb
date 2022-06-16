@@ -3,6 +3,7 @@
 /contact.php /contact
 /programs/* /pricing
 /pricelist.php /product/pricelist
+/pricelist /product/pricelist
 /products /product
 /products/* /product/404 404
 /productpages/* /product/404 404
