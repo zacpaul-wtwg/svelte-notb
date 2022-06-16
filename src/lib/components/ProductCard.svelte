@@ -25,7 +25,7 @@
 	};
 	// #endregion
 
-	// #region Reactive Variables
+	// #region Variables
 	$: ribbonColor = getColor(product.deal);
 	$: description = product.description;
 	$: title = product.title;
