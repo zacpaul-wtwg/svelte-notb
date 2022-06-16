@@ -24,4 +24,7 @@
 		flex-direction: column;
 		align-items: flex-end;
 		h1 {
-			li
+			line-height: 1em;
+		}
+	}
+</style>
