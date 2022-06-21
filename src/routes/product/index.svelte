@@ -3,16 +3,21 @@
 </script>
 
 <script>
+	// #region imports
 	import { fly } from 'svelte/transition';
 	import MatchGroup from '$lib/matchGroup.svelte';
 	import { filterProducts, sortProducts } from '$lib/filter-utils';
 	import TitleBar from '$lib/components/TitleBar.svelte';
 	import ProductCard from '$lib/components/ProductCard.svelte';
+	// #endregion
 
+	// #region props
 	export let products;
 	export let availableFilters;
 	export let departments;
+	// #endregion
 
+	// #region filters
 	$: pricing = 'ALL PRICING';
 	$: pricingOptions = ['ALL PRICING', '2 FOR 1', '3 FOR 1'];
 	$: department = 'ALL DEPARTMENTS';
@@ -40,6 +45,7 @@
 	);
 	$: sortedProducts = sortProducts(filteredProducts, sortMethod);
 	$: filter = true;
+	// #endregion
 </script>
 
 {#if filter}
@@ -130,6 +136,7 @@
 </div>
 
 <style lang="scss">
+	// #region buttons
 	button {
 		color: var(--white);
 		text-decoration: none;
@@ -149,6 +156,8 @@
 		background-color: var(--grey);
 		box-shadow: none;
 	}
+	// #endregion
+
 	.search-params {
 		position: fixed;
 		top: var(--nav-height);

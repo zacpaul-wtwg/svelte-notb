@@ -90,7 +90,7 @@
 												changeQuantity(item.id, 'del');
 											}}
 										>
-											<img src="/trashcan.svg" xlink:href="/trashcan.svg" alt="trash can icon" />
+											<img src="/trashcan.svg" alt="trash can icon" />
 										</button>
 									</div>
 								</td>
@@ -153,7 +153,9 @@
 		img {
 			filter: invert(97%) sepia(0%) saturate(7500%) hue-rotate(162deg) brightness(104%)
 				contrast(99%);
-			margin: 5px;
+			margin-top: 0.25em;
+			width: 1em;
+			height: 1em;
 		}
 	}
 	td,
