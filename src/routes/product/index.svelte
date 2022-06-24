@@ -93,7 +93,7 @@
 			</select>
 		</div>
 
-		<div class="boxes filter-group">
+		<div class="boxes filter-group bottom-group">
 			{#each categories as category}
 				<hr />
 				<MatchGroup
@@ -167,6 +167,9 @@
 		background: var(--off-white);
 		z-index: 6;
 		overflow: scroll;
+	}
+	.bottom-group {
+		padding-bottom: 10em;
 	}
 	.boxes {
 		margin-bottom: 3em;
