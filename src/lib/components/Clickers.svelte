@@ -8,15 +8,13 @@
 		} else {
 			$cart.map((x, index) => {
 				if (x.id === obj.id) {
-					let q;
 					if (operator === 'add') {
-						q = x.quantity + 1;
-					} else if (operator === 'sub' && x.quantity !== 0) {
-						q = x.quantity - 1;
-					} else if (operator === 'sub' && x.quantity === 0) {
-						q = 0;
+						$cart[index].quantity += 1;
+					} else if (operator === 'sub' && x.quantity > 1) {
+						$cart[index].quantity -= 1;
+					} else if (operator === 'sub' && x.quantity === 1) {
+						$cart.splice(index, 1);
 					}
-					$cart[index].quantity = q;
 				}
 			});
 		}

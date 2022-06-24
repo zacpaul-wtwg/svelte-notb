@@ -6,7 +6,7 @@
 	if (typeof window !== 'undefined') {
 		$cart = JSON.parse(localStorage.getItem('cart'));
 	}
-	export const a = function (array) {
+	export const sumTotalItemsPrice = function (array) {
 		let hiroArray = [];
 		let vipArray = [];
 		array.map((item) => {
@@ -25,7 +25,6 @@
 	const changeQuantity = function (id, operator) {
 		$cart.map((x, index) => {
 			if (x.id === id) {
-				let q;
 				if (operator === 'add') {
 					$cart[index].quantity += 1;
 				} else if (operator === 'sub' && x.quantity === 1) {
@@ -42,7 +41,7 @@
 			$cart = JSON.parse(localStorage.getItem('cart'));
 		}
 	};
-	$: totals = a($cart);
+	$: totals = sumTotalItemsPrice($cart);
 </script>
 
 <Container>
@@ -153,7 +152,7 @@
 		img {
 			filter: invert(97%) sepia(0%) saturate(7500%) hue-rotate(162deg) brightness(104%)
 				contrast(99%);
-			margin-top: 0.25em;
+			margin: 0.5em 0em;
 			width: 1em;
 			height: 1em;
 		}

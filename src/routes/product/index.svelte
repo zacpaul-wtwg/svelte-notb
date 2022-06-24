@@ -128,7 +128,7 @@
 		<TitleBar title="Products: {department}" subtitle="Pricing: {pricing}" />
 	</div>
 
-	<div class="card-container">
+	<div class="card-container {filter ? 'no-scroll' : 'scroll'}">
 		{#each sortedProducts as product}
 			<ProductCard {product} />
 		{/each}
@@ -205,5 +205,10 @@
 	}
 	.detoggle {
 		position: relative;
+	}
+	.no-scroll {
+		width: 0px;
+		overflow: hidden;
+		visibility: hidden;
 	}
 </style>
