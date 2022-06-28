@@ -209,11 +209,12 @@
 	.detoggle {
 		position: relative;
 	}
-	.no-scroll {
-		@media screen and (max-width: 400px) {
-			width: 0px;
-			overflow: hidden;
-			visibility: hidden;
-		}
-	}
+	// .no-scroll {
+	// 	@media screen and (max-width: 400px) {
+	// 		width: 0px;
+	// 		height: 0px;
+	// 		overflow: hidden;
+	// 		visibility: hidden;
+	// 	}
+	// }
 </style>
