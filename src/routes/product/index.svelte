@@ -210,8 +210,10 @@
 		position: relative;
 	}
 	.no-scroll {
-		width: 0px;
-		overflow: hidden;
-		visibility: hidden;
+		@media screen and (max-width: 400px) {
+			width: 0px;
+			overflow: hidden;
+			visibility: hidden;
+		}
 	}
 </style>
