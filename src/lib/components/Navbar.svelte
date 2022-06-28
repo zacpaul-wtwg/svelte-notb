@@ -9,7 +9,7 @@
 
 	// List of navigation items
 	const navItems = [
-		{ label: 'Home', href: '/' },
+		{ label: 'Home', href: 'https://notbfireworks.com' },
 		{ label: 'Products', href: '/product' },
 		{ label: 'Pricing', href: '/pricing' },
 		{ label: 'Pricelist', href: '/product/pricelist' },
