@@ -60,9 +60,16 @@
 		</div>
 	</a>
 	<h4>{category}</h4>
-	<p>
-		<ShortenSentence string={description}>...</ShortenSentence>
-	</p>
+	{#if description === undefined}
+		<p>
+			We just added this bad-boy and there's not a description for it yet! Don't worry, we will get
+			some good sentences down on this ASAP!
+		</p>
+	{:else}
+		<p>
+			<ShortenSentence string={description}>...</ShortenSentence>
+		</p>
+	{/if}
 	<Clickers {product} />
 </section>
 

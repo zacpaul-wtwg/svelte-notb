@@ -3,6 +3,7 @@
 
 	import Container from '$lib/components/elements/Container.svelte';
 	import { cart } from '$lib/stores.js';
+	import { slugify } from '$lib/utility/slugify';
 	if (typeof window !== 'undefined') {
 		$cart = JSON.parse(localStorage.getItem('cart'));
 	}
@@ -64,7 +65,11 @@
 						{#if item.quantity > 0}
 							<tr>
 								<td class="tg-0pky">{item.id}</td>
-								<td class="tg-0pky title">{item.title}</td>
+								<td class="tg-0pky title"
+									><a href="/product/{item.id}/{slugify(item.title)}" target="_blank"
+										>{item.title}</a
+									></td
+								>
 								<td class="tg-0pky">{item.quantity} @ ${(item.price / item.deal).toFixed(2)}/pc</td>
 								<td class="tg-0pky">$ {((item.price / item.deal) * item.quantity).toFixed(2)}</td>
 								<td class="tg-0pky">$ {((item.price / 3) * item.quantity).toFixed(2)}</td>
