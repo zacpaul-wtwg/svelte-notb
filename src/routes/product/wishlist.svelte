@@ -9,7 +9,7 @@
 	export const sumTotalItemsPrice = function (array) {
 		let hiroArray = [];
 		let vipArray = [];
-		array.map((item) => {
+		array?.map((item) => {
 			hiroArray.push((parseFloat(item.price) / 3) * parseFloat(item.quantity));
 			vipArray.push((parseFloat(item.price) / item.deal) * parseFloat(item.quantity));
 		});
@@ -45,7 +45,7 @@
 </script>
 
 <Container>
-	{#if $cart.length >= 1}
+	{#if $cart?.length >= 1}
 		<div class="table-container">
 			<table class="tg">
 				<thead>
