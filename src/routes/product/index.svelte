@@ -15,6 +15,7 @@
 	export let products;
 	export let availableFilters;
 	export let departments;
+	$: departmentsAlphabetical = departments.sort();
 	// #endregion
 
 	// #region filters
@@ -75,7 +76,7 @@
 			</label>
 			<select id="departments" bind:value={department}>
 				<option value="ALL DEPARTMENTS">ALL DEPARTMENTS</option>
-				{#each departments as dept}
+				{#each departmentsAlphabetical as dept}
 					<option value={dept}>{dept}</option>
 				{/each}
 			</select>

@@ -184,10 +184,10 @@
 		table {
 			height: 100%;
 		}
+		.print-hide,
 		:global(header),
 		:global(footer),
-		:global(button),
-		.print-hide {
+		:global(button) {
 			display: none !important;
 		}
 	}
