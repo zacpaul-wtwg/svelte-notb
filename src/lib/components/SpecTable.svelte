@@ -74,9 +74,6 @@
 		.tg {
 			width: auto !important;
 		}
-		.tg col {
-			width: auto !important;
-		}
 		.tg-wrap {
 			overflow-x: auto;
 			-webkit-overflow-scrolling: touch;

@@ -31,7 +31,7 @@
 
 <style>
 	header {
-		height: 60px;
+		height: var(--header);
 	}
 	main {
 		min-height: 75vh;

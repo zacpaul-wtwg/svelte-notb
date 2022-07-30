@@ -73,14 +73,14 @@
 										class="riffle-left riffle"
 										on:click={(x) => (0 !== arrayRiffle ? arrayRiffle-- : arrayRiffle)}
 									>
-										<img src="arrow-left.svg" alt="left arrow icon" class="arrow" />
+										<img src="arrow-left.svg" alt="left arrow icon" class="svg-filter-white" />
 									</button>
 									<button
 										class="riffle-right riffle"
 										on:click={(x) =>
 											sortedProducts.length - 1 !== arrayRiffle ? arrayRiffle++ : arrayRiffle}
 									>
-										<img src="arrow-right.svg" alt="left arrow icon" class="arrow" />
+										<img src="arrow-right.svg" alt="left arrow icon" class="svg-filter-white" />
 									</button>
 								</div>
 							</div>
@@ -114,9 +114,6 @@
 		display: flex;
 		width: 100%;
 	}
-	.selector {
-		display: inline-block;
-	}
 	.content {
 		position: absolute;
 		display: flex;
@@ -129,10 +126,6 @@
 	.item {
 		position: relative;
 		width: 100%;
-	}
-	label {
-		visibility: hidden;
-		width: 0px;
 	}
 	.title {
 		background: var(--grey);
@@ -170,9 +163,6 @@
 	}
 	.riffle-right {
 		border-radius: 0 10px 10px 0;
-	}
-	.arrow {
-		filter: invert(97%) sepia(0%) saturate(7500%) hue-rotate(162deg) brightness(104%) contrast(99%);
 	}
 	.liveregion {
 		visibility: hidden;

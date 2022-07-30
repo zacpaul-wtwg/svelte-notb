@@ -23,7 +23,7 @@
 		color: var(--white);
 		flex-direction: column;
 		align-items: flex-end;
-		h1 {
+		h2 {
 			line-height: 1em;
 		}
 	}

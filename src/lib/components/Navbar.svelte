@@ -12,8 +12,6 @@
 		{ label: 'Home', href: 'https://notbfireworks.com' },
 		{ label: 'Products', href: '/product' },
 		{ label: 'Pricing', href: '/pricing' },
-		{ label: 'Pricelist', href: '/product/pricelist' },
-		{ label: 'Wishlist', href: '/product/wishlist' },
 		{ label: 'FAQ', href: '/faq' },
 		{ label: 'Contact', href: '/contact' }
 	];
@@ -43,7 +41,16 @@
 </script>
 
 <nav>
-	<div class="inner">
+	<div class="top inner">
+		<div class="top-item"><a href="/product/pricelist">Pricelist</a></div>
+		<div class="top-item">
+			<a href="/product/wishlist"
+				><img src="/cart.svg" alt="wishlist cart icon" class="svg-filter-white cart" /></a
+			>
+		</div>
+	</div>
+	<div class="hr" />
+	<div class="bottom inner">
 		<a href="/"><img src="/logo_large.png" alt="North of the Border Logo" /></a>
 		<div on:click={handleMobileIconClick} class={`mobile-icon${showMobileMenu ? ' active' : ''}`}>
 			<div class="middle-line" />
@@ -58,7 +65,39 @@
 	</div>
 </nav>
 
-<style>
+<style lang="scss">
+	.top {
+		display: flex;
+		justify-content: flex-end;
+		background: var(--grey);
+		color: white;
+		height: 20px;
+	}
+	.bottom {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		height: 60px;
+	}
+
+	.top-item {
+		padding: 5px;
+		margin-left: 10px;
+		font-size: 0.9em;
+		color: white;
+		a {
+			color: white;
+		}
+		:after {
+			margin: 10px;
+		}
+	}
+
+	.hr {
+		border-bottom: thin solid var(--grey-accent);
+		margin: 10px;
+	}
+
 	img {
 		height: 55px;
 		margin-right: 50px;
@@ -66,7 +105,7 @@
 	nav {
 		background-color: var(--grey);
 		font-family: 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif;
-		height: 60px;
+		height: 100px;
 		position: fixed;
 		width: 100%;
 		top: 0;
@@ -79,11 +118,6 @@
 		padding-right: 20px;
 		margin: auto;
 		box-sizing: border-box;
-		display: flex;
-		align-items: center;
-		height: 100%;
-		display: flex;
-		justify-content: space-between;
 	}
 
 	.mobile-icon {
@@ -200,5 +234,10 @@
 		.navbar-list a {
 			display: inline-flex;
 		}
+	}
+
+	.cart {
+		height: 15px;
+		margin-right: 0px;
 	}
 </style>

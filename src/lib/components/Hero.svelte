@@ -80,12 +80,6 @@
 		top: 2px;
 		left: 0px;
 	}
-	.red-ribbon {
-		margin-left: -150px;
-	}
-	.yellow-ribbon {
-		margin-top: -7px;
-	}
 
 	@media only screen and (max-width: 768px) {
 		img {
