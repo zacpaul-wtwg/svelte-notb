@@ -107,6 +107,8 @@
 	</div>
 {/if}
 
+//buttons are
+
 {#if filter}
 	<button
 		transition:fly={{ x: -400, duration: 1000 }}
@@ -161,7 +163,7 @@
 
 	.search-params {
 		position: fixed;
-		top: var(--nav-height);
+		top: calc(var(--nav-bottom) + var(--nav-top));
 		height: calc(100vh - var(--nav-height));
 		width: 15em;
 		padding: 4em 1em 1em 1em;
@@ -198,7 +200,7 @@
 		font-size: 1.5em;
 	}
 	.filter-on {
-		top: 2em;
+		top: 3.5em;
 	}
 	.filter-off {
 		bottom: 1em;
