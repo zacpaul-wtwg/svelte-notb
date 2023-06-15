@@ -56,7 +56,7 @@
 		</div>
 
 		<div class="image-container">
-			<img src={getThumb(imageThumb)} alt="{sentenceify(title)} product" />
+			<img loading="lazy" src={getThumb(imageThumb)} alt="{sentenceify(title)} product" />
 		</div>
 	</a>
 	<h4>{category}</h4>
