@@ -2,13 +2,7 @@
 	import SvelteMarkdown from 'svelte-markdown';
 	import Address from './Address.svelte';
 	export let allData;
-
-	export let date = function (string) {
-		if (string) {
-			const dateArray = string.split('-');
-			return `${dateArray[1]}/${dateArray[2]}/${dateArray[0]}`;
-		}
-	};
+	import { date } from '$lib/utility/date';
 </script>
 
 <footer>
@@ -19,6 +13,32 @@
 	<div class="hours footer-section">
 		<div class="footer-header">Hours of Operation</div>
 		<table>
+			{#each allData.closedRange as breakItem}
+				{#if breakItem.isActive}
+					{#if breakItem.occasion}
+						<tr>
+							<th colspan="2"> {breakItem.occasion}:</th>
+						</tr>
+						<tr>
+							<td colspan="2" class="break">
+								<strong>{new Date(date(breakItem.startOfBreak)).toDateString()}</strong></td
+							>
+						</tr>
+						<tr>
+							<td colspan="2" class="break thru"> - thru - </td>
+						</tr>
+						<tr>
+							<td colspan="2" class="break">
+								<strong>{new Date(date(breakItem.endOfBreak)).toDateString()}</strong></td
+							>
+						</tr>
+						<tr>
+							<td colspan="2" class="break"><small>{breakItem.moreInfo}</small></td>
+						</tr>
+						<tr><td colspan="2"><hr /></td></tr>
+					{/if}
+				{/if}
+			{/each}
 			{#each allData.specialHours as occasion}
 				{#if occasion.isActive}
 					{#if occasion.dayOneDate}
@@ -124,6 +144,12 @@
 	}
 	th {
 		padding-top: 10px;
+	}
+	.break {
+		padding-left: 20px;
+	}
+	.thru {
+		padding-left: 40px;
 	}
 
 	.footer-section {

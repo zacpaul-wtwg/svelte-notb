@@ -26,6 +26,10 @@ export async function get() {
 			content_type: 'pricing'
 		});
 
+		const closedRange = await client.getEntries({
+			content_type: 'closedRange'
+		});
+
 		return {
 			status: 200,
 			body: {
@@ -35,7 +39,8 @@ export async function get() {
 					hours: hours.items[0].fields,
 					faq: faq.items.map((x) => x.fields).sort((a, b) => a.order - b.order),
 					pricing: pricing.items.map((x) => x.fields).sort((a, b) => a.order - b.order),
-					specialHours: specialHours.items.map((x) => x.fields)
+					specialHours: specialHours.items.map((x) => x.fields),
+					closedRange: closedRange.items.map((x) => x.fields)
 				}
 			}
 		};

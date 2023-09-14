@@ -22,6 +22,7 @@
 	import Hero from '$lib/components/Hero.svelte';
 	import Container from '$lib/components/elements/Container.svelte';
 	import Featured from '$lib/components/Featured.svelte';
+	import BreakRange from '$lib/components/BreakRange.svelte';
 	export let allData;
 	export let things;
 </script>
@@ -35,6 +36,7 @@
 </svelte:head>
 <Hero />
 <Container>
+	<BreakRange {allData} />
 	<HomeNews {allData} />
 	<Featured {things} />
 </Container>
