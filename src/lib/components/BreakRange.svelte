@@ -6,7 +6,7 @@
 </script>
 
 <div class="padding-bottom">
-	<h2 class="red">Attention! We are closed for {allData.closedRange[0].occasion}</h2>
+	<h2 class="red">Attention! Special Store Hours for "{allData.closedRange[0].occasion}"</h2>
 
 	<p>
 		North of the Border Fireworks will be closed
