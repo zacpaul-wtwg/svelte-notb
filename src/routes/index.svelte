@@ -34,7 +34,7 @@
 		content="NOTB Fireworks is a leading fireworks Retailer and Warehouse in the Pocono's Lake Wallenpaupack region. We offer both Retail and Case-Lot options. Whether your need is casual, enthusiast, or professsional, we have the right stock and the right pricing structure to meet your needs."
 	/>
 </svelte:head>
-<Hero />
+<Hero {allData} />
 <Container>
 	<BreakRange {allData} />
 	<HomeNews {allData} />

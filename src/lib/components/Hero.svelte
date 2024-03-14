@@ -1,13 +1,26 @@
 <script>
 	import ButtonLink from '$lib/components/elements/ButtonLink.svelte';
+	import { dataset_dev } from 'svelte/internal';
 	import Ribbon from './ribbon.svelte';
+	export let allData;
+
+	// Get the current day name in the required format
+	const daysOfWeek = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+	const today = new Date();
+	const dayName = daysOfWeek[today.getDay()]; // This will be 'sunday', 'monday', etc.
+	const hoursKey = dayName + 'Hours'; // Construct the key to access the hours
+
+	// Now you can use hoursKey to dynamically access the hours for the current day
+	// e.g., allData.regularHoursStrict[hoursKey]
 </script>
 
 <div class="hero">
 	<div class="message">
 		<img src="logo_tall.png" alt="tall notb fireworks logo" />
 		<div>
-			<h1 class="title">north of the border<br /><span class="fireworks">fireworks</span></h1>
+			<h1 class="title">
+				north of the border<br /><span class="fireworks">fireworks</span>
+			</h1>
 			<div class="deals everything">all items</div>
 			<div class="deals rotate">
 				<Ribbon bgColor={'red'} fontColor={'white'} string={'2 for 1'} />
@@ -19,9 +32,18 @@
 		</div>
 	</div>
 	<ButtonLink destination={'product'} label={'Go to Products'} />
+	<span class="hours">{dayName.toUpperCase()} HOURS: {allData.regularHoursStrict[hoursKey]}</span>
 </div>
 
 <style>
+	.hours {
+		color: white;
+		font-size: 1.25em;
+		font-weight: 600;
+		padding: 15px;
+		background-color: black;
+		margin: 10px;
+	}
 	h1 {
 		margin-bottom: 0;
 	}

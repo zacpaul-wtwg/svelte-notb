@@ -13,6 +13,9 @@ export async function get() {
 		const hours = await client.getEntries({
 			content_type: 'hours'
 		});
+		const regularHoursStrict = await client.getEntries({
+			content_type: 'regularHoursStrict'
+		});
 
 		const specialHours = await client.getEntries({
 			content_type: 'specialHours'
@@ -37,6 +40,7 @@ export async function get() {
 					newsPosts: newsPosts.items[0].fields,
 					footerDescription: footerDescription.items[0].fields,
 					hours: hours.items[0].fields,
+					regularHoursStrict: regularHoursStrict.items[0].fields,
 					faq: faq.items.map((x) => x.fields).sort((a, b) => a.order - b.order),
 					pricing: pricing.items.map((x) => x.fields).sort((a, b) => a.order - b.order),
 					specialHours: specialHours.items.map((x) => x.fields),

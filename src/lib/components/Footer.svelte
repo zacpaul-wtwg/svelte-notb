@@ -83,31 +83,31 @@
 			</tr>
 			<tr>
 				<td> <strong>Sunday:</strong></td>
-				<td> {allData.hours.sunday}</td>
+				<td> {allData.regularHoursStrict.sundayHours}</td>
 			</tr>
 			<tr>
 				<td> <strong>Monday:</strong></td>
-				<td> {allData.hours.monday}</td>
+				<td> {allData.regularHoursStrict.mondayHours}</td>
 			</tr>
 			<tr>
 				<td> <strong>Tuesday:</strong></td>
-				<td> {allData.hours.tuesday}</td>
+				<td> {allData.regularHoursStrict.tuesdayHours}</td>
 			</tr>
 			<tr>
 				<td> <strong>Wednesday:</strong></td>
-				<td> {allData.hours.wednesday}</td>
+				<td> {allData.regularHoursStrict.wednesdayHours}</td>
 			</tr>
 			<tr>
 				<td> <strong>Thursday:</strong></td>
-				<td> {allData.hours.thursday}</td>
+				<td> {allData.regularHoursStrict.thursdayHours}</td>
 			</tr>
 			<tr>
 				<td> <strong>Friday:</strong></td>
-				<td> {allData.hours.friday}</td>
+				<td> {allData.regularHoursStrict.fridayHours}</td>
 			</tr>
 			<tr>
 				<td> <strong>Saturday:</strong></td>
-				<td> {allData.hours.saturday}</td>
+				<td> {allData.regularHoursStrict.saturdayHours}</td>
 			</tr>
 		</table>
 	</div>
