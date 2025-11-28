@@ -127,14 +127,29 @@
 	</button>
 {/if}
 <div class="detoggle" on:click={() => (filter ? (filter = !filter) : filter)}>
-	<div>
-		<TitleBar title="Products: {department}" subtitle="Pricing: {pricing}" />
-	</div>
+        <div>
+                <TitleBar title="Products: {department}" subtitle="Pricing: {pricing}" />
+        </div>
 
-	<div class="card-container {filter ? 'no-scroll' : 'scroll'}">
-		{#each sortedProducts as product}
-			<ProductCard {product} />
-		{/each}
+        <div class="pricelist-callout">
+                <p>
+                        Our online catalog will be back up as soon as possible. In the meantime, you can download
+                        the latest price list below.
+                </p>
+                <a
+                        class="download-button"
+                        href="/PriceList.pdf"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                >
+                        Download Price List (PDF)
+                </a>
+        </div>
+
+        <div class="card-container {filter ? 'no-scroll' : 'scroll'}">
+                {#each sortedProducts as product}
+                        <ProductCard {product} />
+                {/each}
 	</div>
 </div>
 
@@ -199,17 +214,51 @@
 		margin-left: 1em;
 		font-size: 1.5em;
 	}
-	.filter-on {
-		top: 3.5em;
-	}
-	.filter-off {
-		bottom: 1em;
-	}
+        .filter-on {
+                top: 3.5em;
+        }
+        .filter-off {
+                bottom: 1em;
+        }
 
-	:global(.detoggle .main-container) {
-		justify-content: center;
-	}
-	.detoggle {
+        .pricelist-callout {
+                background: var(--off-white);
+                border: 4px solid var(--grey);
+                padding: 1.5em;
+                margin: 1.5em auto;
+                max-width: 50rem;
+                text-align: center;
+                box-shadow: 0 0.75em 1.5em rgba(0, 0, 0, 0.15);
+        }
+
+        .pricelist-callout p {
+                font-size: 1.1em;
+                margin-bottom: 1em;
+        }
+
+        .download-button {
+                display: inline-block;
+                color: var(--white);
+                text-decoration: none;
+                padding: 0.5em 2em 0.5em 2em;
+                font-family: Langdon;
+                text-transform: uppercase;
+                font-size: 1.5em;
+                transition: 0.4s;
+                box-shadow: inset 0px 0px 0px 5px rgb(255, 255, 255);
+                background: var(--grey);
+        }
+
+        .download-button:hover {
+                color: var(--white);
+                background-color: var(--grey);
+                box-shadow: none;
+        }
+
+        :global(.detoggle .main-container) {
+                justify-content: center;
+        }
+        .detoggle {
 		position: relative;
 	}
 	// .no-scroll {
