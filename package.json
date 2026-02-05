@@ -36,6 +36,7 @@
   "type": "module",
   "dependencies": {
     "contentful": "^9.1.18",
+    "imask": "^7.6.1",
     "limax": "^3.0.0",
     "lodash.kebabcase": "^4.1.1",
     "markdown-it": "^13.0.1",

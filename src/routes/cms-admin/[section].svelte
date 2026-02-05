@@ -22,8 +22,9 @@
 		saveDraftToStorage,
 		savePasswordToSession
 	} from '$lib/cms/adminDraft';
-import { onMount, tick } from 'svelte';
-	import QuillEditor from '$lib/components/QuillEditor.svelte';
+import { onMount } from 'svelte';
+import QuillEditor from '$lib/components/QuillEditor.svelte';
+import MaskedHoursInput from '$lib/components/MaskedHoursInput.svelte';
 
 	export let section;
 
@@ -37,7 +38,6 @@ import { onMount, tick } from 'svelte';
 	let message = '';
 	let status = '';
 	let busy = false;
-	let hoursRefs = {};
 
 	onMount(() => {
 		allData = loadDraftFromStorage();
@@ -87,71 +87,6 @@ import { onMount, tick } from 'svelte';
 		return { ok: true };
 	}
 
-	function formatStoreHoursInput(raw) {
-		let v = String(raw || '');
-		if (!v) return '';
-		v = v.toUpperCase();
-		// Keep only digits, A/P/M, colon, dash, space
-		v = v.replace(/[^0-9APM:\-\s]/g, '');
-		// Drop stray single-letter A/P tokens (avoid "A - P" partials)
-		v = v.replace(/\bA\b/g, '').replace(/\bP\b/g, '');
-		v = v.replace(/\s*-\s*/g, ' - ');
-		v = v.replace(/(\d)(AM|PM)/g, '$1 $2');
-		// Don't try to auto-space lone A/P (we removed them above)
-		v = v.replace(/\s{2,}/g, ' ').trim();
-		return v;
-	}
-
-	function maybeAutoInsertDash(el) {
-		const current = String(el.value ?? el.textContent ?? '');
-		if (current.includes('-')) return;
-		// If the first time range is complete (ends in AM/PM), append " - "
-		if (/\b(AM|PM)\s*$/.test(current)) {
-			if ('value' in el) {
-				el.value = `${current} - `;
-			} else {
-				el.textContent = `${current} - `;
-				setCaretToEnd(el);
-			}
-		}
-	}
-
-	function setCaretToEnd(el) {
-		const sel = typeof window !== 'undefined' ? window.getSelection() : null;
-		if (!sel) return;
-		const range = document.createRange();
-		range.selectNodeContents(el);
-		range.collapse(false);
-		sel.removeAllRanges();
-		sel.addRange(range);
-	}
-
-	function setEditableTextPreserveCaret(el, next) {
-		const sel = typeof window !== 'undefined' ? window.getSelection() : null;
-		let caret = null;
-		if (sel && sel.rangeCount > 0) {
-			const range = sel.getRangeAt(0);
-			if (el.contains(range.startContainer)) {
-				caret = range.startOffset;
-			}
-		}
-		el.textContent = next;
-		if (sel) {
-			const textNode = el.firstChild;
-			const length = (el.textContent || '').length;
-			const pos = caret == null ? length : Math.min(caret, length);
-			const range = document.createRange();
-			if (textNode) {
-				range.setStart(textNode, pos);
-			} else {
-				range.setStart(el, 0);
-			}
-			range.collapse(true);
-			sel.removeAllRanges();
-			sel.addRange(range);
-		}
-	}
-
 	function isClosedValue(value) {
 		return String(value || '').trim().toLowerCase() === 'closed';
 	}
@@ -159,18 +94,6 @@ import { onMount, tick } from 'svelte';
 	function toggleClosed(fieldKey) {
 		const closing = !isClosedValue(getSectionData()?.[fieldKey]);
 		updateObjectField(fieldKey, closing ? 'Closed' : '');
-		tick().then(() => {
-			const el = hoursRefs[fieldKey];
-			if (el) {
-				if (closing) {
-					el.textContent = 'Closed';
-					el.setAttribute('contenteditable', 'false');
-				} else {
-					el.textContent = '';
-					el.setAttribute('contenteditable', 'true');
-				}
-			}
-		});
 	}
 
 	function formatNewsDateTime(value) {
@@ -354,33 +277,15 @@ import { onMount, tick } from 'svelte';
 								</button>
 							</div>
 							<div class="hoursRow">
-								<div
-									class="input hoursEditable"
-									contenteditable={isClosedValue(getSectionData()?.[field.key]) ? 'false' : 'true'}
-									data-field-key={field.key}
-									bind:this={hoursRefs[field.key]}
-									on:input={(e) => {
-										const text = e.currentTarget.textContent || '';
-										const next = formatStoreHoursInput(text);
-										if (next !== text) {
-											setEditableTextPreserveCaret(e.currentTarget, next);
-										}
-										maybeAutoInsertDash(e.currentTarget);
-										updateObjectField(field.key, next);
-									}}
-									on:blur={(e) => {
-										const text = e.currentTarget.textContent || '';
-										const next = formatStoreHoursInput(text);
-										if (next !== text) {
-											e.currentTarget.textContent = next;
-										}
-										updateObjectField(field.key, next);
-									}}
-								>
-									{getSectionData()?.[field.key] ?? ''}
-								</div>
+								<MaskedHoursInput
+									value={String(getSectionData()?.[field.key] ?? '')}
+									disabled={isClosedValue(getSectionData()?.[field.key])}
+									on:change={(e) => updateObjectField(field.key, e.detail)}
+								/>
 							</div>
-							{#if !validateStoreHours(getSectionData()?.[field.key]).ok}
+							{#if isClosedValue(getSectionData()?.[field.key])}
+								<small class="hint">Closed</small>
+							{:else if !validateStoreHours(getSectionData()?.[field.key]).ok}
 								<small class="hint error">
 									{validateStoreHours(getSectionData()?.[field.key]).message}
 								</small>
