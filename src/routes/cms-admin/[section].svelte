@@ -22,8 +22,8 @@
 		saveDraftToStorage,
 		savePasswordToSession
 	} from '$lib/cms/adminDraft';
-	import { onMount, tick } from 'svelte';
-	import SvelteMarkdown from 'svelte-markdown';
+	import { onMount } from 'svelte';
+	import QuillEditor from '$lib/components/QuillEditor.svelte';
 
 	export let section;
 
@@ -37,10 +37,6 @@
 	let message = '';
 	let status = '';
 	let busy = false;
-	let showNewsBodyPreview = false;
-	let newsBodyEl;
-	let newsBodyValue = '';
-	let newsBodyDirty = false;
 
 	onMount(() => {
 		allData = loadDraftFromStorage();
@@ -48,8 +44,6 @@
 		message = `Update cms.json (${new Date().toISOString().slice(0, 10)})`;
 		if (!allData) {
 			status = 'No draft loaded. Go back and unlock/load first.';
-		} else if (section === 'newsPosts') {
-			newsBodyValue = String(getSectionData()?.body ?? '');
 		}
 	});
 
@@ -66,60 +60,6 @@
 	function updateObjectField(fieldKey, nextValue) {
 		const next = { ...(getSectionData() || {}), [fieldKey]: nextValue };
 		setSectionData(next);
-	}
-
-	$: if (section === 'newsPosts' && allData && !newsBodyDirty) {
-		newsBodyValue = String(getSectionData()?.body ?? '');
-	}
-
-	function applyToNewsBody(transform) {
-		if (!newsBodyEl) return;
-		const current = String(newsBodyValue ?? '');
-		const start = newsBodyEl.selectionStart ?? 0;
-		const end = newsBodyEl.selectionEnd ?? 0;
-
-		const out = transform({ value: current, start, end });
-		if (!out || typeof out.value !== 'string') return;
-
-		newsBodyDirty = true;
-		newsBodyValue = out.value;
-		updateObjectField('body', out.value);
-
-		tick().then(() => {
-			try {
-				newsBodyEl.focus();
-				newsBodyEl.setSelectionRange(out.start ?? 0, out.end ?? 0);
-			} catch {
-				// ignore
-			}
-		});
-	}
-
-	function wrapSelection({ value, start, end }, prefix, suffix, placeholder) {
-		const selected = value.slice(start, end);
-		const inner = selected || placeholder;
-		const nextValue = value.slice(0, start) + prefix + inner + suffix + value.slice(end);
-		const innerStart = start + prefix.length;
-		const innerEnd = innerStart + inner.length;
-		return { value: nextValue, start: innerStart, end: innerEnd };
-	}
-
-	function prefixSelectedLines({ value, start, end }, fnPrefixForLine) {
-		const lineStart = value.lastIndexOf('\n', Math.max(0, start - 1)) + 1;
-		const lineEndRaw = value.indexOf('\n', end);
-		const lineEnd = lineEndRaw === -1 ? value.length : lineEndRaw;
-		const block = value.slice(lineStart, lineEnd);
-		const lines = block.split('\n');
-
-		const nextBlock = lines
-			.map((line, idx) => {
-				const p = fnPrefixForLine(idx);
-				return line.startsWith(p) ? line : p + line;
-			})
-			.join('\n');
-
-		const nextValue = value.slice(0, lineStart) + nextBlock + value.slice(lineEnd);
-		return { value: nextValue, start: lineStart, end: lineStart + nextBlock.length };
 	}
 
 	function ensureItem(obj, field) {
@@ -232,100 +172,14 @@
 			{#if schema.kind === 'object'}
 				{#each schema.fields as field (field.key)}
 					{#if section === 'newsPosts' && field.key === 'body'}
-						<div class="mdHead">
-							<div class="mdTitle">{field.label}</div>
-							<div class="mdTools">
-								<button
-									class="mini"
-									type="button"
-									on:click={() =>
-										applyToNewsBody((sel) => prefixSelectedLines(sel, () => '## '))
-									}
-								>
-									H2
-								</button>
-								<button
-									class="mini"
-									type="button"
-									on:click={() =>
-										applyToNewsBody((sel) => prefixSelectedLines(sel, () => '### '))
-									}
-								>
-									H3
-								</button>
-								<button
-									class="mini"
-									type="button"
-									on:click={() =>
-										applyToNewsBody((sel) => wrapSelection(sel, '**', '**', 'bold text'))
-									}
-								>
-									Bold
-								</button>
-								<button
-									class="mini"
-									type="button"
-									on:click={() =>
-										applyToNewsBody((sel) => wrapSelection(sel, '*', '*', 'italic text'))
-									}
-								>
-									Italic
-								</button>
-								<button
-									class="mini"
-									type="button"
-									on:click={() =>
-										applyToNewsBody((sel) => prefixSelectedLines(sel, () => '- '))
-									}
-								>
-									Bullets
-								</button>
-								<button
-									class="mini"
-									type="button"
-									on:click={() =>
-										applyToNewsBody((sel) =>
-											prefixSelectedLines(sel, (i) => `${i + 1}. `)
-										)
-									}
-								>
-									Numbered
-								</button>
-								<button
-									class="mini"
-									type="button"
-									on:click={() =>
-										applyToNewsBody((sel) => wrapSelection(sel, '[', '](https://)', 'link text'))
-									}
-								>
-									Link
-								</button>
-								<button
-									class="mini"
-									type="button"
-									on:click={() => (showNewsBodyPreview = !showNewsBodyPreview)}
-								>
-									{showNewsBodyPreview ? 'Edit' : 'Preview'}
-								</button>
-							</div>
-						</div>
-
-						{#if showNewsBodyPreview}
-							<div class="mdPreview">
-								<SvelteMarkdown source={String(getSectionData()?.body ?? '')} />
-							</div>
-						{:else}
-							<textarea
-								class="textarea"
-								bind:this={newsBodyEl}
-								bind:value={newsBodyValue}
-								on:input={(e) => {
-									newsBodyDirty = true;
-									updateObjectField('body', e.target.value);
-								}}
-								spellcheck="true"
+						<div class="label">
+							<span>{field.label}</span>
+							<QuillEditor
+								value={String(getSectionData()?.body ?? '')}
+								placeholder="Write the news update..."
+								on:change={(e) => updateObjectField('body', e.detail)}
 							/>
-						{/if}
+						</div>
 					{:else if field.widget === 'text'}
 						<label class="label">
 							<span>{field.label}</span>
@@ -636,31 +490,6 @@
 	}
 	.itemBody {
 		margin-top: 12px;
-	}
-
-	.mdHead {
-		display: flex;
-		gap: 10px;
-		align-items: center;
-		justify-content: space-between;
-		margin: 0 0 8px;
-		flex-wrap: wrap;
-	}
-	.mdTitle {
-		font-size: 13px;
-		opacity: 0.9;
-	}
-	.mdTools {
-		display: inline-flex;
-		gap: 6px;
-		flex-wrap: wrap;
-	}
-	.mdPreview {
-		border: 1px solid rgba(255, 255, 255, 0.12);
-		border-radius: 14px;
-		padding: 12px;
-		background: rgba(0, 0, 0, 0.16);
-		margin: 0 0 12px;
 	}
 
 	.actions {

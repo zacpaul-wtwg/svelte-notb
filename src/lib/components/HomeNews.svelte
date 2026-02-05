@@ -1,6 +1,8 @@
 <script>
 	import SvelteMarkdown from 'svelte-markdown';
 	export let allData;
+
+	const looksLikeHtml = (value) => /<\/?[a-z][\s\S]*>/i.test(String(value || ''));
 </script>
 
 <div>
@@ -8,7 +10,11 @@
 		<h2>{allData.newsPosts.title}</h2>
 		<em>{allData.newsPosts.date}</em>
 	</div>
-	<SvelteMarkdown source={allData.newsPosts.body} />
+	{#if looksLikeHtml(allData.newsPosts.body)}
+		<div class="news-body" {@html allData.newsPosts.body} />
+	{:else}
+		<SvelteMarkdown source={allData.newsPosts.body} />
+	{/if}
 </div>
 
 <style lang="scss">
