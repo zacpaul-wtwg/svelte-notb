@@ -65,11 +65,10 @@
 	function validateStoreHours(value) {
 		const trimmed = String(value || '').trim();
 		if (!trimmed) return { ok: false, message: 'Required' };
-		if (trimmed.toLowerCase() === 'closed') return { ok: true };
 		const re =
 			/^(1[0-2]|[1-9])(?::[0-5][0-9])?\s?(AM|PM)\s?-\s?(1[0-2]|[1-9])(?::[0-5][0-9])?\s?(AM|PM)$/i;
 		if (!re.test(trimmed)) {
-			return { ok: false, message: 'Use format like “10 AM - 2 PM” or “Closed”.' };
+			return { ok: false, message: 'Use format like “10 AM - 2 PM”.' };
 		}
 		return { ok: true };
 	}
@@ -77,8 +76,6 @@
 	function formatStoreHoursInput(raw) {
 		let v = String(raw || '');
 		if (!v) return '';
-		if (v.trim().toLowerCase().startsWith('closed')) return 'Closed';
-
 		v = v.toUpperCase();
 		// Keep only digits, A/P/M, colon, dash, space
 		v = v.replace(/[^0-9APM:\-\s]/g, '');
@@ -98,6 +95,10 @@
 		if (/\b(AM|PM)\s*$/.test(current)) {
 			input.value = `${current} - `;
 		}
+	}
+
+	function isClosedValue(value) {
+		return String(value || '').trim().toLowerCase() === 'closed';
 	}
 
 	function formatNewsDateTime(value) {
@@ -268,24 +269,41 @@
 					{:else if field.widget === 'storeHours'}
 						<label class="label">
 							<span>{field.label}</span>
-							<input
-								class="input"
-								type="text"
-								data-field-key={field.key}
-								value={getSectionData()?.[field.key] ?? ''}
-								on:input={(e) => {
-									const next = formatStoreHoursInput(e.target.value);
-									e.target.value = next;
-									maybeAutoInsertDash(e.target);
-									updateObjectField(field.key, next);
-								}}
-							/>
+							<div class="hoursRow">
+								<input
+									class="input"
+									type="text"
+									data-field-key={field.key}
+									value={getSectionData()?.[field.key] ?? ''}
+									disabled={isClosedValue(getSectionData()?.[field.key])}
+									on:input={(e) => {
+										const next = formatStoreHoursInput(e.target.value);
+										e.target.value = next;
+										maybeAutoInsertDash(e.target);
+										updateObjectField(field.key, next);
+									}}
+								/>
+								<label class="closedToggle">
+									<input
+										type="checkbox"
+										checked={isClosedValue(getSectionData()?.[field.key])}
+										on:change={(e) => {
+											if (e.target.checked) {
+												updateObjectField(field.key, 'Closed');
+											} else {
+												updateObjectField(field.key, '');
+											}
+										}}
+									/>
+									<span>Closed</span>
+								</label>
+							</div>
 							{#if !validateStoreHours(getSectionData()?.[field.key]).ok}
 								<small class="hint error">
 									{validateStoreHours(getSectionData()?.[field.key]).message}
 								</small>
 							{:else}
-								<small class="hint">Format: <code>10 AM - 2 PM</code> or <code>Closed</code></small>
+								<small class="hint">Format: <code>10 AM - 2 PM</code></small>
 							{/if}
 						</label>
 					{:else if field.widget === 'boolean'}
@@ -614,6 +632,19 @@
 	.hint.error {
 		color: #ff9d9d;
 		opacity: 1;
+	}
+	.hoursRow {
+		display: flex;
+		gap: 12px;
+		align-items: center;
+		flex-wrap: wrap;
+	}
+	.closedToggle {
+		display: inline-flex;
+		gap: 8px;
+		align-items: center;
+		font-size: 13px;
+		opacity: 0.9;
 	}
 	code {
 		font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, Liberation Mono, monospace;
