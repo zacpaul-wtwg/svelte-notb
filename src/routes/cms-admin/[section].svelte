@@ -88,12 +88,16 @@
 		return v;
 	}
 
-	function maybeAutoInsertDash(input) {
-		const current = String(input.value || '');
+	function maybeAutoInsertDash(el) {
+		const current = String(el.value ?? el.textContent ?? '');
 		if (current.includes('-')) return;
 		// If the first time range is complete (ends in AM/PM), append " - "
 		if (/\b(AM|PM)\s*$/.test(current)) {
-			input.value = `${current} - `;
+			if ('value' in el) {
+				el.value = `${current} - `;
+			} else {
+				el.textContent = `${current} - `;
+			}
 		}
 	}
 
@@ -289,19 +293,26 @@
 								</label>
 							</div>
 							<div class="hoursRow">
-								<input
-									class="input"
-									type="text"
+								<div
+									class="input hoursEditable"
+									contenteditable={!isClosedValue(getSectionData()?.[field.key])}
 									data-field-key={field.key}
-									value={getSectionData()?.[field.key] ?? ''}
-									disabled={isClosedValue(getSectionData()?.[field.key])}
 									on:input={(e) => {
-										const next = formatStoreHoursInput(e.target.value);
-										e.target.value = next;
-										maybeAutoInsertDash(e.target);
+										const text = e.currentTarget.textContent || '';
+										const next = formatStoreHoursInput(text);
+										e.currentTarget.textContent = next;
+										maybeAutoInsertDash(e.currentTarget);
 										updateObjectField(field.key, next);
 									}}
-								/>
+									on:blur={(e) => {
+										const text = e.currentTarget.textContent || '';
+										const next = formatStoreHoursInput(text);
+										e.currentTarget.textContent = next;
+										updateObjectField(field.key, next);
+									}}
+								>
+									{getSectionData()?.[field.key] ?? ''}
+								</div>
 							</div>
 							{#if !validateStoreHours(getSectionData()?.[field.key]).ok}
 								<small class="hint error">
@@ -536,6 +547,10 @@
 		min-height: 120px;
 		font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, Liberation Mono, monospace;
 		line-height: 1.35;
+	}
+	.hoursEditable[contenteditable='false'] {
+		opacity: 0.6;
+		cursor: not-allowed;
 	}
 
 	.check {
