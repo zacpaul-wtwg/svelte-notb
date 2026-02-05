@@ -83,17 +83,8 @@
 		return `${weekday}, ${month} ${day}${ordinal}, ${d.getFullYear()} ${time}`;
 	}
 
-	function toDateTimeInputValue(label) {
-		if (!label) return '';
-		const d = new Date(label);
-		if (Number.isNaN(d.getTime())) return '';
-		const pad = (n) => String(n).padStart(2, '0');
-		const yyyy = d.getFullYear();
-		const mm = pad(d.getMonth() + 1);
-		const dd = pad(d.getDate());
-		const hh = pad(d.getHours());
-		const min = pad(d.getMinutes());
-		return `${yyyy}-${mm}-${dd}T${hh}:${min}`;
+	function setNewsDateToNow() {
+		updateObjectField('date', formatNewsDateTime(new Date()));
 	}
 
 	function ensureItem(obj, field) {
@@ -135,6 +126,9 @@
 		status = '';
 		busy = true;
 		try {
+			if (section === 'newsPosts') {
+				setNewsDateToNow();
+			}
 			const res = await fetch('/data/updateCms.json', {
 				method: 'POST',
 				headers: { 'content-type': 'application/json' },
@@ -162,6 +156,9 @@
 				return;
 			}
 			savePasswordToSession(password);
+			if (section === 'newsPosts') {
+				setNewsDateToNow();
+			}
 
 			const content = JSON.stringify(allData, null, 2) + '\n';
 			const res = await fetch('/.netlify/functions/update-cms-json', {
@@ -208,18 +205,8 @@
 					{#if section === 'newsPosts' && field.key === 'date'}
 						<label class="label">
 							<span>{field.label}</span>
-							<input
-								class="input"
-								type="datetime-local"
-								value={toDateTimeInputValue(getSectionData()?.date)}
-								on:input={(e) => {
-									const formatted = formatNewsDateTime(e.target.value);
-									updateObjectField('date', formatted);
-								}}
-							/>
-							<small class="hint">
-								Stored format: <code>{getSectionData()?.date || '—'}</code>
-							</small>
+							<input class="input" type="text" value={getSectionData()?.date || ''} readonly />
+							<small class="hint">Auto-set when you save.</small>
 						</label>
 					{:else if section === 'newsPosts' && field.key === 'body'}
 						<div class="label">
