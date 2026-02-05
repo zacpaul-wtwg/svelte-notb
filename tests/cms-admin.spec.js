@@ -22,13 +22,13 @@ test.describe('CMS Admin', () => {
     await expect(page.locator('h1', { hasText: 'Store Hours' })).toBeVisible();
 
     const closedToggle = page.locator('button.closedToggle').first();
-    const hoursField = page.locator('.hoursEditable').first();
+    const hoursField = page.locator('.hoursRow input').first();
 
     await closedToggle.click();
-    await expect(hoursField).toHaveAttribute('contenteditable', 'false');
-    await expect(hoursField).toHaveText(/Closed/i);
+    await expect(hoursField).toBeDisabled();
+    await expect(hoursField).toHaveValue(/Closed/i);
 
     await closedToggle.click();
-    await expect(hoursField).toHaveAttribute('contenteditable', 'true');
+    await expect(hoursField).toBeEnabled();
   });
 });
