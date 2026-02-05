@@ -27,13 +27,15 @@ test.describe('CMS Admin', () => {
     // Ensure starting open state for deterministic test
     await closedToggle.click();
     await closedToggle.click();
-    await expect(hoursField).toBeEnabled();
+    await expect(closedToggle).toHaveAttribute('aria-pressed', 'false');
 
     await closedToggle.click();
+    await expect(closedToggle).toHaveAttribute('aria-pressed', 'true');
     await expect(hoursField).toBeDisabled();
     await expect(hoursField).toHaveValue(/Closed/i);
 
     await closedToggle.click();
+    await expect(closedToggle).toHaveAttribute('aria-pressed', 'false');
     await expect(hoursField).toBeEnabled();
   });
 });
