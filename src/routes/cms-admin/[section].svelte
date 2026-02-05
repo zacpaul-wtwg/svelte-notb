@@ -115,6 +115,32 @@ import { onMount, tick } from 'svelte';
 		}
 	}
 
+	function setEditableTextPreserveCaret(el, next) {
+		const sel = typeof window !== 'undefined' ? window.getSelection() : null;
+		let caret = null;
+		if (sel && sel.rangeCount > 0) {
+			const range = sel.getRangeAt(0);
+			if (el.contains(range.startContainer)) {
+				caret = range.startOffset;
+			}
+		}
+		el.textContent = next;
+		if (sel) {
+			const textNode = el.firstChild;
+			const length = (el.textContent || '').length;
+			const pos = caret == null ? length : Math.min(caret, length);
+			const range = document.createRange();
+			if (textNode) {
+				range.setStart(textNode, pos);
+			} else {
+				range.setStart(el, 0);
+			}
+			range.collapse(true);
+			sel.removeAllRanges();
+			sel.addRange(range);
+		}
+	}
+
 	function isClosedValue(value) {
 		return String(value || '').trim().toLowerCase() === 'closed';
 	}
@@ -325,14 +351,18 @@ import { onMount, tick } from 'svelte';
 									on:input={(e) => {
 										const text = e.currentTarget.textContent || '';
 										const next = formatStoreHoursInput(text);
-										e.currentTarget.textContent = next;
+										if (next !== text) {
+											setEditableTextPreserveCaret(e.currentTarget, next);
+										}
 										maybeAutoInsertDash(e.currentTarget);
 										updateObjectField(field.key, next);
 									}}
 									on:blur={(e) => {
 										const text = e.currentTarget.textContent || '';
 										const next = formatStoreHoursInput(text);
-										e.currentTarget.textContent = next;
+										if (next !== text) {
+											e.currentTarget.textContent = next;
+										}
 										updateObjectField(field.key, next);
 									}}
 								>
