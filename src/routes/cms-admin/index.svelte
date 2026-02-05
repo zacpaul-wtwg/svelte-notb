@@ -57,6 +57,10 @@
 		status = '';
 		busy = true;
 		try {
+			if (!password) {
+				status = 'Enter the password to unlock.';
+				return;
+			}
 			const res = await fetch('/.netlify/functions/get-cms-json', {
 				method: 'POST',
 				headers: { 'content-type': 'application/json' },
@@ -112,7 +116,7 @@
 				/>
 			</label>
 			<div class="row">
-				<button class="btn primary" type="button" on:click={unlockProd} disabled={busy || !password}>
+				<button class="btn primary" type="button" on:click={unlockProd} disabled={busy}>
 					{busy ? 'Unlocking…' : 'Unlock'}
 				</button>
 			</div>
@@ -276,4 +280,3 @@
 		font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, Liberation Mono, monospace;
 	}
 </style>
-
