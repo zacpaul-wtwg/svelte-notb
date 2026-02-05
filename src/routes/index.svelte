@@ -32,26 +32,8 @@
 	import Container from '$lib/components/elements/Container.svelte';
 	import Featured from '$lib/components/Featured.svelte';
 	import BreakRange from '$lib/components/BreakRange.svelte';
-	import { onMount } from 'svelte';
 	export let allData;
 	export let things;
-
-	onMount(() => {
-		// If Netlify Identity invite/recovery lands on "/", forward to /admin
-		// while preserving the hash token.
-		if (typeof window === 'undefined') return;
-		const hash = window.location.hash || '';
-		if (
-			hash.includes('invite_token=') ||
-			hash.includes('recovery_token=') ||
-			hash.includes('confirmation_token=') ||
-			hash.includes('email_change_token=')
-		) {
-			// Hash fragments are client-only; server redirects cannot preserve them.
-			// Route token flows through a dedicated handler page before Decap boots.
-			window.location.replace(`/identity/${hash}`);
-		}
-	});
 </script>
 
 <svelte:head>
