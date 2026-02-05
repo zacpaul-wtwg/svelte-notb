@@ -1,0 +1,103 @@
+backend:
+  name: git-gateway
+  branch: main
+
+media_folder: "static/uploads"
+public_folder: "/uploads"
+
+publish_mode: simple
+
+collections:
+  - name: "siteContent"
+    label: "Site Content"
+    files:
+      - name: "cms"
+        label: "Site Data (cms.json)"
+        file: "static/cms.json"
+        format: "json"
+        fields:
+          - name: "newsPosts"
+            label: "News Post"
+            widget: "object"
+            fields:
+              - { name: "title", label: "Title", widget: "string" }
+              - { name: "date", label: "Date", widget: "string" }
+              - { name: "body", label: "Body", widget: "text" }
+
+          - name: "footerDescription"
+            label: "Footer Description"
+            widget: "object"
+            fields:
+              - { name: "title", label: "Title", widget: "string" }
+              - { name: "body", label: "Body", widget: "text" }
+
+          - name: "hours"
+            label: "Store Hours"
+            widget: "object"
+            fields:
+              - { name: "title", label: "Title", widget: "string" }
+              - { name: "sunday", label: "Sunday", widget: "string" }
+              - { name: "monday", label: "Monday", widget: "string" }
+              - { name: "tuesday", label: "Tuesday", widget: "string" }
+              - { name: "wednesday", label: "Wednesday", widget: "string" }
+              - { name: "thursday", label: "Thursday", widget: "string" }
+              - { name: "friday", label: "Friday", widget: "string" }
+              - { name: "saturday", label: "Saturday", widget: "string" }
+              - { name: "areSpecialHoursActive", label: "Special Hours Active", widget: "boolean" }
+              - { name: "specialHours", label: "Special Hours (Markdown)", widget: "text", required: false }
+
+          - name: "regularHoursStrict"
+            label: "Regular Hours Strict"
+            widget: "object"
+            fields:
+              - { name: "title", label: "Title", widget: "string" }
+              - { name: "sundayHours", label: "Sunday Hours", widget: "string" }
+              - { name: "mondayHours", label: "Monday Hours", widget: "string" }
+              - { name: "tuesdayHours", label: "Tuesday Hours", widget: "string" }
+              - { name: "wednesdayHours", label: "Wednesday Hours", widget: "string" }
+              - { name: "thursdayHours", label: "Thursday Hours", widget: "string" }
+              - { name: "fridayHours", label: "Friday Hours", widget: "string" }
+              - { name: "saturdayHours", label: "Saturday Hours", widget: "string" }
+
+          - name: "faq"
+            label: "FAQ"
+            widget: "list"
+            fields:
+              - { name: "title", label: "Question", widget: "string" }
+              - { name: "answer", label: "Answer", widget: "text" }
+              - { name: "order", label: "Order", widget: "number" }
+
+          - name: "pricing"
+            label: "Pricing"
+            widget: "list"
+            fields:
+              - { name: "title", label: "Title", widget: "string" }
+              - { name: "entry", label: "Entry", widget: "text" }
+              - { name: "order", label: "Order", widget: "number" }
+
+          - name: "specialHours"
+            label: "Special Hours"
+            widget: "list"
+            fields:
+              - { name: "occasion", label: "Occasion", widget: "string" }
+              - { name: "isActive", label: "Is Active", widget: "boolean" }
+              - { name: "dayOneDate", label: "Day One Date", widget: "string", required: false }
+              - { name: "dayOneHours", label: "Day One Hours", widget: "string", required: false }
+              - { name: "dayTwoDate", label: "Day Two Date", widget: "string", required: false }
+              - { name: "dayTwoHours", label: "Day Two Hours", widget: "string", required: false }
+              - { name: "dayThreeDate", label: "Day Three Date", widget: "string", required: false }
+              - { name: "dayThreeHours", label: "Day Three Hours", widget: "string", required: false }
+              - { name: "dayFourDate", label: "Day Four Date", widget: "string", required: false }
+              - { name: "dayFourHours", label: "Day Four Hours", widget: "string", required: false }
+              - { name: "dayFiveDate", label: "Day Five Date", widget: "string", required: false }
+              - { name: "dayFiveHours", label: "Day Five Hours", widget: "string", required: false }
+
+          - name: "closedRange"
+            label: "Closed Range"
+            widget: "list"
+            fields:
+              - { name: "occasion", label: "Occasion", widget: "string" }
+              - { name: "isActive", label: "Is Active", widget: "boolean" }
+              - { name: "startOfBreak", label: "Start of Break", widget: "string" }
+              - { name: "endOfBreak", label: "End of Break", widget: "string" }
+              - { name: "moreInfo", label: "More Info", widget: "string" }
