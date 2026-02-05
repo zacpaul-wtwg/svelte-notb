@@ -1,11 +1,8 @@
 <script context="module">
 	export async function load({ fetch }) {
-		// Served from /static/cms.json
-		const res = await fetch('/cms.json');
-		const text = await res.text();
 		return {
 			props: {
-				initial: text
+				initial: ''
 			}
 		};
 	}
@@ -21,6 +18,8 @@
 	let content = initial;
 	let status = '';
 	let busy = false;
+	let unlocked = false;
+	let lastLoaded = '';
 
 	let fileInput;
 
@@ -28,6 +27,31 @@
 		// Give the editor a sane default message
 		message = `Update cms.json (${new Date().toISOString().slice(0, 10)})`;
 	});
+
+	async function unlock() {
+		status = '';
+		busy = true;
+		try {
+			const res = await fetch('/.netlify/functions/get-cms-json', {
+				method: 'POST',
+				headers: { 'content-type': 'application/json' },
+				body: JSON.stringify({ password })
+			});
+			const data = await res.json().catch(() => ({}));
+			if (!res.ok) {
+				status = `Error (${res.status}): ${data?.error || 'Request failed'}`;
+				return;
+			}
+			lastLoaded = String(data?.content || '');
+			content = lastLoaded;
+			unlocked = true;
+			status = 'Unlocked.';
+		} catch (e) {
+			status = `Network error: ${e?.message || e}`;
+		} finally {
+			busy = false;
+		}
+	}
 
 	function onFileChange() {
 		const file = fileInput?.files?.[0];
@@ -77,37 +101,70 @@
 	</header>
 
 	<section class="panel">
-		<label class="label">
-			<span>Password</span>
-			<input class="input" type="password" bind:value={password} autocomplete="current-password" />
-		</label>
-
-		<label class="label">
-			<span>Commit Message</span>
-			<input class="input" type="text" bind:value={message} />
-		</label>
-
-		<div class="row">
+		{#if !unlocked}
 			<label class="label">
-				<span>Load JSON File</span>
-				<input class="input" type="file" accept="application/json" bind:this={fileInput} on:change={onFileChange} />
+				<span>Password</span>
+				<input
+					class="input"
+					type="password"
+					bind:value={password}
+					autocomplete="current-password"
+					on:keydown={(e) => e.key === 'Enter' && password && !busy && unlock()}
+				/>
 			</label>
-			<button class="btn" type="button" on:click={() => (content = initial)} disabled={busy}>
-				Reset To Live
-			</button>
-		</div>
 
-		<label class="label">
-			<span>cms.json</span>
-			<textarea class="textarea" bind:value={content} spellcheck="false"></textarea>
-		</label>
+			<div class="row">
+				<button class="btn primary" type="button" on:click={unlock} disabled={busy || !password}>
+					{busy ? 'Unlocking…' : 'Unlock Editor'}
+				</button>
+			</div>
+		{:else}
+			<label class="label">
+				<span>Password</span>
+				<input class="input" type="password" bind:value={password} autocomplete="current-password" />
+			</label>
 
-		<div class="row">
-			<button class="btn primary" type="button" on:click={submit} disabled={busy || !password || !content.trim()}>
-				{busy ? 'Updating…' : 'Update Site Content'}
-			</button>
-			<a class="btn" href="/cms.json" target="_blank" rel="noreferrer">View Live cms.json</a>
-		</div>
+			<label class="label">
+				<span>Commit Message</span>
+				<input class="input" type="text" bind:value={message} />
+			</label>
+
+			<div class="row">
+				<label class="label">
+					<span>Load JSON File</span>
+					<input
+						class="input"
+						type="file"
+						accept="application/json"
+						bind:this={fileInput}
+						on:change={onFileChange}
+					/>
+				</label>
+				<button class="btn" type="button" on:click={() => (content = lastLoaded)} disabled={busy}>
+					Reset To Loaded
+				</button>
+			</div>
+
+			<label class="label">
+				<span>cms.json</span>
+				<textarea class="textarea" bind:value={content} spellcheck="false"></textarea>
+			</label>
+
+			<div class="row">
+				<button
+					class="btn primary"
+					type="button"
+					on:click={submit}
+					disabled={busy || !password || !content.trim()}
+				>
+					{busy ? 'Updating…' : 'Update Site Content'}
+				</button>
+				<button class="btn" type="button" on:click={() => (unlocked = false)} disabled={busy}>
+					Lock
+				</button>
+				<a class="btn" href="/cms.json" target="_blank" rel="noreferrer">View Live cms.json</a>
+			</div>
+		{/if}
 
 		{#if status}
 			<p class="status">{status}</p>
@@ -220,4 +277,3 @@
 		font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, Liberation Mono, monospace;
 	}
 </style>
-
