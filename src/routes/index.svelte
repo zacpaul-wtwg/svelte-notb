@@ -32,8 +32,19 @@
 	import Container from '$lib/components/elements/Container.svelte';
 	import Featured from '$lib/components/Featured.svelte';
 	import BreakRange from '$lib/components/BreakRange.svelte';
+	import { onMount } from 'svelte';
 	export let allData;
 	export let things;
+
+	onMount(() => {
+		// If Netlify Identity invite/recovery lands on "/", forward to /admin
+		// while preserving the hash token.
+		if (typeof window === 'undefined') return;
+		const hash = window.location.hash || '';
+		if (hash.includes('invite_token=') || hash.includes('recovery_token=')) {
+			window.location.replace(`/admin/${hash}`);
+		}
+	});
 </script>
 
 <svelte:head>
