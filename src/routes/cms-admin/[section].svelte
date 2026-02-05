@@ -268,7 +268,26 @@
 						</label>
 					{:else if field.widget === 'storeHours'}
 						<label class="label">
-							<span>{field.label}</span>
+							<div class="hoursHeader">
+								<span>{field.label}</span>
+								<span class="hoursSep"></span>
+								<label class="closedToggle">
+									<input
+										class="toggleInput"
+										type="checkbox"
+										checked={isClosedValue(getSectionData()?.[field.key])}
+										on:change={(e) => {
+											if (e.target.checked) {
+												updateObjectField(field.key, 'Closed');
+											} else {
+												updateObjectField(field.key, '');
+											}
+										}}
+									/>
+									<span class="toggleTrack"><span class="toggleThumb"></span></span>
+									<span>Closed</span>
+								</label>
+							</div>
 							<div class="hoursRow">
 								<input
 									class="input"
@@ -283,20 +302,6 @@
 										updateObjectField(field.key, next);
 									}}
 								/>
-								<label class="closedToggle">
-									<input
-										type="checkbox"
-										checked={isClosedValue(getSectionData()?.[field.key])}
-										on:change={(e) => {
-											if (e.target.checked) {
-												updateObjectField(field.key, 'Closed');
-											} else {
-												updateObjectField(field.key, '');
-											}
-										}}
-									/>
-									<span>Closed</span>
-								</label>
 							</div>
 							{#if !validateStoreHours(getSectionData()?.[field.key]).ok}
 								<small class="hint error">
@@ -633,6 +638,16 @@
 		color: #ff9d9d;
 		opacity: 1;
 	}
+	.hoursHeader {
+		display: flex;
+		align-items: center;
+		gap: 10px;
+	}
+	.hoursSep {
+		flex: 1;
+		height: 1px;
+		background: rgba(255, 255, 255, 0.15);
+	}
 	.hoursRow {
 		display: flex;
 		gap: 12px;
@@ -645,6 +660,38 @@
 		align-items: center;
 		font-size: 13px;
 		opacity: 0.9;
+	}
+	.toggleInput {
+		position: absolute;
+		opacity: 0;
+		pointer-events: none;
+	}
+	.toggleTrack {
+		width: 40px;
+		height: 22px;
+		border-radius: 999px;
+		background: rgba(255, 255, 255, 0.15);
+		border: 1px solid rgba(255, 255, 255, 0.2);
+		display: inline-flex;
+		align-items: center;
+		padding: 2px;
+		box-sizing: border-box;
+		transition: background 0.2s ease, border-color 0.2s ease;
+	}
+	.toggleThumb {
+		width: 16px;
+		height: 16px;
+		border-radius: 50%;
+		background: #eef0f6;
+		transform: translateX(0);
+		transition: transform 0.2s ease;
+	}
+	.toggleInput:checked + .toggleTrack {
+		background: rgba(255, 199, 0, 0.35);
+		border-color: rgba(255, 199, 0, 0.55);
+	}
+	.toggleInput:checked + .toggleTrack .toggleThumb {
+		transform: translateX(16px);
 	}
 	code {
 		font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, Liberation Mono, monospace;
