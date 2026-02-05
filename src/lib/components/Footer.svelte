@@ -40,42 +40,40 @@
 				{/if}
 			{/each}
 			{#each allData.specialHours as occasion}
-				{#if occasion.isActive}
-					{#if occasion.dayOneDate}
-						<tr>
-							<th colspan="2">{occasion.occasion}</th>
-						</tr>
-					{/if}
-					{#if occasion.dayOneDate}
-						<tr>
-							<td> <strong>{new Date(date(occasion.dayOneDate)).toDateString()}</strong></td>
-							<td>{occasion.dayOneHours}</td>
-						</tr>
-					{/if}
-					{#if occasion.dayTwoDate}
-						<tr>
-							<td> <strong>{new Date(date(occasion.dayTwoDate)).toDateString()}</strong></td>
-							<td>{occasion.dayTwoHours}</td>
-						</tr>
-					{/if}
-					{#if occasion.dayThreeDate}
-						<tr>
-							<td> <strong>{new Date(date(occasion.dayThreeDate)).toDateString()}</strong></td>
-							<td>{occasion.dayThreeHours}</td>
-						</tr>
-					{/if}
-					{#if occasion.dayFourDate}
-						<tr>
-							<td> <strong>{new Date(date(occasion.dayFourDate)).toDateString()}</strong></td>
-							<td>{occasion.dayFourHours}</td>
-						</tr>
-					{/if}
-					{#if occasion.dayFiveDate}
-						<tr>
-							<td> <strong>{new Date(date(occasion.dayFiveDate)).toDateString()}</strong></td>
-							<td>{occasion.dayFiveHours}</td>
-						</tr>
-					{/if}
+				{#if occasion.dayOneDate}
+					<tr>
+						<th colspan="2">{occasion.occasion}</th>
+					</tr>
+				{/if}
+				{#if occasion.dayOneDate}
+					<tr>
+						<td> <strong>{new Date(date(occasion.dayOneDate)).toDateString()}</strong></td>
+						<td>{occasion.dayOneHours}</td>
+					</tr>
+				{/if}
+				{#if occasion.dayTwoDate}
+					<tr>
+						<td> <strong>{new Date(date(occasion.dayTwoDate)).toDateString()}</strong></td>
+						<td>{occasion.dayTwoHours}</td>
+					</tr>
+				{/if}
+				{#if occasion.dayThreeDate}
+					<tr>
+						<td> <strong>{new Date(date(occasion.dayThreeDate)).toDateString()}</strong></td>
+						<td>{occasion.dayThreeHours}</td>
+					</tr>
+				{/if}
+				{#if occasion.dayFourDate}
+					<tr>
+						<td> <strong>{new Date(date(occasion.dayFourDate)).toDateString()}</strong></td>
+						<td>{occasion.dayFourHours}</td>
+					</tr>
+				{/if}
+				{#if occasion.dayFiveDate}
+					<tr>
+						<td> <strong>{new Date(date(occasion.dayFiveDate)).toDateString()}</strong></td>
+						<td>{occasion.dayFiveHours}</td>
+					</tr>
 				{/if}
 			{/each}
 			<tr>

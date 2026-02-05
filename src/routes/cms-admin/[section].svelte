@@ -24,7 +24,6 @@
 	} from '$lib/cms/adminDraft';
 import { onMount } from 'svelte';
 import QuillEditor from '$lib/components/QuillEditor.svelte';
-import MaskedHoursInput from '$lib/components/MaskedHoursInput.svelte';
 
 	export let section;
 
@@ -38,11 +37,16 @@ import MaskedHoursInput from '$lib/components/MaskedHoursInput.svelte';
 	let message = '';
 	let status = '';
 	let busy = false;
+	let closedMap = {};
+	let timeMap = {};
+	let toggleMap = {};
 
 	onMount(() => {
 		allData = loadDraftFromStorage();
 		password = loadPasswordFromSession();
 		message = `Update cms.json (${new Date().toISOString().slice(0, 10)})`;
+		syncClosedMapFromData(getSectionData());
+		syncToggleMapFromData(getSectionData());
 		if (!allData) {
 			status = 'No draft loaded. Go back and unlock/load first.';
 			if (isLocalDev) {
@@ -52,6 +56,8 @@ import MaskedHoursInput from '$lib/components/MaskedHoursInput.svelte';
 					.then((text) => {
 						allData = JSON.parse(text);
 						saveDraftToStorage(allData);
+						syncClosedMapFromData(getSectionData());
+						syncToggleMapFromData(getSectionData());
 						status = 'Loaded from /cms.json';
 					})
 					.catch((e) => {
@@ -66,9 +72,86 @@ import MaskedHoursInput from '$lib/components/MaskedHoursInput.svelte';
 		return allData[section];
 	}
 
+	function parseStoreHours(value) {
+		const trimmed = String(value || '').trim();
+		if (!trimmed || isClosedValue(trimmed)) return { start: '', end: '' };
+		const match =
+			/^(1[0-2]|[1-9])(?::([0-5][0-9]))?\s?(AM|PM)\s?-\s?(1[0-2]|[1-9])(?::([0-5][0-9]))?\s?(AM|PM)$/i.exec(
+				trimmed
+			);
+		if (!match) return { start: '', end: '' };
+		const [, h1, m1, ap1, h2, m2, ap2] = match;
+		const to24 = (h, m, ap) => {
+			let hour = Number(h);
+			const min = Number(m || '0');
+			const upper = ap.toUpperCase();
+			if (upper === 'AM') {
+				if (hour === 12) hour = 0;
+			} else if (hour !== 12) {
+				hour += 12;
+			}
+			return `${String(hour).padStart(2, '0')}:${String(min).padStart(2, '0')}`;
+		};
+		return { start: to24(h1, m1, ap1), end: to24(h2, m2, ap2) };
+	}
+
+	function formatTimeLabel(value) {
+		if (!value) return '';
+		const [hStr, mStr] = value.split(':');
+		const h = Number(hStr);
+		const m = Number(mStr || '0');
+		const ap = h >= 12 ? 'PM' : 'AM';
+		const hour12 = h % 12 === 0 ? 12 : h % 12;
+		const minutes = m ? `:${String(m).padStart(2, '0')}` : '';
+		return `${hour12}${minutes} ${ap}`;
+	}
+
+	function formatStoreHoursFromTimes(start, end) {
+		if (!start || !end) return '';
+		return `${formatTimeLabel(start)} - ${formatTimeLabel(end)}`;
+	}
+
+	function syncClosedMapFromData(nextSection) {
+		if (schema?.key !== 'hours' || !nextSection) return;
+		const next = {};
+		const nextTimes = {};
+		for (const field of schema.fields) {
+			if (field.widget === 'storeHours') {
+				next[field.key] = isClosedValue(nextSection[field.key]);
+				nextTimes[field.key] = parseStoreHours(nextSection[field.key]);
+			}
+		}
+		closedMap = next;
+		timeMap = nextTimes;
+	}
+
+	function syncToggleMapFromData(nextSection) {
+		if (!schema || !nextSection) return;
+		const next = {};
+		if (schema.kind === 'object') {
+			for (const field of schema.fields) {
+				if (field.widget === 'boolean') {
+					next[field.key] = Boolean(nextSection[field.key]);
+				}
+			}
+		} else if (schema.kind === 'list' && Array.isArray(nextSection)) {
+			nextSection.forEach((item, idx) => {
+				for (const field of schema.fields) {
+					if (field.widget === 'boolean') {
+						next[`${idx}:${field.key}`] = Boolean(item?.[field.key]);
+					}
+				}
+			});
+		}
+		toggleMap = next;
+	}
+
 	function setSectionData(next) {
-		allData = { ...allData, [section]: next };
+		const normalized = normalizeSpecialHours(next);
+		allData = { ...allData, [section]: normalized };
 		saveDraftToStorage(allData);
+		syncClosedMapFromData(normalized);
+		syncToggleMapFromData(normalized);
 	}
 
 	function updateObjectField(fieldKey, nextValue) {
@@ -92,9 +175,34 @@ import MaskedHoursInput from '$lib/components/MaskedHoursInput.svelte';
 	}
 
 	function toggleClosed(fieldKey) {
-		const closing = !isClosedValue(getSectionData()?.[fieldKey]);
+		const current = getSectionData();
+		const closing = !isClosedValue(current?.[fieldKey]);
+		closedMap = { ...closedMap, [fieldKey]: closing };
 		updateObjectField(fieldKey, closing ? 'Closed' : '');
 	}
+
+	function toggleBooleanField(fieldKey) {
+		const current = Boolean(getSectionData()?.[fieldKey]);
+		toggleMap = { ...toggleMap, [fieldKey]: !current };
+		updateObjectField(fieldKey, !current);
+	}
+
+	function toggleBooleanListField(idx, fieldKey) {
+		const current = getSectionData();
+		if (!Array.isArray(current)) return;
+		const nextValue = !Boolean(current[idx]?.[fieldKey]);
+		toggleMap = { ...toggleMap, [`${idx}:${fieldKey}`]: nextValue };
+		const next = current.map((x, i) => (i === idx ? { ...x, [fieldKey]: nextValue } : x));
+		setSectionData(next);
+	}
+
+	function getListValue(idx, key) {
+		const current = getSectionData();
+		if (!Array.isArray(current)) return '';
+		return current[idx]?.[key] ?? '';
+	}
+
+	
 
 	function formatNewsDateTime(value) {
 		const d = value ? new Date(value) : null;
@@ -128,11 +236,21 @@ import MaskedHoursInput from '$lib/components/MaskedHoursInput.svelte';
 		else obj[field.key] = '';
 	}
 
+	function normalizeSpecialHours(next) {
+		if (section !== 'specialHours' || !Array.isArray(next)) return next;
+		return next.map((item) => ({
+			...item,
+			days: Array.isArray(item?.days) ? item.days : []
+		}));
+	}
+
 	function addListItem() {
 		const current = getSectionData();
 		const next = Array.isArray(current) ? [...current] : [];
 		const blank = {};
 		for (const f of schema.fields) ensureItem(blank, f);
+		if (section === 'specialHours' && !blank.title) blank.title = 'Title Required';
+		if (section === 'specialHours' && !Array.isArray(blank.days)) blank.days = [];
 		next.push(blank);
 		setSectionData(next);
 	}
@@ -220,13 +338,26 @@ import MaskedHoursInput from '$lib/components/MaskedHoursInput.svelte';
 </svelte:head>
 
 <main class="wrap">
-	<header class="header">
-		<div class="top">
-			<a class="btn" href="/cms-admin">← Sections</a>
-			<div class="title">
-				<h1>{schema.label}</h1>
-				<div class="meta"><code>{schema.key}</code> <span class="pill">{schema.kind}</span></div>
+	<header class="adminTop">
+		<div class="adminBar">
+			<div class="adminLeft">
+				<a class="btn ghost" href="/cms-admin">← Sections</a>
+				{#if isLocalDev}
+					<button class="btn primary" type="button" on:click={saveToDiskDev} disabled={busy}>
+						{busy ? 'Saving…' : 'Save'}
+					</button>
+				{:else}
+					<button class="btn primary" type="button" on:click={publishToGitHub} disabled={busy || !password}>
+						{busy ? 'Publishing…' : 'Save'}
+					</button>
+				{/if}
 			</div>
+			<div class="adminCenter">
+				<h1 class="pageTitle">{schema.label}</h1>
+			</div>
+			<a class="logo" href="/">
+				<img src="/logo_large.png" alt="North of the Border Logo" />
+			</a>
 		</div>
 	</header>
 
@@ -235,13 +366,13 @@ import MaskedHoursInput from '$lib/components/MaskedHoursInput.svelte';
 			<p class="status">{status}</p>
 		{:else}
 			{#if schema.kind === 'object'}
-				{#each schema.fields as field (field.key)}
+					{#each schema.fields as field (field.key)}
 					{#if section === 'newsPosts' && field.key === 'date'}
-						<label class="label">
+						<div class="label">
 							<span>{field.label}</span>
-							<input class="input" type="text" value={getSectionData()?.date || ''} readonly />
+							<div class="readonlyField">{getSectionData()?.date || 'Auto-set on save'}</div>
 							<small class="hint">Auto-set when you save.</small>
-						</label>
+						</div>
 					{:else if section === 'newsPosts' && field.key === 'body'}
 						<div class="label">
 							<span>{field.label}</span>
@@ -269,41 +400,70 @@ import MaskedHoursInput from '$lib/components/MaskedHoursInput.svelte';
 								<button
 									type="button"
 									class="closedToggle"
-									aria-pressed={isClosedValue(getSectionData()?.[field.key])}
-									on:click|preventDefault|stopPropagation={() => toggleClosed(field.key)}
+									class:toggleOn={Boolean(closedMap?.[field.key])}
+									aria-pressed={Boolean(closedMap?.[field.key])}
+									on:click={() => toggleClosed(field.key)}
 								>
 									<span class="toggleTrack"><span class="toggleThumb"></span></span>
 									<span>Closed</span>
 								</button>
 							</div>
 							<div class="hoursRow">
-								<MaskedHoursInput
-									value={String(getSectionData()?.[field.key] ?? '')}
-									disabled={isClosedValue(getSectionData()?.[field.key])}
-									on:change={(e) => updateObjectField(field.key, e.detail)}
-								/>
+								<div class="timePickers" data-collapsed={Boolean(closedMap?.[field.key])}>
+									<input
+										class="input timeInput"
+										type="time"
+										step="60"
+										disabled={Boolean(closedMap?.[field.key])}
+										value={timeMap?.[field.key]?.start || ''}
+										on:input={(e) => {
+											const start = e.target.value;
+											const end = timeMap?.[field.key]?.end || '';
+											timeMap = { ...timeMap, [field.key]: { start, end } };
+											updateObjectField(field.key, formatStoreHoursFromTimes(start, end));
+										}}
+									/>
+									<span class="timeSep">to</span>
+									<input
+										class="input timeInput"
+										type="time"
+										step="60"
+										disabled={Boolean(closedMap?.[field.key])}
+										value={timeMap?.[field.key]?.end || ''}
+										on:input={(e) => {
+											const end = e.target.value;
+											const start = timeMap?.[field.key]?.start || '';
+											timeMap = { ...timeMap, [field.key]: { start, end } };
+											updateObjectField(field.key, formatStoreHoursFromTimes(start, end));
+										}}
+									/>
+								</div>
 							</div>
-							{#if isClosedValue(getSectionData()?.[field.key])}
+							{#if Boolean(closedMap?.[field.key])}
 								<small class="hint">Closed</small>
-							{:else if !validateStoreHours(getSectionData()?.[field.key]).ok}
+							{:else if getSectionData()?.[field.key] && !validateStoreHours(getSectionData()?.[field.key]).ok}
 								<small class="hint error">
 									{validateStoreHours(getSectionData()?.[field.key]).message}
 								</small>
 							{:else}
-								<small class="hint">Format: <code>10 AM - 2 PM</code></small>
+								<small class="hint">Use the time pickers to set <code>10 AM - 2 PM</code>.</small>
 							{/if}
 						</div>
 					{:else if field.widget === 'boolean'}
-						<label class="check">
-							<input
-								type="checkbox"
-								checked={Boolean(getSectionData()[field.key])}
-								on:change={(e) => {
-									updateObjectField(field.key, e.target.checked);
-								}}
-							/>
+						<div class="toggleRow">
 							<span>{field.label}</span>
-						</label>
+							<span class="hoursSep"></span>
+							<button
+								type="button"
+								class="closedToggle"
+								class:toggleOn={Boolean(toggleMap?.[field.key])}
+								aria-pressed={Boolean(toggleMap?.[field.key])}
+								on:click={() => toggleBooleanField(field.key)}
+							>
+								<span class="toggleTrack"><span class="toggleThumb"></span></span>
+								<span>On</span>
+							</button>
+						</div>
 					{:else}
 						<label class="label">
 							<span>{field.label}</span>
@@ -322,43 +482,142 @@ import MaskedHoursInput from '$lib/components/MaskedHoursInput.svelte';
 				{/each}
 			{:else if schema.kind === 'list'}
 				<div class="row">
-					<button class="btn" type="button" on:click={addListItem} disabled={busy}>Add Item</button>
+					<button
+						class="btn"
+						type="button"
+						on:click={() => {
+							addListItem();
+						}}
+						disabled={busy}
+					>
+						{section === 'specialHours' ? 'Add Event' : 'Add Item'}
+					</button>
 				</div>
 
-				{#each (getSectionData() || []) as item, idx (idx)}
-					<details class="item" open={idx < 2}>
-						<summary>
-							<span class="summaryTitle">
-								{schema.itemLabelKey && item?.[schema.itemLabelKey]
-									? item[schema.itemLabelKey]
-									: `Item ${idx + 1}`}
-							</span>
-							<span class="summaryActions" aria-hidden="true">
-								<button
-									class="mini"
-									type="button"
-									on:click|preventDefault|stopPropagation={() => moveListItem(idx, -1)}
-								>
-									↑
-								</button>
-								<button
-									class="mini"
-									type="button"
-									on:click|preventDefault|stopPropagation={() => moveListItem(idx, +1)}
-								>
-									↓
-								</button>
-								<button
-									class="mini danger"
-									type="button"
-									on:click|preventDefault|stopPropagation={() => removeListItem(idx)}
-								>
-									Remove
-								</button>
-							</span>
-						</summary>
+				{#if section === 'specialHours'}
+					{#each (getSectionData() || []) as item, idx (idx)}
+						<div class="item alwaysOpen">
+							<div class="summaryRow">
+								<span class="summaryLeft">
+									<span class="summaryHandle" aria-hidden="true">⋮⋮</span>
+								<span class="summaryEvent">{getSectionData()?.[idx]?.title || 'Title Required'}</span>
+								</span>
+								<span class="summaryActions" aria-hidden="true">
+									<button class="mini" type="button" on:click={() => moveListItem(idx, -1)}>
+										↑
+									</button>
+									<button class="mini" type="button" on:click={() => moveListItem(idx, +1)}>
+										↓
+									</button>
+									<button class="mini danger" type="button" on:click={() => removeListItem(idx)}>
+										<svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+											<path d="M6 6l12 12M18 6l-12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+										</svg>
+									</button>
+								</span>
+							</div>
+							<div class="itemBody">
+								<label class="label">
+									<span>Event Title</span>
+									<input
+										class="input"
+										type="text"
+										value={getSectionData()?.[idx]?.title ?? ''}
+										placeholder="Title Required"
+										on:input={(e) => {
+											const current = getSectionData();
+											const next = current.map((x, i) =>
+												i === idx ? { ...x, title: e.target.value } : x
+											);
+											setSectionData(next);
+										}}
+									/>
+								</label>
+								<div class="dayStack">
+									{#each (item?.days ?? []) as day, dayIdx (day?.id || dayIdx)}
+										<div class="dayCard">
+											<span>Day {dayIdx + 1} placeholder</span>
+											<button
+												class="mini danger dayRemove"
+												type="button"
+												on:click={() => {
+													const current = getSectionData();
+													if (!Array.isArray(current)) return;
+													const days = Array.isArray(item?.days) ? [...item.days] : [];
+													if (day?.id) {
+														const removeIdx = days.findIndex((d) => d?.id === day.id);
+														if (removeIdx >= 0) days.splice(removeIdx, 1);
+													} else {
+														days.splice(dayIdx, 1);
+													}
+													const next = current.map((x, i) =>
+														i === idx ? { ...x, days } : x
+													);
+													setSectionData(next);
+												}}
+											>
+												<svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+													<path d="M6 6l12 12M18 6l-12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+												</svg>
+											</button>
+										</div>
+									{/each}
+									<button
+										class="btn ghost"
+										type="button"
+										on:click={() => {
+											const id = `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+											const current = getSectionData();
+											if (!Array.isArray(current)) return;
+											const days = Array.isArray(item?.days) ? [...item.days] : [];
+											days.push({ id, placeholder: true });
+											const next = current.map((x, i) => (i === idx ? { ...x, days } : x));
+											setSectionData(next);
+										}}
+									>
+										Add Day
+									</button>
+								</div>
+							</div>
+						</div>
+					{/each}
+				{:else}
+					{#each (getSectionData() || []) as item, idx (idx)}
+						<details class="item" open={idx < 2}>
+							<summary>
+								<span class="summaryTitle">
+									{schema.itemLabelKey && item?.[schema.itemLabelKey]
+										? item[schema.itemLabelKey]
+										: `Item ${idx + 1}`}
+								</span>
+								<span class="summaryActions" aria-hidden="true">
+									<button
+										class="mini"
+										type="button"
+										on:click|preventDefault|stopPropagation={() => moveListItem(idx, -1)}
+									>
+										↑
+									</button>
+									<button
+										class="mini"
+										type="button"
+										on:click|preventDefault|stopPropagation={() => moveListItem(idx, +1)}
+									>
+										↓
+									</button>
+									<button
+										class="mini danger"
+										type="button"
+										on:click|preventDefault|stopPropagation={() => removeListItem(idx)}
+									>
+										<svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+											<path d="M6 6l12 12M18 6l-12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+										</svg>
+									</button>
+								</span>
+							</summary>
 
-						<div class="itemBody">
+							<div class="itemBody">
 							{#each schema.fields as field (field.key)}
 								{#if field.widget === 'text'}
 									<label class="label">
@@ -375,20 +634,20 @@ import MaskedHoursInput from '$lib/components/MaskedHoursInput.svelte';
 										>{item?.[field.key] ?? ''}</textarea>
 									</label>
 								{:else if field.widget === 'boolean'}
-									<label class="check">
-										<input
-											type="checkbox"
-											checked={Boolean(item?.[field.key])}
-											on:change={(e) => {
-												const current = getSectionData();
-												const next = current.map((x, i) =>
-													i === idx ? { ...x, [field.key]: e.target.checked } : x
-												);
-												setSectionData(next);
-											}}
-										/>
+									<div class="toggleRow">
 										<span>{field.label}</span>
-									</label>
+										<span class="hoursSep"></span>
+										<button
+											type="button"
+											class="closedToggle"
+											class:toggleOn={Boolean(toggleMap?.[`${idx}:${field.key}`])}
+											aria-pressed={Boolean(toggleMap?.[`${idx}:${field.key}`])}
+											on:click={() => toggleBooleanListField(idx, field.key)}
+										>
+											<span class="toggleTrack"><span class="toggleThumb"></span></span>
+											<span>On</span>
+										</button>
+									</div>
 								{:else}
 									<label class="label">
 										<span>{field.label}</span>
@@ -407,17 +666,14 @@ import MaskedHoursInput from '$lib/components/MaskedHoursInput.svelte';
 									</label>
 								{/if}
 							{/each}
-						</div>
-					</details>
-				{/each}
+							</div>
+						</details>
+					{/each}
+				{/if}
 			{/if}
 
-			<div class="actions">
-				{#if isLocalDev}
-					<button class="btn primary" type="button" on:click={saveToDiskDev} disabled={busy}>
-						{busy ? 'Saving…' : 'Save To Disk (Dev)'}
-					</button>
-				{:else}
+			{#if !isLocalDev}
+				<div class="publish">
 					<label class="label inline">
 						<span>Password</span>
 						<input class="input" type="password" bind:value={password} autocomplete="current-password" />
@@ -426,11 +682,8 @@ import MaskedHoursInput from '$lib/components/MaskedHoursInput.svelte';
 						<span>Commit Message</span>
 						<input class="input" type="text" bind:value={message} />
 					</label>
-					<button class="btn primary" type="button" on:click={publishToGitHub} disabled={busy || !password}>
-						{busy ? 'Publishing…' : 'Publish'}
-					</button>
-				{/if}
-			</div>
+				</div>
+			{/if}
 
 			{#if status}
 				<p class="status">{status}</p>
@@ -442,27 +695,57 @@ import MaskedHoursInput from '$lib/components/MaskedHoursInput.svelte';
 <style>
 	.wrap {
 		min-height: 100vh;
-		padding: 24px 16px;
+		padding: 78px 16px 24px;
+		box-sizing: border-box;
 		background: radial-gradient(900px 500px at 20% 10%, rgba(255, 199, 0, 0.12), transparent 55%),
 			radial-gradient(900px 500px at 80% 0%, rgba(0, 184, 255, 0.12), transparent 55%),
 			linear-gradient(180deg, #08080b, #0b0b10);
 		color: #eef0f6;
 	}
 
-	.header {
-		max-width: 1000px;
-		margin: 0 auto 12px;
+	.adminTop {
+		position: fixed;
+		top: 0;
+		left: 0;
+		right: 0;
+		z-index: 20;
+		padding: 8px 12px;
+		background: rgba(8, 8, 11, 0.92);
+		border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+		backdrop-filter: blur(10px);
 	}
-	.top {
+	.adminBar {
+		max-width: 1100px;
+		margin: 0 auto;
 		display: flex;
+		align-items: center;
+		justify-content: space-between;
 		gap: 12px;
-		align-items: flex-start;
-		flex-wrap: wrap;
 	}
-	.title h1 {
+	.adminLeft {
+		display: flex;
+		align-items: center;
+		gap: 10px;
+	}
+	.adminCenter {
+		display: flex;
+		justify-content: center;
+		flex: 1 1 auto;
+	}
+	.logo img {
+		width: 120px;
+		height: auto;
+		display: block;
+	}
+	.pageTitle {
 		margin: 0;
 		letter-spacing: 0.02em;
-		font-size: 20px;
+		font-size: 18px;
+		opacity: 0.85;
+		font-weight: 500;
+	}
+	.adminTop + .panel {
+		margin-top: 10px;
 	}
 	.meta {
 		margin-top: 4px;
@@ -480,7 +763,7 @@ import MaskedHoursInput from '$lib/components/MaskedHoursInput.svelte';
 
 	.panel {
 		max-width: 1000px;
-		margin: 0 auto;
+		margin: 12px auto 0;
 		border: 1px solid rgba(255, 255, 255, 0.12);
 		border-radius: 14px;
 		padding: 14px;
@@ -513,6 +796,16 @@ import MaskedHoursInput from '$lib/components/MaskedHoursInput.svelte';
 		padding: 10px 12px;
 		font-size: 14px;
 	}
+	.readonlyField {
+		width: 100%;
+		box-sizing: border-box;
+		border-radius: 10px;
+		border: 1px solid rgba(255, 255, 255, 0.12);
+		background: rgba(0, 0, 0, 0.18);
+		color: rgba(238, 240, 246, 0.75);
+		padding: 10px 12px;
+		font-size: 14px;
+	}
 
 	.textarea {
 		min-height: 120px;
@@ -528,6 +821,12 @@ import MaskedHoursInput from '$lib/components/MaskedHoursInput.svelte';
 		display: flex;
 		gap: 10px;
 		align-items: center;
+		margin: 0 0 12px;
+	}
+	.toggleRow {
+		display: flex;
+		align-items: center;
+		gap: 10px;
 		margin: 0 0 12px;
 	}
 
@@ -568,6 +867,13 @@ import MaskedHoursInput from '$lib/components/MaskedHoursInput.svelte';
 		background: rgba(0, 0, 0, 0.16);
 		margin: 0 0 12px;
 	}
+	.summaryRow {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 10px;
+		margin-bottom: 10px;
+	}
 	summary {
 		cursor: pointer;
 		display: flex;
@@ -578,6 +884,56 @@ import MaskedHoursInput from '$lib/components/MaskedHoursInput.svelte';
 	.summaryTitle {
 		font-size: 14px;
 		opacity: 0.95;
+	}
+	.summaryHandle {
+		font-size: 16px;
+		letter-spacing: 2px;
+		opacity: 0.6;
+		cursor: grab;
+	}
+	.summaryLeft {
+		display: inline-flex;
+		align-items: center;
+		gap: 10px;
+		flex: 1 1 auto;
+		min-width: 0;
+	}
+	.summaryEvent {
+		font-size: 12px;
+		opacity: 0.7;
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
+	.dayStack {
+		display: flex;
+		flex-direction: column;
+		gap: 10px;
+	}
+	.dayCard {
+		border: 1px dashed rgba(255, 255, 255, 0.16);
+		border-radius: 12px;
+		padding: 10px 12px;
+		font-size: 13px;
+		opacity: 0.95;
+		color: #eef0f6;
+		background: rgba(0, 0, 0, 0.22);
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+	}
+	.dayRemove {
+		padding: 4px 8px;
+		line-height: 1;
+		font-size: 16px;
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+	}
+	.dayRemove .icon {
+		width: 14px;
+		height: 14px;
+		color: #eef0f6;
 	}
 	.summaryActions {
 		display: inline-flex;
@@ -591,24 +947,42 @@ import MaskedHoursInput from '$lib/components/MaskedHoursInput.svelte';
 		padding: 6px 10px;
 		cursor: pointer;
 		font-size: 12px;
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		gap: 6px;
 	}
 	.mini.danger {
 		border-color: rgba(255, 90, 90, 0.35);
+	}
+	.mini .icon {
+		width: 14px;
+		height: 14px;
+		color: #eef0f6;
 	}
 	.itemBody {
 		margin-top: 12px;
 	}
 
-	.actions {
-		position: sticky;
-		bottom: 0;
-		padding: 10px 0 0;
-		background: linear-gradient(180deg, rgba(11, 11, 16, 0) 0%, rgba(11, 11, 16, 0.9) 30%);
-		margin-top: 12px;
+	.publish {
+		margin-top: 24px;
 		display: flex;
-		gap: 10px;
+		gap: 12px;
 		flex-wrap: wrap;
 		align-items: flex-end;
+	}
+	.btn.ghost {
+		background: transparent;
+		border: 1px solid rgba(255, 255, 255, 0.2);
+		color: inherit;
+	}
+	@media (max-width: 640px) {
+		.logo img {
+			width: 96px;
+		}
+		.pageTitle {
+			font-size: 16px;
+		}
 	}
 
 	.status {
@@ -640,6 +1014,38 @@ import MaskedHoursInput from '$lib/components/MaskedHoursInput.svelte';
 		gap: 12px;
 		align-items: center;
 		flex-wrap: wrap;
+	}
+	.timePickers {
+		display: flex;
+		align-items: center;
+		gap: 10px;
+		flex-wrap: nowrap;
+		transition: max-height 0.2s ease, opacity 0.2s ease;
+		max-height: 48px;
+	}
+	.timePickers[data-collapsed='true'] {
+		max-height: 0;
+		opacity: 0;
+		overflow: hidden;
+	}
+	.timeInput {
+		width: 150px;
+	}
+	.timeInput::-webkit-calendar-picker-indicator {
+		filter: invert(1);
+		opacity: 0.9;
+	}
+	.timeSep {
+		font-size: 13px;
+		opacity: 0.75;
+	}
+	@media (max-width: 640px) {
+		.timePickers {
+			flex-wrap: wrap;
+		}
+		.timeInput {
+			width: min(100%, 180px);
+		}
 	}
 	.closedToggle {
 		display: inline-flex;
@@ -678,11 +1084,11 @@ import MaskedHoursInput from '$lib/components/MaskedHoursInput.svelte';
 		cursor: pointer;
 		user-select: none;
 	}
-	.closedToggle[aria-pressed='true'] .toggleTrack {
+	.closedToggle.toggleOn .toggleTrack {
 		background: rgba(255, 199, 0, 0.35);
 		border-color: rgba(255, 199, 0, 0.55);
 	}
-	.closedToggle[aria-pressed='true'] .toggleTrack .toggleThumb {
+	.closedToggle.toggleOn .toggleTrack .toggleThumb {
 		transform: translateX(16px);
 	}
 	code {

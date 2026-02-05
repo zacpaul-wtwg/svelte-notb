@@ -11,7 +11,7 @@
 		<em>{allData.newsPosts.date}</em>
 	</div>
 	{#if looksLikeHtml(allData.newsPosts.body)}
-		<div class="news-body" {@html allData.newsPosts.body} />
+		<div class="news-body">{@html allData.newsPosts.body}</div>
 	{:else}
 		<SvelteMarkdown source={allData.newsPosts.body} />
 	{/if}

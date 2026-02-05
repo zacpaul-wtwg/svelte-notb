@@ -98,9 +98,13 @@
 </svelte:head>
 
 <main class="wrap">
-	<header class="header">
-		<h1>CMS Admin</h1>
-		<p>Structured editor for <code>static/cms.json</code>.</p>
+	<header class="adminTop">
+		<div class="adminCenter">
+			<a class="logo" href="/">
+				<img src="/logo_large.png" alt="North of the Border Logo" />
+			</a>
+			<h1 class="pageTitle">CMS Admin</h1>
+		</div>
 	</header>
 
 	<section class="panel">
@@ -155,30 +159,50 @@
 <style>
 	.wrap {
 		min-height: 100vh;
-		padding: 24px 16px;
+		padding: 78px 16px 24px;
+		box-sizing: border-box;
 		background: radial-gradient(900px 500px at 20% 10%, rgba(255, 199, 0, 0.12), transparent 55%),
 			radial-gradient(900px 500px at 80% 0%, rgba(0, 184, 255, 0.12), transparent 55%),
 			linear-gradient(180deg, #08080b, #0b0b10);
 		color: #eef0f6;
 	}
 
-	.header {
-		max-width: 1000px;
-		margin: 0 auto 16px;
+	.adminTop {
+		position: fixed;
+		top: 0;
+		left: 0;
+		right: 0;
+		z-index: 20;
+		padding: 8px 12px;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		background: rgba(8, 8, 11, 0.92);
+		border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+		backdrop-filter: blur(10px);
 	}
-	h1 {
-		margin: 0 0 6px;
-		letter-spacing: 0.02em;
-		font-size: 20px;
+	.adminCenter {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 2px;
 	}
-	p {
+	.logo img {
+		width: 110px;
+		height: auto;
+		display: block;
+	}
+	.pageTitle {
 		margin: 0;
+		letter-spacing: 0.02em;
+		font-size: 14px;
 		opacity: 0.85;
+		font-weight: 500;
 	}
 
 	.panel {
 		max-width: 1000px;
-		margin: 0 auto;
+		margin: 12px auto 0;
 		border: 1px solid rgba(255, 255, 255, 0.12);
 		border-radius: 14px;
 		padding: 14px;
@@ -226,6 +250,14 @@
 		text-decoration: none;
 		cursor: pointer;
 		font-size: 14px;
+	}
+	@media (max-width: 640px) {
+		.logo img {
+			width: 96px;
+		}
+		.pageTitle {
+			font-size: 13px;
+		}
 	}
 	.btn.primary {
 		border-color: rgba(255, 199, 0, 0.42);
