@@ -20,6 +20,13 @@
         const isConfirmation = hash.includes('confirmation_token=');
         const isEmailChange = hash.includes('email_change_token=');
         const hasToken = isInvite || isRecovery || isConfirmation || isEmailChange;
+        const onNetlifyApp = window.location.hostname === 'notbfireworks.netlify.app';
+
+        // If Identity isn't fully configured for the custom domain, complete token flows on netlify.app.
+        if (hasToken && !onNetlifyApp) {
+          window.location.replace(`https://notbfireworks.netlify.app/admin/${hash}`);
+          return;
+        }
 
         const loadDecap = () => {
           const s = document.createElement('script');

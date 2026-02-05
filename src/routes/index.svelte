@@ -41,12 +41,21 @@
 		// while preserving the hash token.
 		if (typeof window === 'undefined') return;
 		const hash = window.location.hash || '';
+		const netlifyAdmin = 'https://notbfireworks.netlify.app/admin/';
+		const onNetlifyApp = window.location.hostname === 'notbfireworks.netlify.app';
 		if (
 			hash.includes('invite_token=') ||
 			hash.includes('recovery_token=') ||
 			hash.includes('confirmation_token=') ||
 			hash.includes('email_change_token=')
 		) {
+			// Identity flows can behave differently on custom domains if Identity settings
+			// haven't been updated. Complete invite/recovery on the netlify.app domain.
+			if (!onNetlifyApp) {
+				window.location.replace(`${netlifyAdmin}${hash}`);
+				return;
+			}
+
 			window.location.replace(`/admin/${hash}`);
 		}
 	});
