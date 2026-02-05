@@ -308,21 +308,19 @@
 							<textarea
 								class="textarea"
 								bind:this={newsBodyEl}
-								value={String(getSectionData()?.body ?? '')}
 								on:input={(e) => updateObjectField('body', e.target.value)}
 								spellcheck="true"
-							/>
+							>{String(getSectionData()?.body ?? '')}</textarea>
 						{/if}
 					{:else if field.widget === 'text'}
 						<label class="label">
 							<span>{field.label}</span>
 							<textarea
 								class="textarea"
-								value={getSectionData()?.[field.key] ?? ''}
 								on:input={(e) => {
 									updateObjectField(field.key, e.target.value);
 								}}
-							/>
+							>{getSectionData()?.[field.key] ?? ''}</textarea>
 						</label>
 					{:else if field.widget === 'boolean'}
 						<label class="check">
@@ -365,9 +363,25 @@
 									: `Item ${idx + 1}`}
 							</span>
 							<span class="summaryActions" aria-hidden="true">
-								<button class="mini" type="button" on:click={() => moveListItem(idx, -1)}>↑</button>
-								<button class="mini" type="button" on:click={() => moveListItem(idx, +1)}>↓</button>
-								<button class="mini danger" type="button" on:click={() => removeListItem(idx)}>
+								<button
+									class="mini"
+									type="button"
+									on:click|preventDefault|stopPropagation={() => moveListItem(idx, -1)}
+								>
+									↑
+								</button>
+								<button
+									class="mini"
+									type="button"
+									on:click|preventDefault|stopPropagation={() => moveListItem(idx, +1)}
+								>
+									↓
+								</button>
+								<button
+									class="mini danger"
+									type="button"
+									on:click|preventDefault|stopPropagation={() => removeListItem(idx)}
+								>
 									Remove
 								</button>
 							</span>
@@ -380,7 +394,6 @@
 										<span>{field.label}</span>
 										<textarea
 											class="textarea"
-											value={item?.[field.key] ?? ''}
 											on:input={(e) => {
 												const current = getSectionData();
 												const next = current.map((x, i) =>
@@ -388,7 +401,7 @@
 												);
 												setSectionData(next);
 											}}
-										/>
+										>{item?.[field.key] ?? ''}</textarea>
 									</label>
 								{:else if field.widget === 'boolean'}
 									<label class="check">
