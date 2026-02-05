@@ -120,16 +120,17 @@ import { onMount, tick } from 'svelte';
 	}
 
 	function toggleClosed(fieldKey) {
-		if (isClosedValue(getSectionData()?.[fieldKey])) {
-			updateObjectField(fieldKey, '');
-		} else {
-			updateObjectField(fieldKey, 'Closed');
-		}
+		const closing = !isClosedValue(getSectionData()?.[fieldKey]);
+		updateObjectField(fieldKey, closing ? 'Closed' : '');
 		tick().then(() => {
 			const el = hoursRefs[fieldKey];
 			if (el) {
-				if (isClosedValue(getSectionData()?.[fieldKey])) {
+				if (closing) {
 					el.textContent = 'Closed';
+					el.setAttribute('contenteditable', 'false');
+				} else {
+					el.textContent = '';
+					el.setAttribute('contenteditable', 'true');
 				}
 			}
 		});
