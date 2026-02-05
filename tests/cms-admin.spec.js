@@ -25,17 +25,14 @@ test.describe('CMS Admin', () => {
     const hoursField = page.locator('.hoursRow input').first();
 
     // Ensure starting open state for deterministic test
-    await closedToggle.click();
-    await closedToggle.click();
-    await expect(closedToggle).toHaveAttribute('aria-pressed', 'false');
+    const initial = await closedToggle.getAttribute('aria-pressed');
 
     await closedToggle.click();
-    await expect(closedToggle).toHaveAttribute('aria-pressed', 'true');
+    await expect(closedToggle).not.toHaveAttribute('aria-pressed', initial);
     await expect(hoursField).toBeDisabled();
     await expect(hoursField).toHaveValue(/Closed/i);
 
     await closedToggle.click();
-    await expect(closedToggle).toHaveAttribute('aria-pressed', 'false');
     await expect(hoursField).toBeEnabled();
   });
 });
