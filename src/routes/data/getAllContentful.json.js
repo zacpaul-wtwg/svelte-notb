@@ -1,7 +1,15 @@
-import { client } from '$lib/contentfulClient';
+import { getContentfulClient } from '$lib/contentfulClient';
 
 export async function get() {
 	try {
+		const client = getContentfulClient();
+		if (!client) {
+			return {
+				status: 503,
+				body: { error: 'Contentful not configured' }
+			};
+		}
+
 		//get news items from contentful
 		const newsPosts = await client.getEntries({
 			content_type: 'newsPost'

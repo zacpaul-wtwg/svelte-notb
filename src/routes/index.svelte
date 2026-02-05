@@ -1,8 +1,17 @@
 <script context="module">
+	import { fallbackAllData as fallbackAllDataModule } from '$lib/cms/fallback';
 	export async function load({ fetch }) {
-		const { allData } = await fetch('/data/getAllContentful.json').then((results) => {
-			return results.json();
-		});
+		let allData = fallbackAllDataModule;
+		try {
+			const res = await fetch('/data/getAllContentful.json');
+			const contentType = res.headers.get('content-type') ?? '';
+			if (res.ok && contentType.includes('application/json')) {
+				const parsed = await res.json();
+				if (parsed?.allData) allData = parsed.allData;
+			}
+		} catch {
+			// keep fallback
+		}
 
 		const { things } = await fetch('../data/getAllProducts.json').then((results) => {
 			return results.json();

@@ -32,7 +32,7 @@ export const getSingleProductData = async function (productId) {
 	};
 
 	return fetch(
-		'https://ssl-openapi-northoftheborder.comcash.com/employee/product/view?{{params}}',
+		'https://ssl-openapi-northoftheborder.comcash.com/employee/product/view',
 		requestOptions
 	).then((response) => response.json());
 };

@@ -41,13 +41,18 @@ export const refineProductIndexData = function (categories, brands, products) {
 	let allDepartments = new Set();
 	let productsFinal = [];
 
+	// Comcash has returned these fields as numbers in the wild (e.g. status: 1),
+	// but older code assumed strings (e.g. '1'). Normalize comparisons.
+	const isTruthyOne = (v) => v === 1 || v === '1' || v === true;
+	const isActiveProduct = (product) => isTruthyOne(product?.status ?? product?.statusId);
+
 	products
 		//get only items that are active, these are items with a isSellableOnWeb === 1
 		.filter(function (product) {
-			return product.isSellableOnWeb === 1;
+			return isTruthyOne(product?.isSellableOnWeb);
 		})
 		.filter(function (product) {
-			return product.status === '1';
+			return isActiveProduct(product);
 		})
 		.forEach(function (element) {
 			getAttributeArrayByTitle(element.customAttributes, 'effects').forEach((v) =>
@@ -89,7 +94,7 @@ export const refineProductDetailsData = function (categories, brands, element) {
 		id: element.id,
 		images: element.images,
 		title: element.title,
-		price: element.price,
+		price: Number(element.price),
 		category: getCategoryById(categories, element.categoryId),
 		brand: getBrandById(brands, element.brandId),
 		description: getAttributeByTitle(element.customAttributes, 'description'),

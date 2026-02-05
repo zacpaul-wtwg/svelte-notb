@@ -1,16 +1,5 @@
 <script context="module">
-	import Pricing from './pricing.svelte';
-	export async function load({ fetch }) {
-		const { allData } = await fetch('/data/getAllContentful.json').then((results) => {
-			return results.json();
-		});
-
-		return {
-			props: {
-				allData
-			}
-		};
-	}
+	// `allData` is provided by `src/routes/__layout.svelte`.
 </script>
 
 <script>
@@ -18,8 +7,8 @@
 	import PageTitle from '$lib/components/PageTitle.svelte';
 	import TitleBar from '$lib/components/TitleBar.svelte';
 	import SvelteMarkdown from 'svelte-markdown';
-
-	export let allData;
+	import { fallbackAllData } from '$lib/cms/fallback';
+	export let allData = fallbackAllData;
 </script>
 
 <TitleBar

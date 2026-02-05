@@ -1,16 +1,5 @@
 <script context="module">
-	import Index from './index.svelte';
-	export async function load({ fetch }) {
-		const { allData } = await fetch('/data/getAllContentful.json').then((results) => {
-			return results.json();
-		});
-
-		return {
-			props: {
-				allData
-			}
-		};
-	}
+	// `allData` is provided by `src/routes/__layout.svelte`.
 </script>
 
 <script>
@@ -18,7 +7,8 @@
 	import Accordion from '$lib/components/accordion.svelte';
 	import Container from '$lib/components/elements/Container.svelte';
 	import TitleBar from '$lib/components/TitleBar.svelte';
-	export let allData;
+	import { fallbackAllData } from '$lib/cms/fallback';
+	export let allData = fallbackAllData;
 
 	onMount(() => {
 		const scriptEl = document.createElement('script');

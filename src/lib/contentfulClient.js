@@ -1,8 +1,17 @@
 import contentful from 'contentful';
 
-export const client = contentful.createClient({
+export const getContentfulClient = () => {
 	// @ts-ignore
-	space: import.meta.env.VITE_CONTENTFUL_SPACE_ID,
+	const space = import.meta.env.VITE_CONTENTFUL_SPACE_ID;
 	// @ts-ignore
-	accessToken: import.meta.env.VITE_CONTENTFUL_DELIVERY_API_TOKEN
-});
+	const accessToken = import.meta.env.VITE_CONTENTFUL_DELIVERY_API_TOKEN;
+
+	if (!space || !accessToken) {
+		return null;
+	}
+
+	return contentful.createClient({
+		space,
+		accessToken
+	});
+};

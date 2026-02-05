@@ -10,8 +10,34 @@ export async function get() {
 		getRawProductData()
 	]);
 
+	if (!Array.isArray(productData)) {
+		return {
+			status: 502,
+			body: {
+				error: 'Comcash product list is not an array.',
+				details: {
+					type: typeof productData,
+					keys: productData && typeof productData === 'object' ? Object.keys(productData) : null
+				}
+			}
+		};
+	}
+
+	const things = refineProductIndexData(productCategories, productBrands, productData);
+
 	return {
 		status: 200,
-		body: { things: refineProductIndexData(productCategories, productBrands, productData) }
+		body: {
+			things,
+			// Light debug info in dev only to help diagnose empty product lists.
+			...(import.meta.env.DEV
+				? {
+						debug: {
+							rawCount: productData.length,
+							refinedCount: things.products.length
+						}
+				  }
+				: {})
+		}
 	};
 }
