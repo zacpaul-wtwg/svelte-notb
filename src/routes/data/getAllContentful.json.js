@@ -1,13 +1,25 @@
 import { getContentfulClient } from '$lib/contentfulClient';
+import fs from 'node:fs/promises';
+import path from 'node:path';
 
 export async function get() {
 	try {
 		const client = getContentfulClient();
 		if (!client) {
-			return {
-				status: 503,
-				body: { error: 'Contentful not configured' }
-			};
+			try {
+				const cmsPath = path.resolve('static', 'cms.json');
+				const raw = await fs.readFile(cmsPath, 'utf-8');
+				const allData = JSON.parse(raw);
+				return {
+					status: 200,
+					body: { allData }
+				};
+			} catch {
+				return {
+					status: 503,
+					body: { error: 'Contentful not configured and cms.json missing' }
+				};
+			}
 		}
 
 		//get news items from contentful
