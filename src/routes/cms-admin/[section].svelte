@@ -22,7 +22,7 @@
 		saveDraftToStorage,
 		savePasswordToSession
 	} from '$lib/cms/adminDraft';
-	import { onMount } from 'svelte';
+import { onMount, tick } from 'svelte';
 	import QuillEditor from '$lib/components/QuillEditor.svelte';
 
 	export let section;
@@ -37,6 +37,7 @@
 	let message = '';
 	let status = '';
 	let busy = false;
+	let hoursRefs = {};
 
 	onMount(() => {
 		allData = loadDraftFromStorage();
@@ -124,6 +125,14 @@
 		} else {
 			updateObjectField(fieldKey, 'Closed');
 		}
+		tick().then(() => {
+			const el = hoursRefs[fieldKey];
+			if (el) {
+				if (isClosedValue(getSectionData()?.[fieldKey])) {
+					el.textContent = 'Closed';
+				}
+			}
+		});
 	}
 
 	function formatNewsDateTime(value) {
@@ -311,6 +320,7 @@
 									class="input hoursEditable"
 									contenteditable={!isClosedValue(getSectionData()?.[field.key])}
 									data-field-key={field.key}
+									bind:this={hoursRefs[field.key]}
 									on:input={(e) => {
 										const text = e.currentTarget.textContent || '';
 										const next = formatStoreHoursInput(text);
