@@ -17,16 +17,19 @@
         if (!ni) return;
 
         const hash = window.location.hash || '';
-        const hasToken =
-          hash.includes('invite_token=') ||
-          hash.includes('recovery_token=') ||
-          hash.includes('confirmation_token=') ||
-          hash.includes('email_change_token=');
+        const isInvite = hash.includes('invite_token=');
+        const isRecovery = hash.includes('recovery_token=');
+        const isConfirmation = hash.includes('confirmation_token=');
+        const isEmailChange = hash.includes('email_change_token=');
+        const hasToken = isInvite || isRecovery || isConfirmation || isEmailChange;
 
         // Ensure Identity is initialized, and open the modal when a token is present
         // so users can complete invite/recovery flows.
         ni.on('init', (user) => {
-          if (hasToken) ni.open();
+          if (hasToken) {
+            // Hint mode to the widget. Invite tokens should open signup.
+            ni.open(isInvite ? 'signup' : 'login');
+          }
 
           if (!user) {
             ni.on('login', () => {
