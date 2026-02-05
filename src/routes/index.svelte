@@ -41,7 +41,12 @@
 		// while preserving the hash token.
 		if (typeof window === 'undefined') return;
 		const hash = window.location.hash || '';
-		if (hash.includes('invite_token=') || hash.includes('recovery_token=')) {
+		if (
+			hash.includes('invite_token=') ||
+			hash.includes('recovery_token=') ||
+			hash.includes('confirmation_token=') ||
+			hash.includes('email_change_token=')
+		) {
 			window.location.replace(`/admin/${hash}`);
 		}
 	});

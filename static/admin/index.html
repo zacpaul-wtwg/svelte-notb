@@ -4,9 +4,41 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>CMS</title>
+    <!-- Required for Netlify Identity invite/recovery tokens (e.g. /#invite_token=...) -->
+    <script src="https://identity.netlify.com/v1/netlify-identity-widget.js" defer></script>
   </head>
   <body>
     <div id="nc-root"></div>
+    <script>
+      // Netlify Identity uses URL fragments (hash) for invite/recovery/confirmation tokens.
+      // These fragments are never sent to the server, so we must handle them client-side.
+      window.addEventListener('DOMContentLoaded', () => {
+        const ni = window.netlifyIdentity;
+        if (!ni) return;
+
+        const hash = window.location.hash || '';
+        const hasToken =
+          hash.includes('invite_token=') ||
+          hash.includes('recovery_token=') ||
+          hash.includes('confirmation_token=') ||
+          hash.includes('email_change_token=');
+
+        // Ensure Identity is initialized, and open the modal when a token is present
+        // so users can complete invite/recovery flows.
+        ni.on('init', (user) => {
+          if (hasToken) ni.open();
+
+          if (!user) {
+            ni.on('login', () => {
+              // Drop token fragments and return to the CMS root.
+              window.location.href = '/admin/';
+            });
+          }
+        });
+
+        ni.init();
+      });
+    </script>
     <script src="/admin/decap-cms.js" defer></script>
   </body>
 </html>
