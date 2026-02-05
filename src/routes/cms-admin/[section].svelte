@@ -318,7 +318,7 @@ import { onMount, tick } from 'svelte';
 							<div class="hoursRow">
 								<div
 									class="input hoursEditable"
-									contenteditable={!isClosedValue(getSectionData()?.[field.key])}
+									contenteditable={isClosedValue(getSectionData()?.[field.key]) ? 'false' : 'true'}
 									data-field-key={field.key}
 									bind:this={hoursRefs[field.key]}
 									on:input={(e) => {
