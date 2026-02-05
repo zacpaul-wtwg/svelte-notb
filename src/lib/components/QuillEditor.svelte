@@ -61,6 +61,9 @@
 		border-radius: 12px 12px 0 0;
 		border-color: rgba(255, 255, 255, 0.2);
 		background: rgba(0, 0, 0, 0.2);
+		position: sticky;
+		top: 0;
+		z-index: 2;
 	}
 	.quill-wrap :global(.ql-container) {
 		border-radius: 0 0 12px 12px;
@@ -68,6 +71,9 @@
 		background: rgba(0, 0, 0, 0.22);
 		color: #eef0f6;
 		min-height: 220px;
+	}
+	.quill-wrap :global(.ql-editor) {
+		padding-bottom: 28px;
 	}
 	.quill-wrap :global(.ql-editor) {
 		font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell,

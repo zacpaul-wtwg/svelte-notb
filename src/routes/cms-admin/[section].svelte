@@ -493,6 +493,10 @@
 	}
 
 	.actions {
+		position: sticky;
+		bottom: 0;
+		padding: 10px 0 0;
+		background: linear-gradient(180deg, rgba(11, 11, 16, 0) 0%, rgba(11, 11, 16, 0.9) 30%);
 		margin-top: 12px;
 		display: flex;
 		gap: 10px;
