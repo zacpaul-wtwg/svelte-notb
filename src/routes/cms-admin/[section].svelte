@@ -80,26 +80,24 @@
 		if (v.trim().toLowerCase().startsWith('closed')) return 'Closed';
 
 		v = v.toUpperCase();
+		// Keep only digits, A/P/M, colon, dash, space
 		v = v.replace(/[^0-9APM:\-\s]/g, '');
+		// Drop stray single-letter A/P tokens (avoid "A - P" partials)
+		v = v.replace(/\bA\b/g, '').replace(/\bP\b/g, '');
 		v = v.replace(/\s*-\s*/g, ' - ');
 		v = v.replace(/(\d)(AM|PM)/g, '$1 $2');
-		v = v.replace(/(\d)(A|P)(?=\s|$)/g, '$1 $2');
+		// Don't try to auto-space lone A/P (we removed them above)
 		v = v.replace(/\s{2,}/g, ' ').trim();
 		return v;
 	}
 
-	function handleStoreHoursKeydown(e) {
-		if (e.key !== ' ') return;
-		const input = e.currentTarget;
+	function maybeAutoInsertDash(input) {
 		const current = String(input.value || '');
 		if (current.includes('-')) return;
-		e.preventDefault();
-		const start = input.selectionStart ?? current.length;
-		const end = input.selectionEnd ?? current.length;
-		input.setRangeText(' - ', start, end, 'end');
-		const next = formatStoreHoursInput(input.value);
-		input.value = next;
-		updateObjectField(input.dataset.fieldKey, next);
+		// If the first time range is complete (ends in AM/PM), append " - "
+		if (/\b(AM|PM)\s*$/.test(current)) {
+			input.value = `${current} - `;
+		}
 	}
 
 	function formatNewsDateTime(value) {
@@ -275,10 +273,10 @@
 								type="text"
 								data-field-key={field.key}
 								value={getSectionData()?.[field.key] ?? ''}
-								on:keydown={handleStoreHoursKeydown}
 								on:input={(e) => {
 									const next = formatStoreHoursInput(e.target.value);
 									e.target.value = next;
+									maybeAutoInsertDash(e.target);
 									updateObjectField(field.key, next);
 								}}
 							/>
