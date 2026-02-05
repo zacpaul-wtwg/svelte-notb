@@ -111,8 +111,19 @@ import { onMount, tick } from 'svelte';
 				el.value = `${current} - `;
 			} else {
 				el.textContent = `${current} - `;
+				setCaretToEnd(el);
 			}
 		}
+	}
+
+	function setCaretToEnd(el) {
+		const sel = typeof window !== 'undefined' ? window.getSelection() : null;
+		if (!sel) return;
+		const range = document.createRange();
+		range.selectNodeContents(el);
+		range.collapse(false);
+		sel.removeAllRanges();
+		sel.addRange(range);
 	}
 
 	function setEditableTextPreserveCaret(el, next) {
