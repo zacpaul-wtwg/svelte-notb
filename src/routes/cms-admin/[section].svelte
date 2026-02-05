@@ -74,6 +74,20 @@
 		return { ok: true };
 	}
 
+	function formatStoreHoursInput(raw) {
+		let v = String(raw || '');
+		if (!v) return '';
+		if (v.trim().toLowerCase().startsWith('closed')) return 'Closed';
+
+		v = v.toUpperCase();
+		v = v.replace(/[^0-9APM:\-\s]/g, '');
+		v = v.replace(/\s*-\s*/g, ' - ');
+		v = v.replace(/(\d)(AM|PM)/g, '$1 $2');
+		v = v.replace(/(\d)(A|P)(?=\s|$)/g, '$1 $2');
+		v = v.replace(/\s{2,}/g, ' ').trim();
+		return v;
+	}
+
 	function formatNewsDateTime(value) {
 		const d = value ? new Date(value) : null;
 		if (!d || Number.isNaN(d.getTime())) return '';
@@ -247,7 +261,9 @@
 								type="text"
 								value={getSectionData()?.[field.key] ?? ''}
 								on:input={(e) => {
-									updateObjectField(field.key, e.target.value);
+									const next = formatStoreHoursInput(e.target.value);
+									e.target.value = next;
+									updateObjectField(field.key, next);
 								}}
 							/>
 							{#if !validateStoreHours(getSectionData()?.[field.key]).ok}
