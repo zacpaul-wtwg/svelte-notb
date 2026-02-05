@@ -39,6 +39,8 @@
 	let busy = false;
 	let showNewsBodyPreview = false;
 	let newsBodyEl;
+	let newsBodyValue = '';
+	let newsBodyDirty = false;
 
 	onMount(() => {
 		allData = loadDraftFromStorage();
@@ -46,6 +48,8 @@
 		message = `Update cms.json (${new Date().toISOString().slice(0, 10)})`;
 		if (!allData) {
 			status = 'No draft loaded. Go back and unlock/load first.';
+		} else if (section === 'newsPosts') {
+			newsBodyValue = String(getSectionData()?.body ?? '');
 		}
 	});
 
@@ -64,15 +68,21 @@
 		setSectionData(next);
 	}
 
+	$: if (section === 'newsPosts' && allData && !newsBodyDirty) {
+		newsBodyValue = String(getSectionData()?.body ?? '');
+	}
+
 	function applyToNewsBody(transform) {
 		if (!newsBodyEl) return;
-		const current = String(getSectionData()?.body ?? '');
+		const current = String(newsBodyValue ?? '');
 		const start = newsBodyEl.selectionStart ?? 0;
 		const end = newsBodyEl.selectionEnd ?? 0;
 
 		const out = transform({ value: current, start, end });
 		if (!out || typeof out.value !== 'string') return;
 
+		newsBodyDirty = true;
+		newsBodyValue = out.value;
 		updateObjectField('body', out.value);
 
 		tick().then(() => {
@@ -308,9 +318,13 @@
 							<textarea
 								class="textarea"
 								bind:this={newsBodyEl}
-								on:input={(e) => updateObjectField('body', e.target.value)}
+								bind:value={newsBodyValue}
+								on:input={(e) => {
+									newsBodyDirty = true;
+									updateObjectField('body', e.target.value);
+								}}
 								spellcheck="true"
-							>{String(getSectionData()?.body ?? '')}</textarea>
+							/>
 						{/if}
 					{:else if field.widget === 'text'}
 						<label class="label">
