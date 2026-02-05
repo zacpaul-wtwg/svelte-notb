@@ -24,13 +24,13 @@ export const cmsSections = [
 		kind: 'object',
 		fields: [
 			{ key: 'title', label: 'Title', widget: 'string' },
-			{ key: 'sunday', label: 'Sunday', widget: 'string' },
-			{ key: 'monday', label: 'Monday', widget: 'string' },
-			{ key: 'tuesday', label: 'Tuesday', widget: 'string' },
-			{ key: 'wednesday', label: 'Wednesday', widget: 'string' },
-			{ key: 'thursday', label: 'Thursday', widget: 'string' },
-			{ key: 'friday', label: 'Friday', widget: 'string' },
-			{ key: 'saturday', label: 'Saturday', widget: 'string' },
+			{ key: 'sunday', label: 'Sunday', widget: 'storeHours' },
+			{ key: 'monday', label: 'Monday', widget: 'storeHours' },
+			{ key: 'tuesday', label: 'Tuesday', widget: 'storeHours' },
+			{ key: 'wednesday', label: 'Wednesday', widget: 'storeHours' },
+			{ key: 'thursday', label: 'Thursday', widget: 'storeHours' },
+			{ key: 'friday', label: 'Friday', widget: 'storeHours' },
+			{ key: 'saturday', label: 'Saturday', widget: 'storeHours' },
 			{ key: 'areSpecialHoursActive', label: 'Special Hours Active', widget: 'boolean' },
 			{ key: 'specialHours', label: 'Special Hours (Markdown)', widget: 'text', optional: true }
 		]
@@ -108,4 +108,3 @@ export const cmsSections = [
 ];
 
 export const cmsSectionByKey = Object.fromEntries(cmsSections.map((s) => [s.key, s]));
-

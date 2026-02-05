@@ -62,6 +62,18 @@
 		setSectionData(next);
 	}
 
+	function validateStoreHours(value) {
+		const trimmed = String(value || '').trim();
+		if (!trimmed) return { ok: false, message: 'Required' };
+		if (trimmed.toLowerCase() === 'closed') return { ok: true };
+		const re =
+			/^(1[0-2]|[1-9])(?::[0-5][0-9])?\s?(AM|PM)\s?-\s?(1[0-2]|[1-9])(?::[0-5][0-9])?\s?(AM|PM)$/i;
+		if (!re.test(trimmed)) {
+			return { ok: false, message: 'Use format like “10 AM - 2 PM” or “Closed”.' };
+		}
+		return { ok: true };
+	}
+
 	function formatNewsDateTime(value) {
 		const d = value ? new Date(value) : null;
 		if (!d || Number.isNaN(d.getTime())) return '';
@@ -226,6 +238,25 @@
 									updateObjectField(field.key, e.target.value);
 								}}
 							>{getSectionData()?.[field.key] ?? ''}</textarea>
+						</label>
+					{:else if field.widget === 'storeHours'}
+						<label class="label">
+							<span>{field.label}</span>
+							<input
+								class="input"
+								type="text"
+								value={getSectionData()?.[field.key] ?? ''}
+								on:input={(e) => {
+									updateObjectField(field.key, e.target.value);
+								}}
+							/>
+							{#if !validateStoreHours(getSectionData()?.[field.key]).ok}
+								<small class="hint error">
+									{validateStoreHours(getSectionData()?.[field.key]).message}
+								</small>
+							{:else}
+								<small class="hint">Format: <code>10 AM - 2 PM</code> or <code>Closed</code></small>
+							{/if}
 						</label>
 					{:else if field.widget === 'boolean'}
 						<label class="check">
@@ -549,6 +580,10 @@
 	.hint {
 		font-size: 12px;
 		opacity: 0.75;
+	}
+	.hint.error {
+		color: #ff9d9d;
+		opacity: 1;
 	}
 	code {
 		font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, Liberation Mono, monospace;
