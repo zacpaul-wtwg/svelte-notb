@@ -105,6 +105,14 @@
 		return String(value || '').trim().toLowerCase() === 'closed';
 	}
 
+	function toggleClosed(fieldKey) {
+		if (isClosedValue(getSectionData()?.[fieldKey])) {
+			updateObjectField(fieldKey, '');
+		} else {
+			updateObjectField(fieldKey, 'Closed');
+		}
+	}
+
 	function formatNewsDateTime(value) {
 		const d = value ? new Date(value) : null;
 		if (!d || Number.isNaN(d.getTime())) return '';
@@ -271,26 +279,19 @@
 							>{getSectionData()?.[field.key] ?? ''}</textarea>
 						</label>
 					{:else if field.widget === 'storeHours'}
-						<label class="label">
+						<div class="label">
 							<div class="hoursHeader">
 								<span>{field.label}</span>
 								<span class="hoursSep"></span>
-								<label class="closedToggle">
-									<input
-										class="toggleInput"
-										type="checkbox"
-										checked={isClosedValue(getSectionData()?.[field.key])}
-										on:change={(e) => {
-											if (e.target.checked) {
-												updateObjectField(field.key, 'Closed');
-											} else {
-												updateObjectField(field.key, '');
-											}
-										}}
-									/>
+								<button
+									type="button"
+									class="closedToggle"
+									aria-pressed={isClosedValue(getSectionData()?.[field.key])}
+									on:click={() => toggleClosed(field.key)}
+								>
 									<span class="toggleTrack"><span class="toggleThumb"></span></span>
 									<span>Closed</span>
-								</label>
+								</button>
 							</div>
 							<div class="hoursRow">
 								<div
@@ -321,7 +322,7 @@
 							{:else}
 								<small class="hint">Format: <code>10 AM - 2 PM</code></small>
 							{/if}
-						</label>
+						</div>
 					{:else if field.widget === 'boolean'}
 						<label class="check">
 							<input
@@ -675,12 +676,11 @@
 		align-items: center;
 		font-size: 13px;
 		opacity: 0.9;
-	}
-	.toggleInput {
-		position: absolute;
-		opacity: 0;
-		width: 1px;
-		height: 1px;
+		background: transparent;
+		border: 0;
+		color: inherit;
+		cursor: pointer;
+		padding: 0;
 	}
 	.toggleTrack {
 		width: 40px;
@@ -707,11 +707,11 @@
 		cursor: pointer;
 		user-select: none;
 	}
-	.toggleInput:checked + .toggleTrack {
+	.closedToggle[aria-pressed='true'] .toggleTrack {
 		background: rgba(255, 199, 0, 0.35);
 		border-color: rgba(255, 199, 0, 0.55);
 	}
-	.toggleInput:checked + .toggleTrack .toggleThumb {
+	.closedToggle[aria-pressed='true'] .toggleTrack .toggleThumb {
 		transform: translateX(16px);
 	}
 	code {
