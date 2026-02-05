@@ -5,7 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>CMS</title>
     <!-- Required for Netlify Identity invite/recovery tokens (e.g. /#invite_token=...) -->
-    <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+    <!-- Local copy to avoid adblock / third-party script failures -->
+    <script src="/vendor-netlify-identity-widget.js"></script>
   </head>
   <body>
     <div id="nc-root"></div>
@@ -20,11 +21,17 @@
         const isConfirmation = hash.includes('confirmation_token=');
         const isEmailChange = hash.includes('email_change_token=');
         const hasToken = isInvite || isRecovery || isConfirmation || isEmailChange;
-        const onNetlifyApp = window.location.hostname === 'notbfireworks.netlify.app';
+        const statusEl = document.createElement('p');
+        statusEl.style.cssText =
+          'font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,Helvetica,Arial,sans-serif;' +
+          'font-size:14px;opacity:.8;margin:12px 14px';
+        statusEl.textContent = 'Loading CMS…';
+        document.body.insertBefore(statusEl, document.body.firstChild);
 
-        // If Identity isn't fully configured for the custom domain, complete token flows on netlify.app.
-        if (hasToken && !onNetlifyApp) {
-          window.location.replace(`https://notbfireworks.netlify.app/admin/${hash}`);
+        // Never boot Decap with a token in the hash: Decap will rewrite the hash and break the flow.
+        // Instead, hand off to a dedicated token handler page.
+        if (hasToken) {
+          window.location.replace(`/identity/${hash}`);
           return;
         }
 
@@ -46,39 +53,17 @@
             tick();
           });
 
-        const startIdentityFlow = async () => {
-          const ni = await waitForIdentity();
+        // Normal flow: ensure Identity is available before booting Decap.
+        // If Decap boots first, the "Login with Netlify Identity" button can render disabled.
+        waitForIdentity(5000).then((ni) => {
           if (!ni) {
-            // If identity widget failed to load, fall back to Decap.
-            loadDecap();
+            statusEl.textContent =
+              'Netlify Identity widget did not load. Check /vendor-netlify-identity-widget.js is deployed.';
             return;
           }
-
-          ni.on('init', (user) => {
-            if (hasToken) {
-              // Invite tokens should open signup; others can open login.
-              ni.open(isInvite ? 'signup' : 'login');
-            }
-
-            if (!user) {
-              ni.on('login', () => {
-                // Drop token fragments and return to the CMS root (Decap will load then).
-                window.location.href = '/admin/';
-              });
-            }
-          });
-
-          ni.init();
-        };
-
-        if (hasToken) {
-          // Token flow: handle identity first, then reload to /admin/ to boot Decap.
-          startIdentityFlow();
-        } else {
-          // Normal flow: ensure Identity is available before booting Decap.
-          // If Decap boots first, the "Login with Netlify Identity" button can render disabled.
-          waitForIdentity(5000).then(() => loadDecap());
-        }
+          statusEl.remove();
+          loadDecap();
+        });
       })();
     </script>
   </body>

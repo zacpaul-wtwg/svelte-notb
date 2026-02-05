@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Identity</title>
+    <style>
+      html,
+      body {
+        height: 100%;
+      }
+      body {
+        margin: 0;
+        font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Helvetica,
+          Arial, sans-serif;
+        background: #0b0b0e;
+        color: #e9e9ee;
+        display: grid;
+        place-items: center;
+      }
+      main {
+        width: min(760px, calc(100vw - 32px));
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-radius: 14px;
+        padding: 18px 18px 14px;
+        background: rgba(255, 255, 255, 0.04);
+      }
+      h1 {
+        font-size: 16px;
+        margin: 0 0 10px;
+        letter-spacing: 0.02em;
+      }
+      p,
+      pre {
+        margin: 0 0 10px;
+        opacity: 0.92;
+        line-height: 1.35;
+        font-size: 14px;
+      }
+      pre {
+        white-space: pre-wrap;
+        word-break: break-word;
+        background: rgba(255, 255, 255, 0.06);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-radius: 10px;
+        padding: 10px 12px;
+      }
+      a {
+        color: #98d6ff;
+      }
+      code {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, Liberation Mono, monospace;
+        font-size: 0.95em;
+      }
+    </style>
+    <!-- Local copy to avoid adblock / third-party script failures -->
+    <script src="/vendor-netlify-identity-widget.js"></script>
+  </head>
+  <body>
+    <main>
+      <h1>Netlify Identity</h1>
+      <p id="status">Loading…</p>
+      <pre id="details" style="display: none"></pre>
+      <p>
+        If you do not see a login/signup modal, open <a href="/admin/">/admin</a> after you finish logging in.
+      </p>
+    </main>
+
+    <script>
+      (function () {
+        const statusEl = document.getElementById('status');
+        const detailsEl = document.getElementById('details');
+        const hash = window.location.hash || '';
+
+        const hasInvite = hash.includes('invite_token=');
+        const hasRecovery = hash.includes('recovery_token=');
+        const hasConfirmation = hash.includes('confirmation_token=');
+        const hasEmailChange = hash.includes('email_change_token=');
+        const hasToken = hasInvite || hasRecovery || hasConfirmation || hasEmailChange;
+
+        const showDetails = (obj) => {
+          detailsEl.style.display = 'block';
+          detailsEl.textContent = typeof obj === 'string' ? obj : JSON.stringify(obj, null, 2);
+        };
+
+        const fail = (msg, extra) => {
+          statusEl.textContent = msg;
+          if (extra) showDetails(extra);
+        };
+
+        if (!window.netlifyIdentity) {
+          fail(
+            'Netlify Identity widget did not load. This usually means the script was blocked or not deployed.',
+            { expectedGlobal: 'window.netlifyIdentity', path: '/vendor-netlify-identity-widget.js' }
+          );
+          return;
+        }
+
+        if (!hasToken) {
+          statusEl.textContent = 'No invite/recovery token detected in the URL hash.';
+          showDetails({ hash });
+          // Still initialize so users can login if they navigated here manually.
+        } else {
+          statusEl.textContent = 'Processing token…';
+          showDetails({ hash });
+        }
+
+        const ni = window.netlifyIdentity;
+
+        ni.on('error', (err) => {
+          fail('Netlify Identity error. See details below.', err || { error: 'unknown' });
+        });
+
+        ni.on('login', () => {
+          statusEl.textContent = 'Logged in. Redirecting to /admin/…';
+          window.location.replace('/admin/');
+        });
+
+        ni.on('init', (user) => {
+          if (user) {
+            statusEl.textContent = 'Already logged in. Redirecting to /admin/…';
+            window.location.replace('/admin/');
+            return;
+          }
+
+          // When a token is present, opening the widget helps users complete the flow.
+          // For invite_token, "signup" is the expected path; for the others, "login" works.
+          if (hasToken) {
+            try {
+              ni.open(hasInvite ? 'signup' : 'login');
+              statusEl.textContent = 'Complete login/signup in the modal…';
+            } catch (e) {
+              fail('Failed to open the Netlify Identity modal.', { error: String(e) });
+            }
+          } else {
+            statusEl.textContent = 'Open the Netlify Identity modal to log in.';
+            try {
+              ni.open('login');
+            } catch {
+              // No-op: the user can still use /admin to start a login.
+            }
+          }
+        });
+
+        ni.init();
+      })();
+    </script>
+  </body>
+</html>
+
