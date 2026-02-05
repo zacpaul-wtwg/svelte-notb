@@ -664,7 +664,8 @@
 	.toggleInput {
 		position: absolute;
 		opacity: 0;
-		pointer-events: none;
+		width: 1px;
+		height: 1px;
 	}
 	.toggleTrack {
 		width: 40px;
@@ -677,6 +678,7 @@
 		padding: 2px;
 		box-sizing: border-box;
 		transition: background 0.2s ease, border-color 0.2s ease;
+		cursor: pointer;
 	}
 	.toggleThumb {
 		width: 16px;
@@ -685,6 +687,10 @@
 		background: #eef0f6;
 		transform: translateX(0);
 		transition: transform 0.2s ease;
+	}
+	.closedToggle {
+		cursor: pointer;
+		user-select: none;
 	}
 	.toggleInput:checked + .toggleTrack {
 		background: rgba(255, 199, 0, 0.35);
