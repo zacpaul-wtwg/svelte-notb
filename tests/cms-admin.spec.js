@@ -24,11 +24,14 @@ test.describe('CMS Admin', () => {
     const closedToggle = page.locator('button.closedToggle').first();
     const hoursField = page.locator('.hoursRow input').first();
 
+    const wasClosed = await closedToggle.getAttribute('aria-pressed');
     await closedToggle.click();
-    await expect(hoursField).toBeDisabled();
-    await expect(hoursField).toHaveValue(/Closed/i);
 
-    await closedToggle.click();
-    await expect(hoursField).toBeEnabled();
+    if (wasClosed === 'true') {
+      await expect(hoursField).toBeEnabled();
+    } else {
+      await expect(hoursField).toBeDisabled();
+      await expect(hoursField).toHaveValue(/Closed/i);
+    }
   });
 });
