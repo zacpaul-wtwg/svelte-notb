@@ -62,7 +62,7 @@
 		setSectionData(next);
 	}
 
-	function formatNewsDate(value) {
+	function formatNewsDateTime(value) {
 		const d = value ? new Date(value) : null;
 		if (!d || Number.isNaN(d.getTime())) return '';
 		const day = d.getDate();
@@ -76,14 +76,24 @@
 						: 'th';
 		const weekday = d.toLocaleDateString('en-US', { weekday: 'long' });
 		const month = d.toLocaleDateString('en-US', { month: 'long' });
-		return `${weekday}, ${month} ${day}${ordinal}, ${d.getFullYear()}`;
+		const time = d.toLocaleTimeString('en-US', {
+			hour: 'numeric',
+			minute: '2-digit'
+		});
+		return `${weekday}, ${month} ${day}${ordinal}, ${d.getFullYear()} ${time}`;
 	}
 
-	function toDateInputValue(label) {
+	function toDateTimeInputValue(label) {
 		if (!label) return '';
 		const d = new Date(label);
 		if (Number.isNaN(d.getTime())) return '';
-		return d.toISOString().slice(0, 10);
+		const pad = (n) => String(n).padStart(2, '0');
+		const yyyy = d.getFullYear();
+		const mm = pad(d.getMonth() + 1);
+		const dd = pad(d.getDate());
+		const hh = pad(d.getHours());
+		const min = pad(d.getMinutes());
+		return `${yyyy}-${mm}-${dd}T${hh}:${min}`;
 	}
 
 	function ensureItem(obj, field) {
@@ -200,10 +210,10 @@
 							<span>{field.label}</span>
 							<input
 								class="input"
-								type="date"
-								value={toDateInputValue(getSectionData()?.date)}
+								type="datetime-local"
+								value={toDateTimeInputValue(getSectionData()?.date)}
 								on:input={(e) => {
-									const formatted = formatNewsDate(e.target.value);
+									const formatted = formatNewsDateTime(e.target.value);
 									updateObjectField('date', formatted);
 								}}
 							/>
