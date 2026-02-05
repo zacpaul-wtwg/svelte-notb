@@ -7,4 +7,3 @@
 /products /product
 /products/* /product/404 404
 /productpages/* /product/404 404
-/* /.netlify/functions/sveltekit 200
