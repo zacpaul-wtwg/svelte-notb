@@ -287,7 +287,7 @@
 									type="button"
 									class="closedToggle"
 									aria-pressed={isClosedValue(getSectionData()?.[field.key])}
-									on:click={() => toggleClosed(field.key)}
+									on:click|preventDefault|stopPropagation={() => toggleClosed(field.key)}
 								>
 									<span class="toggleTrack"><span class="toggleThumb"></span></span>
 									<span>Closed</span>
@@ -663,6 +663,7 @@
 		flex: 1;
 		height: 1px;
 		background: rgba(255, 255, 255, 0.15);
+		pointer-events: none;
 	}
 	.hoursRow {
 		display: flex;
