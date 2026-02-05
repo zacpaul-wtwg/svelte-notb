@@ -2,14 +2,18 @@ import { getContentfulClient } from '$lib/contentfulClient';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 
+const readStaticCms = async () => {
+	const cmsPath = path.resolve('static', 'cms.json');
+	const raw = await fs.readFile(cmsPath, 'utf-8');
+	return JSON.parse(raw);
+};
+
 export async function get() {
 	try {
 		const client = getContentfulClient();
 		if (!client) {
 			try {
-				const cmsPath = path.resolve('static', 'cms.json');
-				const raw = await fs.readFile(cmsPath, 'utf-8');
-				const allData = JSON.parse(raw);
+				const allData = await readStaticCms();
 				return {
 					status: 200,
 					body: { allData }
@@ -17,7 +21,7 @@ export async function get() {
 			} catch {
 				return {
 					status: 503,
-					body: { error: 'Contentful not configured and cms.json missing' }
+					body: { error: 'CMS not configured and cms.json missing' }
 				};
 			}
 		}
