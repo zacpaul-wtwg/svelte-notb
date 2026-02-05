@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>CMS</title>
     <!-- Required for Netlify Identity invite/recovery tokens (e.g. /#invite_token=...) -->
-    <script src="https://identity.netlify.com/v1/netlify-identity-widget.js" defer></script>
+    <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
   </head>
   <body>
     <div id="nc-root"></div>
@@ -68,8 +68,9 @@
           // Token flow: handle identity first, then reload to /admin/ to boot Decap.
           startIdentityFlow();
         } else {
-          // Normal flow: boot Decap immediately.
-          loadDecap();
+          // Normal flow: ensure Identity is available before booting Decap.
+          // If Decap boots first, the "Login with Netlify Identity" button can render disabled.
+          waitForIdentity(5000).then(() => loadDecap());
         }
       })();
     </script>
