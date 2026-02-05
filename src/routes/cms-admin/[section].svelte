@@ -62,6 +62,30 @@
 		setSectionData(next);
 	}
 
+	function formatNewsDate(value) {
+		const d = value ? new Date(value) : null;
+		if (!d || Number.isNaN(d.getTime())) return '';
+		const day = d.getDate();
+		const ordinal =
+			day % 10 === 1 && day % 100 !== 11
+				? 'st'
+				: day % 10 === 2 && day % 100 !== 12
+					? 'nd'
+					: day % 10 === 3 && day % 100 !== 13
+						? 'rd'
+						: 'th';
+		const weekday = d.toLocaleDateString('en-US', { weekday: 'long' });
+		const month = d.toLocaleDateString('en-US', { month: 'long' });
+		return `${weekday}, ${month} ${day}${ordinal}, ${d.getFullYear()}`;
+	}
+
+	function toDateInputValue(label) {
+		if (!label) return '';
+		const d = new Date(label);
+		if (Number.isNaN(d.getTime())) return '';
+		return d.toISOString().slice(0, 10);
+	}
+
 	function ensureItem(obj, field) {
 		if (obj[field.key] !== undefined) return;
 		if (field.widget === 'boolean') obj[field.key] = false;
@@ -171,7 +195,23 @@
 		{:else}
 			{#if schema.kind === 'object'}
 				{#each schema.fields as field (field.key)}
-					{#if section === 'newsPosts' && field.key === 'body'}
+					{#if section === 'newsPosts' && field.key === 'date'}
+						<label class="label">
+							<span>{field.label}</span>
+							<input
+								class="input"
+								type="date"
+								value={toDateInputValue(getSectionData()?.date)}
+								on:input={(e) => {
+									const formatted = formatNewsDate(e.target.value);
+									updateObjectField('date', formatted);
+								}}
+							/>
+							<small class="hint">
+								Stored format: <code>{getSectionData()?.date || '—'}</code>
+							</small>
+						</label>
+					{:else if section === 'newsPosts' && field.key === 'body'}
 						<div class="label">
 							<span>{field.label}</span>
 							<QuillEditor
@@ -508,6 +548,10 @@
 		margin: 10px 2px 2px;
 		opacity: 0.9;
 		font-size: 13px;
+	}
+	.hint {
+		font-size: 12px;
+		opacity: 0.75;
 	}
 	code {
 		font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, Liberation Mono, monospace;
