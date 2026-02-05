@@ -10,12 +10,10 @@
   <body>
     <div id="nc-root"></div>
     <script>
-      // Netlify Identity uses URL fragments (hash) for invite/recovery/confirmation tokens.
-      // These fragments are never sent to the server, so we must handle them client-side.
-      window.addEventListener('DOMContentLoaded', () => {
-        const ni = window.netlifyIdentity;
-        if (!ni) return;
-
+      // IMPORTANT: Decap CMS mutates window.location.hash very early during boot.
+      // Netlify Identity invite/recovery tokens are stored in the hash, so we must
+      // handle those *before* loading Decap.
+      (function () {
         const hash = window.location.hash || '';
         const isInvite = hash.includes('invite_token=');
         const isRecovery = hash.includes('recovery_token=');
@@ -23,25 +21,57 @@
         const isEmailChange = hash.includes('email_change_token=');
         const hasToken = isInvite || isRecovery || isConfirmation || isEmailChange;
 
-        // Ensure Identity is initialized, and open the modal when a token is present
-        // so users can complete invite/recovery flows.
-        ni.on('init', (user) => {
-          if (hasToken) {
-            // Hint mode to the widget. Invite tokens should open signup.
-            ni.open(isInvite ? 'signup' : 'login');
+        const loadDecap = () => {
+          const s = document.createElement('script');
+          s.src = '/admin/decap-cms.js';
+          s.defer = true;
+          document.body.appendChild(s);
+        };
+
+        const waitForIdentity = (timeoutMs = 8000) =>
+          new Promise((resolve) => {
+            const start = Date.now();
+            const tick = () => {
+              if (window.netlifyIdentity) return resolve(window.netlifyIdentity);
+              if (Date.now() - start > timeoutMs) return resolve(null);
+              setTimeout(tick, 50);
+            };
+            tick();
+          });
+
+        const startIdentityFlow = async () => {
+          const ni = await waitForIdentity();
+          if (!ni) {
+            // If identity widget failed to load, fall back to Decap.
+            loadDecap();
+            return;
           }
 
-          if (!user) {
-            ni.on('login', () => {
-              // Drop token fragments and return to the CMS root.
-              window.location.href = '/admin/';
-            });
-          }
-        });
+          ni.on('init', (user) => {
+            if (hasToken) {
+              // Invite tokens should open signup; others can open login.
+              ni.open(isInvite ? 'signup' : 'login');
+            }
 
-        ni.init();
-      });
+            if (!user) {
+              ni.on('login', () => {
+                // Drop token fragments and return to the CMS root (Decap will load then).
+                window.location.href = '/admin/';
+              });
+            }
+          });
+
+          ni.init();
+        };
+
+        if (hasToken) {
+          // Token flow: handle identity first, then reload to /admin/ to boot Decap.
+          startIdentityFlow();
+        } else {
+          // Normal flow: boot Decap immediately.
+          loadDecap();
+        }
+      })();
     </script>
-    <script src="/admin/decap-cms.js" defer></script>
   </body>
 </html>
