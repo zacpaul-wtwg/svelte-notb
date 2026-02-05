@@ -4,9 +4,9 @@ test.describe('CMS Admin', () => {
   test('sections list renders', async ({ page }) => {
     await page.goto('/cms-admin');
     await expect(page.locator('h1', { hasText: 'CMS Admin' })).toBeVisible();
-    await expect(page.locator('a', { hasText: 'News Post' })).toBeVisible();
-    await expect(page.locator('a', { hasText: 'FAQ' })).toBeVisible();
-    await expect(page.locator('a', { hasText: 'Pricing' })).toBeVisible();
+    await expect(page.locator('.grid a', { hasText: 'News Post' })).toBeVisible();
+    await expect(page.locator('.grid a', { hasText: 'FAQ' })).toBeVisible();
+    await expect(page.locator('.grid a', { hasText: 'Pricing' })).toBeVisible();
   });
 
   test('news post editor renders quill + date field', async ({ page }) => {

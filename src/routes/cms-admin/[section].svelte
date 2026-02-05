@@ -44,6 +44,19 @@
 		message = `Update cms.json (${new Date().toISOString().slice(0, 10)})`;
 		if (!allData) {
 			status = 'No draft loaded. Go back and unlock/load first.';
+			if (isLocalDev) {
+				// Local dev: hydrate from /cms.json automatically
+				fetch('/cms.json', { cache: 'no-store' })
+					.then((res) => res.text())
+					.then((text) => {
+						allData = JSON.parse(text);
+						saveDraftToStorage(allData);
+						status = 'Loaded from /cms.json';
+					})
+					.catch((e) => {
+						status = `Failed to load /cms.json: ${e?.message || e}`;
+					});
+			}
 		}
 	});
 
