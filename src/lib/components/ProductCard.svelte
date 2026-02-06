@@ -123,33 +123,33 @@ import { browser } from '$app/environment';
 </script>
 
 <section class="card {expanded ? 'expanded' : ''}">
-	<a href={`/product/${id}/${slugify(title)}`} target="_blank">
-		<div class="title">
-			<div class="meta">
-				{#if colors.length > 0}
-					<div class="color-dots">
-						{#each colors.slice(0, 4) as color}
-							<button
-								type="button"
-								class="dot"
-								style="background: {color};"
-								aria-label={`Color ${color}`}
-								on:mouseenter={startBurst}
-								on:mouseleave={stopBurst}
-								on:click|stopPropagation={burst}
-							></button>
-						{/each}
-					</div>
-				{/if}
-				{#if effects.length > 0}
-					<div class="effects">
-						{#each effects.slice(0, 2) as effect}
-							<span class="effect-chip">{effect}</span>
-						{/each}
-					</div>
-				{/if}
-			</div>
+	<div class="title">
+		<div class="meta">
+			{#if colors.length > 0}
+				<div class="color-dots">
+					{#each colors.slice(0, 4) as color}
+						<button
+							type="button"
+							class="dot"
+							style="background: {color};"
+							aria-label={`Color ${color}`}
+							on:mouseenter={startBurst}
+							on:mouseleave={stopBurst}
+							on:click|stopPropagation={burst}
+						></button>
+					{/each}
+				</div>
+			{/if}
+			{#if effects.length > 0}
+				<div class="effects">
+					{#each effects.slice(0, 2) as effect}
+						<span class="effect-chip">{effect}</span>
+					{/each}
+				</div>
+			{/if}
 		</div>
+	</div>
+	<a href={`/product/${id}/${slugify(title)}`} target="_blank" class="product-link">
 		<div class="image-wrapper">
 			<div class="image-container">
 				<img loading="lazy" src={getThumb(imageThumb)} alt="{sentenceify(title)} product" />
@@ -317,7 +317,7 @@ import { browser } from '$app/environment';
 		white-space: nowrap;
 		text-transform: none;
 	}
-	a {
+	a.product-link {
 		text-decoration: none;
 	}
 	h4.product-name {
