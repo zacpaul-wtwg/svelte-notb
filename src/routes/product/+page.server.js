@@ -1,3 +1,5 @@
+export const prerender = true;
+
 export async function load({ fetch }) {
 	const { things } = await fetch('/data/getAllProducts').then((r) => r.json());
 	return {

@@ -4,12 +4,11 @@
 	import SpecTable from '$lib/components/SpecTable.svelte';
 	import TitleBar from '$lib/components/TitleBar.svelte';
 
-	export const prerender = false;
-
-	export let product;
-	export let colorsArray = product.colors?.split(' ') ?? ['unlisted'];
-	export let effectsArray = product.effects?.split(' ') ?? ['unlisted'];
-	export let soundsArray = product.sounds?.split(' ') ?? ['unlisted'];
+	export let data;
+	$: product = data.product;
+	$: colorsArray = product.colors?.split(' ') ?? ['unlisted'];
+	$: effectsArray = product.effects?.split(' ') ?? ['unlisted'];
+	$: soundsArray = product.sounds?.split(' ') ?? ['unlisted'];
 
 	export const date = new Date();
 	export const newDate = new Date(date.setMonth(date.getMonth() + 1));

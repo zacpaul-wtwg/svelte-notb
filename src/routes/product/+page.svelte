@@ -1,13 +1,11 @@
 <script>
 	// #region imports
-	import { fly } from 'svelte/transition';
+import { fade, fly, slide } from 'svelte/transition';
 	import MatchGroup from '$lib/matchGroup.svelte';
 	import { filterProducts, sortProducts } from '$lib/filter-utils';
 	import TitleBar from '$lib/components/TitleBar.svelte';
 	import ProductCard from '$lib/components/ProductCard.svelte';
 	// #endregion
-
-	export const prerender = true;
 
 	// #region props
 	export let data;
@@ -20,7 +18,7 @@
 	// #region filters
 	$: pricing = 'ALL PRICING';
 	$: pricingOptions = ['ALL PRICING', '2 FOR 1', '3 FOR 1'];
-	$: department = 'ALL DEPARTMENTS';
+	$: department = 'FEATURED';
 	$: sortMethod = 'title';
 	$: sortOptions = [
 		{ display: 'LOWEST PRICE FIRST', value: 'lowestPriceFirst' },
@@ -44,7 +42,11 @@
 		filterProducts(searchStrings, readyFilters, pricing, department)
 	);
 	$: sortedProducts = sortProducts(filteredProducts, sortMethod);
-	$: filter = true;
+	$: featuredProducts = sortedProducts.filter((product) => product.featured === 'yes');
+	let showAllProducts = false;
+	let highlightDepartments = false;
+	$: visibleProducts = showAllProducts ? sortedProducts : featuredProducts;
+	$: filter = false;
 	// #endregion
 </script>
 
@@ -64,7 +66,9 @@
 			</label>
 			<select id="pricing" bind:value={pricing}>
 				{#each pricingOptions as item}
-					<option value={item.replace(' 1', '')}>{item}</option>
+					<option value={item.replace(' 1', '')}>
+						{item === 'ALL PRICING' ? 'ALL' : item}
+					</option>
 				{/each}
 			</select>
 		</div>
@@ -73,8 +77,13 @@
 			<label for="departments">
 				<h3>Departments:</h3>
 			</label>
-			<select id="departments" bind:value={department}>
-				<option value="ALL DEPARTMENTS">ALL DEPARTMENTS</option>
+			<select
+				id="departments"
+				class:highlight={highlightDepartments}
+				bind:value={department}
+			>
+				<option value="FEATURED">FEATURED</option>
+				<option value="ALL DEPARTMENTS">ALL</option>
 				{#each departmentsAlphabetical as dept}
 					<option value={dept}>{dept}</option>
 				{/each}
@@ -95,12 +104,14 @@
 
 		<div class="boxes filter-group bottom-group">
 			{#each categories as category}
-				<hr />
-				<MatchGroup
-					label={category}
-					values={availableFilters[category]}
-					bind:selectedValues={selectedFilters[category]}
-				/>
+				<details class="filter-group">
+					<summary>{category}</summary>
+					<MatchGroup
+						label={category}
+						values={availableFilters[category]}
+						bind:selectedValues={selectedFilters[category]}
+					/>
+				</details>
 			{/each}
 		</div>
 	</div>
@@ -108,23 +119,16 @@
 
 //buttons are
 
-{#if filter}
-	<button
-		transition:fly={{ x: -400, duration: 1000 }}
-		class="filter-toggle filter-on"
-		on:click={() => (filter = !filter)}
-	>
-		Hide Filters
-	</button>
-{:else}
-	<button
-		transition:fly={{ x: -400, duration: 1000 }}
-		class="filter-toggle filter-off"
-		on:click={() => (filter = !filter)}
-	>
-		Show Filters
-	</button>
-{/if}
+<button class="filter-pill" on:click={() => (filter = !filter)}>
+	<span class="pill-icon" aria-hidden="true">
+		<svg viewBox="0 0 24 24" role="img" focusable="false">
+			<path
+				d="M10 6a2 2 0 0 1 4 0h7v2h-7a2 2 0 0 1-4 0H3V6h7zm-2 10a2 2 0 0 0 4 0h9v-2h-9a2 2 0 0 0-4 0H3v2h5z"
+			/>
+		</svg>
+	</span>
+	<span class="pill-text">Filters</span>
+</button>
 <div
 	class="detoggle"
 	role="button"
@@ -143,7 +147,27 @@
 	</div>
 
 	<div class="card-container {filter ? 'no-scroll' : 'scroll'}">
-		{#each sortedProducts as product}
+		{#if !showAllProducts}
+			<div class="load-all" transition:slide={{ duration: 300 }}>
+				<p>Showing featured products only.</p>
+				<button
+					type="button"
+					class="load-all-button"
+					on:click|stopPropagation={() => {
+						showAllProducts = true;
+						filter = true;
+						department = 'ALL DEPARTMENTS';
+						highlightDepartments = true;
+						if (typeof window !== 'undefined') {
+							window.setTimeout(() => (highlightDepartments = false), 4000);
+						}
+					}}
+				>
+					See All Products
+				</button>
+			</div>
+		{/if}
+		{#each visibleProducts as product}
 			<ProductCard {product} />
 		{/each}
 	</div>
@@ -176,9 +200,11 @@
 		position: fixed;
 		top: calc(var(--nav-bottom) + var(--nav-top));
 		height: calc(100vh - var(--nav-height));
-		width: 15em;
-		padding: 4em 1em 1em 1em;
+		width: 13em;
+		padding: 4.25em 1em 1.5em 1em;
 		background: var(--off-white);
+		box-shadow: inset -1px 0 0 var(--grey), 4px 0 12px rgba(0, 0, 0, 0.08);
+		border-right: 1px solid var(--grey);
 		z-index: 6;
 		overflow: scroll;
 	}
@@ -192,10 +218,51 @@
 		display: flex;
 		flex-direction: row;
 		flex-wrap: wrap;
-		gap: 1.5em;
+		gap: 2em;
 		padding: 1em;
 		justify-content: center;
-		margin-top: 1em;
+		margin-top: 0.5em;
+		max-width: 1200px;
+		margin-left: auto;
+		margin-right: auto;
+	}
+	.load-all {
+		width: 100%;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		flex-direction: column;
+		gap: 0.5em;
+		padding: 1em 0;
+	}
+	.load-all-button {
+		padding: 0.6em 1.5em;
+		font-size: 1.1em;
+		border: 2px solid var(--grey);
+		background: var(--white);
+		color: var(--grey);
+		cursor: pointer;
+		text-transform: uppercase;
+		box-shadow: 4px 4px 0 var(--yellow-accent);
+	}
+	.load-all-button:hover {
+		background: var(--grey);
+		color: var(--white);
+	}
+	@keyframes pulseHighlight {
+		0% {
+			box-shadow: 0 0 0 0 rgba(0, 0, 0, 1);
+		}
+		50% {
+			box-shadow: 0 0 0 6px rgba(0, 0, 0, 1);
+		}
+		100% {
+			box-shadow: 0 0 0 0 rgba(0, 0, 0, 1);
+		}
+	}
+	select.highlight {
+		animation: pulseHighlight 0.6s steps(1, end) 6;
+		border-color: var(--grey);
 	}
 	.detoggle {
 		display: block;
@@ -208,21 +275,91 @@
 	.filter-group {
 		margin-top: 1em;
 	}
+	details.filter-group {
+		border: 1px solid var(--grey);
+		border-left: 4px solid var(--yellow-accent);
+		border-radius: 0;
+		padding: 0.5em 0.75em;
+		background: var(--white);
+	}
+	details.filter-group summary {
+		font-weight: 700;
+		text-transform: uppercase;
+		letter-spacing: 0.04em;
+		cursor: pointer;
+		list-style: none;
+	}
+	details.filter-group summary::-webkit-details-marker {
+		display: none;
+	}
+	details.filter-group summary::after {
+		content: '+';
+		float: right;
+	}
+	details[open].filter-group summary::after {
+		content: '–';
+	}
 	input,
 	select {
-		width: 12em;
+		width: 100%;
+		max-width: 100%;
+		box-sizing: border-box;
+		border: 1px solid var(--grey);
+		background: var(--white);
+		padding: 0.4em 0.5em;
+		font-family: Langdon;
+		text-transform: uppercase;
+		letter-spacing: 0.03em;
 	}
-	.filter-toggle {
+	.filter-group h3 {
+		margin: 0 0 0.35em;
+		text-transform: uppercase;
+		letter-spacing: 0.04em;
+		font-size: 0.95em;
+		color: var(--grey);
+	}
+	.filter-group label {
+		display: block;
+	}
+	.filter-pill {
 		position: fixed;
+		top: calc(var(--nav-height) + 1.5em);
+		left: 0;
 		z-index: 10;
-		margin-left: 1em;
-		font-size: 1.5em;
+		display: inline-flex;
+		align-items: center;
+		gap: 0.35em;
+		background: var(--grey);
+		color: var(--white);
+		border: none;
+		border-radius: 0 999px 999px 0;
+		padding: 0.6em 1.1em;
+		font-family: Langdon;
+		text-transform: uppercase;
+		font-size: 1.1em;
+		cursor: pointer;
+		box-shadow: 4px 4px 0 var(--yellow-accent);
+		transition: background 0.2s ease;
 	}
-	.filter-on {
-		top: 3.5em;
+	.filter-pill .pill-icon {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		width: 1.8em;
+		height: 1.8em;
+		border-radius: 999px;
+		background: var(--white);
+		color: var(--grey);
+		font-weight: 900;
+		font-size: 1.1em;
 	}
-	.filter-off {
-		bottom: 1em;
+	.filter-pill .pill-icon svg {
+		width: 1.1em;
+		height: 1.1em;
+		fill: currentColor;
+	}
+	.filter-pill:hover {
+		background: var(--grey);
 	}
 
 	:global(.detoggle .main-container) {

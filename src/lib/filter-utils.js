@@ -40,6 +40,9 @@ const checkDepartmentMatch = function ({ category }, option) {
 	if (option === 'ALL DEPARTMENTS') {
 		return true;
 	}
+	if (option === 'FEATURED') {
+		return true;
+	}
 	return category === option;
 };
 
@@ -51,7 +54,7 @@ export const filterProducts = (strings, filters, pricing, department) => (produc
 	checkSearchStringMatch(product, strings) &&
 	checkForFilterMatch(product, filters) &&
 	checkPricingMatch(product, pricing) &&
-	checkDepartmentMatch(product, department);
+	(department === 'FEATURED' ? product.featured === 'yes' : checkDepartmentMatch(product, department));
 
 //sorting functions go below
 export const sortProducts = function (filteredProducts, sortMethod) {

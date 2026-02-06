@@ -56,9 +56,9 @@
 		</button>
 	</div>
 	<span class="clicker-message">
-		<strong> add/remove from wishlist </strong>
-		<br />
-		<a href="/product/wishlist">See Wishlist</a>
+		<a href="/product/wishlist" class="wishlist-pill">
+			Wishlist
+		</a>
 	</span>
 </div>
 
@@ -73,6 +73,14 @@
 	}
 	.clicker-content {
 		display: flex;
+		gap: 0.2em;
+	}
+	.clicker-message {
+		width: calc(3 * 2.25em + 2 * 0.2em);
+		display: flex;
+		justify-content: center;
+		margin-right: 0;
+		margin-top: 0.1em;
 	}
 	.clicker {
 		display: inline-block;
@@ -92,18 +100,31 @@
 	}
 	.clicker-sub {
 		margin-left: 1em;
-		margin-right: 0.1em;
-		border-radius: 5px 0px 0px 5px;
+		border-radius: 5px 0px 0px 0px;
 	}
 	.clicker-add {
 		margin-right: 1em;
-		margin-left: 0.15em;
-		border-radius: 0px 5px 5px 0px;
+		border-radius: 0px 5px 0px 0px;
 	}
-	.clicker-message {
-		padding-right: 1em;
-		font-size: 0.75em;
-		margin-top: 0.1em;
+	.wishlist-pill {
+		display: block;
+		width: 100%;
+		text-align: center;
+		padding: 0.3em 0.6em;
+		border: 1px solid var(--grey);
+		border-radius: 0px 0px 6px 6px;
+		text-transform: uppercase;
+		letter-spacing: 0.04em;
+		font-weight: 700;
+		background: var(--grey);
+		color: var(--white);
+		box-shadow: none;
+		text-decoration: none;
+		transform: skew(-14deg) translateX(-23px);
+	}
+	.wishlist-pill:hover {
+		background: var(--grey);
+		color: var(--white);
 	}
 	.red {
 		background: var(--red);
