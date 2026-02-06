@@ -1,16 +1,8 @@
 <script>
-	import ColumnButton from '$lib/components/ColumnButton.svelte';
-	import Button from '$lib/components/elements/Button.svelte';
-	import Container from '$lib/components/elements/Container.svelte';
-	import TitleBar from '$lib/components/TitleBar.svelte';
-
-	export async function load({ fetch }) {
-		const { things } = await fetch('../data/getAllProducts.json').then((results) => {
-			return results.json();
-		});
-
-		return { props: { things } };
-	}
+import ColumnButton from '$lib/components/ColumnButton.svelte';
+import Button from '$lib/components/elements/Button.svelte';
+import Container from '$lib/components/elements/Container.svelte';
+import TitleBar from '$lib/components/TitleBar.svelte';
 
 	export const verticalize = function (array) {
 		return array.join(', ');
@@ -21,11 +13,12 @@
 	$: colors = false;
 	$: sounds = false;
 
-	export let things;
-	export let departments = things.departments.sort();
+	export let data;
+	$: things = data?.things ?? { products: [], departments: [] };
+	$: departments = [...(things.departments ?? [])].sort();
 
 	$: departmentFilter = 'all departments';
-	$: products = things.products;
+	$: products = things.products ?? [];
 	$: departmentFilter;
 	$: filteredProducts = products;
 	$: sortedProducts = filteredProducts

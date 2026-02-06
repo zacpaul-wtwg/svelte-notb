@@ -1,33 +1,13 @@
 <script>
-	import { fallbackAllData as fallbackAllDataModule } from '$lib/cms/fallback';
-	import HomeNews from '$lib/components/HomeNews.svelte';
-	import Hero from '$lib/components/Hero.svelte';
-	import Container from '$lib/components/elements/Container.svelte';
-	import Featured from '$lib/components/Featured.svelte';
-	import BreakRange from '$lib/components/BreakRange.svelte';
+import HomeNews from '$lib/components/HomeNews.svelte';
+import Hero from '$lib/components/Hero.svelte';
+import Container from '$lib/components/elements/Container.svelte';
+import Featured from '$lib/components/Featured.svelte';
+import BreakRange from '$lib/components/BreakRange.svelte';
 
-	export async function load({ fetch }) {
-		let allData = fallbackAllDataModule;
-		try {
-			const res = await fetch('/data/getAllContentful.json');
-			const contentType = res.headers.get('content-type') ?? '';
-			if (res.ok && contentType.includes('application/json')) {
-				const parsed = await res.json();
-				if (parsed?.allData) allData = parsed.allData;
-			}
-		} catch {
-			// keep fallback
-		}
-
-		const productsData = await fetch('../data/getAllProducts.json').then((results) =>
-			results.json()
-		);
-
-		return { props: { allData, productsData } };
-	}
-
-	export let allData = fallbackAllDataModule;
-	export let productsData = { products: [] };
+export let data;
+$: allData = data?.allData;
+$: productsData = data?.productsData ?? { products: [] };
 </script>
 
 <svelte:head>

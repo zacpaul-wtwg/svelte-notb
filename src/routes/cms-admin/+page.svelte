@@ -1,15 +1,8 @@
 <script>
-	import { onMount } from 'svelte';
+import { onMount } from 'svelte';
 
-	export async function load({ fetch }) {
-		return {
-			props: {
-				initial: ''
-			}
-		};
-	}
-
-	export let initial = '';
+export let data;
+$: initial = data?.initial ?? '';
 
 	let password = '';
 	let message = '';

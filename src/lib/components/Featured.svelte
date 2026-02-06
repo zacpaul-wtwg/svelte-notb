@@ -8,22 +8,32 @@
 	import Article from '$lib/components/Article.svelte';
 	import ShortenSentence from '$lib/utility/ShortenSentence.svelte';
 	import { slugify } from '$lib/utility/slugify';
+	import { onMount } from 'svelte';
 
-	export const sortedProducts = (productsData?.products ?? []).filter((x) => x.featured === 'yes');
-	export const productIdArray = sortedProducts.map((x) => x.id);
-	$: itemCount = sortedProducts.length;
-	$: haltRiffle = false;
-	$: arrayRiffle = 0;
-	$: selectedId = productIdArray[arrayRiffle];
+	let sortedProducts = [];
+	let productIdArray = [];
+	let itemCount = 0;
+	let haltRiffle = false;
+	let arrayRiffle = 0;
+	let selectedId;
 	export let h;
 
-	setInterval(() => {
-		if (haltRiffle === false) {
-			arrayRiffle !== sortedProducts.length - 1 ? arrayRiffle++ : (arrayRiffle = 0);
-		} else {
-			arrayRiffle == arrayRiffle;
-		}
-	}, intervalBetweenChange);
+	$: sortedProducts = (productsData?.products ?? []).filter((x) => x.featured === 'yes');
+	$: productIdArray = sortedProducts.map((x) => x.id);
+	$: itemCount = sortedProducts.length;
+	$: if (itemCount === 0) arrayRiffle = 0;
+	$: if (arrayRiffle >= itemCount && itemCount > 0) arrayRiffle = 0;
+	$: selectedId = productIdArray[arrayRiffle];
+
+	onMount(() => {
+		const id = setInterval(() => {
+			if (!haltRiffle && itemCount > 0) {
+				arrayRiffle = arrayRiffle < itemCount - 1 ? arrayRiffle + 1 : 0;
+			}
+		}, intervalBetweenChange);
+
+		return () => clearInterval(id);
+	});
 
 	const month = [
 		'January',

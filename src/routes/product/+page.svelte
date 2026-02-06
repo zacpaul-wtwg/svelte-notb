@@ -9,22 +9,12 @@
 
 	export const prerender = true;
 
-	export async function load({ fetch }) {
-		const { things } = await fetch('/data/getAllProducts.json').then((r) => r.json());
-		return {
-			props: {
-				products: things.products,
-				availableFilters: things.availableFilters,
-				departments: things.departments
-			}
-		};
-	}
-
 	// #region props
-	export let products;
-	export let availableFilters;
-	export let departments;
-	$: departmentsAlphabetical = departments.sort();
+	export let data;
+	$: products = data?.products ?? [];
+	$: availableFilters = data?.availableFilters ?? {};
+	$: departments = data?.departments ?? [];
+	$: departmentsAlphabetical = [...departments].sort();
 	// #endregion
 
 	// #region filters
@@ -40,17 +30,17 @@
 	];
 
 	$: categories = Object.keys(availableFilters);
-	let selectedFilters = Object.keys(availableFilters).reduce(
+	$: selectedFilters = Object.keys(availableFilters).reduce(
 		(value, key) => ({
 			...value,
 			[key]: []
 		}),
 		{}
 	);
-	$: readyFilters = Object.entries(selectedFilters).filter(([_, values]) => values.length > 0);
+	$: readyFilters = Object.entries(selectedFilters || {}).filter(([_, values]) => values.length > 0);
 	$: searchString = '';
 	$: searchStrings = searchString.toLowerCase().split(' ');
-	$: filteredProducts = products.filter(
+	$: filteredProducts = (products || []).filter(
 		filterProducts(searchStrings, readyFilters, pricing, department)
 	);
 	$: sortedProducts = sortProducts(filteredProducts, sortMethod);
@@ -135,11 +125,18 @@
 		Show Filters
 	</button>
 {/if}
-<button
-	type="button"
+<div
 	class="detoggle"
+	role="button"
+	tabindex="0"
 	aria-label="Toggle filters"
 	on:click={() => (filter ? (filter = !filter) : filter)}
+	on:keydown={(event) => {
+		if (event.key === 'Enter' || event.key === ' ') {
+			event.preventDefault();
+			filter ? (filter = !filter) : filter;
+		}
+	}}
 >
 	<div>
 		<TitleBar title="Products: {department}" subtitle="Pricing: {pricing}" />
@@ -150,7 +147,7 @@
 			<ProductCard {product} />
 		{/each}
 	</div>
-</button>
+</div>
 
 <style lang="scss">
 	// #region buttons

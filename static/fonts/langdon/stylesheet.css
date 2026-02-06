@@ -4,8 +4,8 @@
 
 @font-face {
     font-family: 'langdon';
-    src: url('langdon-webfont.woff2') format('woff2'),
-         url('langdon-webfont.woff') format('woff');
+    src: url('/fonts/langdon/langdon-webfont.woff2') format('woff2'),
+         url('/fonts/langdon/langdon-webfont.woff') format('woff');
     font-weight: normal;
     font-style: normal;
 

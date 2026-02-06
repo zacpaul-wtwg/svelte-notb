@@ -10,6 +10,11 @@ const getBrandById = function (brands, brandId) {
 		return element.id === parseInt(brandId);
 	})?.title;
 };
+const getDealCount = function (brandTitle) {
+	if (brandTitle === '2 FOR') return 2;
+	if (brandTitle === '3 FOR') return 3;
+	return 1;
+};
 //get the value for the custom attrubute title
 const getAttributeByTitle = function (array, title) {
 	return array?.find(function (element) {
@@ -55,6 +60,8 @@ export const refineProductIndexData = function (categories, brands, products) {
 			return isActiveProduct(product);
 		})
 		.forEach(function (element) {
+			const brandTitle = getBrandById(brands, element.brandId);
+			const dealCount = getDealCount(brandTitle);
 			getAttributeArrayByTitle(element.customAttributes, 'effects').forEach((v) =>
 				allAffects.add(v)
 			);
@@ -65,9 +72,9 @@ export const refineProductIndexData = function (categories, brands, products) {
 				id: element.id,
 				imageThumb: element.imageUrl,
 				title: element.title,
-				price: Number(element.price),
+				price: Number(element.price) * dealCount,
 				category: getCategoryById(categories, element.categoryId),
-				deal: getBrandById(brands, element.brandId),
+				deal: brandTitle,
 				description: getAttributeByTitle(element.customAttributes, 'description'),
 				featured: getAttributeByTitle(element.customAttributes, 'featured'),
 				effects: getAttributeArrayByTitle(element.customAttributes, 'effects'),
@@ -90,13 +97,15 @@ export const refineProductIndexData = function (categories, brands, products) {
 
 export const refineProductDetailsData = function (categories, brands, element) {
 	//console.log({ element });
+	const brandTitle = getBrandById(brands, element.brandId);
+	const dealCount = getDealCount(brandTitle);
 	return {
 		id: element.id,
 		images: element.images,
 		title: element.title,
-		price: Number(element.price),
+		price: Number(element.price) * dealCount,
 		category: getCategoryById(categories, element.categoryId),
-		brand: getBrandById(brands, element.brandId),
+		brand: brandTitle,
 		description: getAttributeByTitle(element.customAttributes, 'description'),
 		featured: getAttributeByTitle(element.customAttributes, 'featured'),
 		effects: getAttributeByTitle(element.customAttributes, 'effects'),

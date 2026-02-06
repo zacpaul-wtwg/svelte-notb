@@ -1,28 +1,12 @@
 <script>
-	import { fallbackAllData as fallbackAllDataModule } from '$lib/cms/fallback';
-	import Container from '$lib/components/elements/Container.svelte';
-	import PageTitle from '$lib/components/PageTitle.svelte';
-	import TitleBar from '$lib/components/TitleBar.svelte';
-	import { renderMarkdown } from '$lib/markdown';
-	import { fallbackAllData } from '$lib/cms/fallback';
+import Container from '$lib/components/elements/Container.svelte';
+import PageTitle from '$lib/components/PageTitle.svelte';
+import TitleBar from '$lib/components/TitleBar.svelte';
+import { renderMarkdown } from '$lib/markdown';
+import { fallbackAllData } from '$lib/cms/fallback';
 
-	export async function load({ fetch }) {
-		let allData = fallbackAllDataModule;
-		try {
-			const res = await fetch('/data/getAllContentful.json');
-			const contentType = res.headers.get('content-type') ?? '';
-			if (res.ok && contentType.includes('application/json')) {
-				const parsed = await res.json();
-				if (parsed?.allData) allData = parsed.allData;
-			}
-		} catch {
-			// keep fallback
-		}
-
-		return { props: { allData } };
-	}
-
-	export let allData = fallbackAllData;
+export let data;
+$: allData = data?.allData ?? fallbackAllData;
 </script>
 
 <TitleBar
