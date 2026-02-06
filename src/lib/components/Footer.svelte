@@ -1,5 +1,5 @@
 <script>
-	import SvelteMarkdown from 'svelte-markdown';
+	import { renderMarkdown } from '$lib/markdown';
 	import Address from './Address.svelte';
 	export let allData;
 	import { date } from '$lib/utility/date';
@@ -8,7 +8,7 @@
 <footer>
 	<div class="message footer-section">
 		<img src="/logo_large.png" alt="North of the Border Logo" />
-		<SvelteMarkdown source={allData.footerDescription.body} />
+		<div class="md">{@html renderMarkdown(allData.footerDescription.body)}</div>
 	</div>
 	<div class="hours footer-section">
 		<div class="footer-header">Hours of Operation</div>

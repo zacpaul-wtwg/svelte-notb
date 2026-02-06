@@ -1,12 +1,12 @@
 <script>
-	import SvelteMarkdown from 'svelte-markdown';
+	import { renderMarkdown } from '$lib/markdown';
 	export let title;
 	export let answer;
 </script>
 
 <div>
 	<h2>{title}</h2>
-	<p><SvelteMarkdown source={answer} /></p>
+	<div class="md">{@html renderMarkdown(answer)}</div>
 </div>
 
 <style>

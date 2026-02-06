@@ -26,7 +26,7 @@
 	import Container from '$lib/components/elements/Container.svelte';
 	import PageTitle from '$lib/components/PageTitle.svelte';
 	import TitleBar from '$lib/components/TitleBar.svelte';
-	import SvelteMarkdown from 'svelte-markdown';
+	import { renderMarkdown } from '$lib/markdown';
 	import { fallbackAllData } from '$lib/cms/fallback';
 	export let allData = fallbackAllData;
 </script>
@@ -43,7 +43,7 @@
 					<h3>
 						{entry.title}
 					</h3>
-					<p class="md"><SvelteMarkdown source={entry.entry} /></p>
+					<div class="md">{@html renderMarkdown(entry.entry)}</div>
 				</div>
 			</article>
 		{/each}

@@ -1,10 +1,9 @@
 module.exports = {
   root: true,
-  extends: ['eslint:recommended', 'prettier', 'plugin:storybook/recommended'],
-  plugins: ['svelte3'],
+  extends: ['eslint:recommended', 'prettier', 'plugin:storybook/recommended', 'plugin:svelte/recommended'],
   overrides: [{
     files: ['*.svelte'],
-    processor: 'svelte3/svelte3'
+    parser: 'svelte-eslint-parser'
   }],
   parserOptions: {
     sourceType: 'module',

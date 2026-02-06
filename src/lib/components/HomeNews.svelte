@@ -1,5 +1,5 @@
 <script>
-	import SvelteMarkdown from 'svelte-markdown';
+	import { renderMarkdown } from '$lib/markdown';
 	export let allData;
 </script>
 
@@ -8,7 +8,7 @@
 		<h2>{allData.newsPosts.title}</h2>
 		<em>{allData.newsPosts.date}</em>
 	</div>
-	<SvelteMarkdown source={allData.newsPosts.body} />
+	<div class="md">{@html renderMarkdown(allData.newsPosts.body)}</div>
 </div>
 
 <style lang="scss">

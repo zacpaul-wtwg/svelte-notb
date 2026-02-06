@@ -1,5 +1,4 @@
 <script>
-	import SvelteMarkdown from 'svelte-markdown';
 	export let allData;
 	import { date } from '$lib/utility/date';
 	console.log(allData);
