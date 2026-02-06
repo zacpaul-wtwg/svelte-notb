@@ -1,5 +1,10 @@
 <script>
 	import { fallbackAllData as fallbackAllDataModule } from '$lib/cms/fallback';
+	import Container from '$lib/components/elements/Container.svelte';
+	import PageTitle from '$lib/components/PageTitle.svelte';
+	import TitleBar from '$lib/components/TitleBar.svelte';
+	import { renderMarkdown } from '$lib/markdown';
+	import { fallbackAllData } from '$lib/cms/fallback';
 
 	export async function load({ fetch }) {
 		let allData = fallbackAllDataModule;
@@ -14,20 +19,9 @@
 			// keep fallback
 		}
 
-		return {
-			props: {
-				allData
-			}
-		};
+		return { props: { allData } };
 	}
-</script>
 
-<script>
-	import Container from '$lib/components/elements/Container.svelte';
-	import PageTitle from '$lib/components/PageTitle.svelte';
-	import TitleBar from '$lib/components/TitleBar.svelte';
-	import { renderMarkdown } from '$lib/markdown';
-	import { fallbackAllData } from '$lib/cms/fallback';
 	export let allData = fallbackAllData;
 </script>
 

@@ -1,6 +1,3 @@
-<script context="module">
-</script>
-
 <script>
 	import { onMount } from 'svelte';
 
@@ -49,16 +46,21 @@
 			>
 		</div>
 	</div>
-	<div class="hr" />
+	<div class="hr"></div>
 	<div class="bottom inner">
 		<a href="/"><img src="/logo_large.png" alt="North of the Border Logo" /></a>
-		<div on:click={handleMobileIconClick} class={`mobile-icon${showMobileMenu ? ' active' : ''}`}>
-			<div class="middle-line" />
-		</div>
+		<button
+			type="button"
+			class={`mobile-icon${showMobileMenu ? ' active' : ''}`}
+			aria-label="Toggle navigation"
+			on:click={handleMobileIconClick}
+		>
+			<div class="middle-line"></div>
+		</button>
 		<ul class={`navbar-list${showMobileMenu ? ' mobile' : ''}`}>
 			{#each navItems as item}
-				<li on:click={removeMobileMenu}>
-					<a href={item.href}>{item.label}</a>
+				<li>
+					<a href={item.href} on:click={removeMobileMenu}>{item.label}</a>
 				</li>
 			{/each}
 		</ul>
@@ -125,6 +127,9 @@
 		height: 14px;
 		position: relative;
 		cursor: pointer;
+		background: transparent;
+		border: 0;
+		padding: 0;
 	}
 
 	.mobile-icon:after,

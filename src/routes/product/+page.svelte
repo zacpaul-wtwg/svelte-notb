@@ -1,4 +1,12 @@
 <script>
+	// #region imports
+	import { fly } from 'svelte/transition';
+	import MatchGroup from '$lib/matchGroup.svelte';
+	import { filterProducts, sortProducts } from '$lib/filter-utils';
+	import TitleBar from '$lib/components/TitleBar.svelte';
+	import ProductCard from '$lib/components/ProductCard.svelte';
+	// #endregion
+
 	export const prerender = true;
 
 	export async function load({ fetch }) {
@@ -11,16 +19,6 @@
 			}
 		};
 	}
-</script>
-
-<script>
-	// #region imports
-	import { fly } from 'svelte/transition';
-	import MatchGroup from '$lib/matchGroup.svelte';
-	import { filterProducts, sortProducts } from '$lib/filter-utils';
-	import TitleBar from '$lib/components/TitleBar.svelte';
-	import ProductCard from '$lib/components/ProductCard.svelte';
-	// #endregion
 
 	// #region props
 	export let products;
@@ -137,7 +135,12 @@
 		Show Filters
 	</button>
 {/if}
-<div class="detoggle" on:click={() => (filter ? (filter = !filter) : filter)}>
+<button
+	type="button"
+	class="detoggle"
+	aria-label="Toggle filters"
+	on:click={() => (filter ? (filter = !filter) : filter)}
+>
 	<div>
 		<TitleBar title="Products: {department}" subtitle="Pricing: {pricing}" />
 	</div>
@@ -147,7 +150,7 @@
 			<ProductCard {product} />
 		{/each}
 	</div>
-</div>
+</button>
 
 <style lang="scss">
 	// #region buttons
@@ -197,6 +200,14 @@
 		justify-content: center;
 		margin-top: 1em;
 	}
+	.detoggle {
+		display: block;
+		width: 100%;
+		border: 0;
+		background: transparent;
+		text-align: left;
+		padding: 0;
+	}
 	.filter-group {
 		margin-top: 1em;
 	}
@@ -215,40 +226,6 @@
 	}
 	.filter-off {
 		bottom: 1em;
-	}
-
-	.pricelist-callout {
-		background: var(--off-white);
-		border: 4px solid var(--grey);
-		padding: 1.5em;
-		margin: 1.5em auto;
-		max-width: 50rem;
-		text-align: center;
-		box-shadow: 0 0.75em 1.5em rgba(0, 0, 0, 0.15);
-	}
-
-	.pricelist-callout p {
-		font-size: 1.1em;
-		margin-bottom: 1em;
-	}
-
-	.download-button {
-		display: inline-block;
-		color: var(--white);
-		text-decoration: none;
-		padding: 0.5em 2em 0.5em 2em;
-		font-family: Langdon;
-		text-transform: uppercase;
-		font-size: 1.5em;
-		transition: 0.4s;
-		box-shadow: inset 0px 0px 0px 5px rgb(255, 255, 255);
-		background: var(--grey);
-	}
-
-	.download-button:hover {
-		color: var(--white);
-		background-color: var(--grey);
-		box-shadow: none;
 	}
 
 	:global(.detoggle .main-container) {

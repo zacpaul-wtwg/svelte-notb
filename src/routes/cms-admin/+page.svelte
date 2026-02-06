@@ -1,4 +1,6 @@
 <script>
+	import { onMount } from 'svelte';
+
 	export async function load({ fetch }) {
 		return {
 			props: {
@@ -6,10 +8,6 @@
 			}
 		};
 	}
-</script>
-
-<script>
-	import { onMount } from 'svelte';
 
 	export let initial = '';
 

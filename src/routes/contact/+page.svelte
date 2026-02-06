@@ -26,7 +26,7 @@
 			</p>
 			<p>
 				<label for="message">Message: </label>
-				<br /><textarea id="message" name="message" />
+				<br /><textarea id="message" name="message"></textarea>
 			</p>
 			<p>
 				<Button>Send</Button>
@@ -42,7 +42,7 @@
 		style="border:0;"
 		loading="lazy"
 		referrerpolicy="no-referrer-when-downgrade"
-	/>
+	></iframe>
 </Container>
 
 <style lang="scss">

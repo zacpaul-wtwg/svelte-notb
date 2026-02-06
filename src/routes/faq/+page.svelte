@@ -1,5 +1,10 @@
 <script>
+	import { onMount } from 'svelte';
+	import Accordion from '$lib/components/accordion.svelte';
+	import Container from '$lib/components/elements/Container.svelte';
+	import TitleBar from '$lib/components/TitleBar.svelte';
 	import { fallbackAllData as fallbackAllDataModule } from '$lib/cms/fallback';
+	import { fallbackAllData } from '$lib/cms/fallback';
 
 	export async function load({ fetch }) {
 		let allData = fallbackAllDataModule;
@@ -14,20 +19,9 @@
 			// keep fallback
 		}
 
-		return {
-			props: {
-				allData
-			}
-		};
+		return { props: { allData } };
 	}
-</script>
 
-<script>
-	import { onMount } from 'svelte';
-	import Accordion from '$lib/components/accordion.svelte';
-	import Container from '$lib/components/elements/Container.svelte';
-	import TitleBar from '$lib/components/TitleBar.svelte';
-	import { fallbackAllData } from '$lib/cms/fallback';
 	export let allData = fallbackAllData;
 
 	onMount(() => {

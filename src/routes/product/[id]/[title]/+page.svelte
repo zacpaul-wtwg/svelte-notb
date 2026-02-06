@@ -1,12 +1,10 @@
 <script>
-	export const prerender = false;
-</script>
-
-<script>
 	import Container from '$lib/components/elements/Container.svelte';
 	import Ribbon from '$lib/components/ribbon.svelte';
 	import SpecTable from '$lib/components/SpecTable.svelte';
 	import TitleBar from '$lib/components/TitleBar.svelte';
+
+	export const prerender = false;
 
 	export let product;
 	export let colorsArray = product.colors?.split(' ') ?? ['unlisted'];
@@ -81,7 +79,7 @@
 				src="https://www.youtube.com/embed/{product.youtubeId}?autoplay=1&mute=1"
 				allowfullscreen
 				title="youtube video of {product.title}"
-			/>
+			></iframe>
 		</div>
 		<div class="details-container">
 			<h2>Description:</h2>
@@ -92,7 +90,7 @@
 					<ul>
 						{#each colorsArray as color}
 							<li>
-								<div class="color" style="background: {color}; width: 2em;" />
+								<div class="color" style="background: {color}; width: 2em;"></div>
 								<strong>
 									{color}
 								</strong>

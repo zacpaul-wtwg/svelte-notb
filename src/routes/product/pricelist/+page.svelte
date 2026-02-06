@@ -1,22 +1,16 @@
 <script>
+	import ColumnButton from '$lib/components/ColumnButton.svelte';
+	import Button from '$lib/components/elements/Button.svelte';
+	import Container from '$lib/components/elements/Container.svelte';
+	import TitleBar from '$lib/components/TitleBar.svelte';
+
 	export async function load({ fetch }) {
 		const { things } = await fetch('../data/getAllProducts.json').then((results) => {
 			return results.json();
 		});
 
-		return {
-			props: {
-				things
-			}
-		};
+		return { props: { things } };
 	}
-</script>
-
-<script>
-	import ColumnButton from '$lib/components/ColumnButton.svelte';
-	import Button from '$lib/components/elements/Button.svelte';
-	import Container from '$lib/components/elements/Container.svelte';
-	import TitleBar from '$lib/components/TitleBar.svelte';
 
 	export const verticalize = function (array) {
 		return array.join(', ');
@@ -43,8 +37,10 @@
 
 <TitleBar title={'Price List'} description="North of the Border Printable Price List. " />
 <Container>
-	<div on:click={() => window.print()}>
-		<Button>Print</Button>
+	<div>
+		<button class="print-button" type="button" on:click={() => window.print()}>
+			Print
+		</button>
 	</div>
 
 	<label for="department-filter"><h3>Department Filter:</h3></label>
@@ -173,6 +169,23 @@
 	.tg .tg-0lax {
 		text-align: left;
 		vertical-align: top;
+	}
+	.print-button {
+		color: var(--white);
+		text-decoration: none;
+		padding: 0.5em 2em;
+		margin-top: 25px;
+		font-family: Langdon;
+		text-transform: uppercase;
+		font-size: 2em;
+		transition: 0.4s;
+		box-shadow: inset 0px 0px 0px 5px rgb(255, 255, 255);
+		background: var(--grey);
+		cursor: pointer;
+		border: 0;
+	}
+	.print-button:hover {
+		box-shadow: none;
 	}
 
 	tr:nth-child(odd) {

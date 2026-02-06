@@ -54,6 +54,7 @@
 	class="article-container"
 	on:mouseenter={() => (haltRiffle = true)}
 	on:mouseleave={() => (haltRiffle = false)}
+	role="group"
 >
 	<Article title={'Monthly Featured Items'} date={monthName}>
 		<div class="carousel-container">
