@@ -1,9 +1,16 @@
 <script>
 	import Button from '$lib/components/elements/Button.svelte';
-
 	import Container from '$lib/components/elements/Container.svelte';
+	import ProductPage from '$lib/components/ProductPage.svelte';
 	import { cart } from '$lib/stores.js';
 	import { slugify } from '$lib/utility/slugify';
+	import { goto } from '$app/navigation';
+
+	export let data;
+	$: products = data?.products ?? [];
+	$: availableFilters = data?.availableFilters ?? {};
+	$: departments = data?.departments ?? [];
+
 	if (typeof window !== 'undefined') {
 		$cart = JSON.parse(localStorage.getItem('cart'));
 	}
@@ -43,85 +50,135 @@
 		}
 	};
 	$: totals = sumTotalItemsPrice($cart);
+
+	const closeModal = () => {
+		goto('/product');
+	};
 </script>
 
-<Container>
-	{#if $cart?.length >= 1}
-		<div class="table-container">
-			<table class="tg">
-				<thead>
-					<tr>
-						<th class="tg-0pky">ID</th>
-						<th class="tg-0pky">Title</th>
-						<th class="tg-0pky">Quantity</th>
-						<th class="tg-0pky">Regular/VIP Price</th>
-						<th class="tg-0pky">Hi-Roller Price</th>
-						<th class="tg-0pky print-hide">add/remove</th>
-					</tr>
-				</thead>
+<div class="modal-page">
+	<div class="background" aria-hidden="true">
+		<ProductPage {products} {availableFilters} {departments} />
+	</div>
 
-				<tbody>
-					{#each $cart as item}
-						{#if item.quantity > 0}
-							<tr>
-								<td class="tg-0pky">{item.id}</td>
-								<td class="tg-0pky title"
-									><a href="/product/{item.id}/{slugify(item.title)}" target="_blank"
-										>{item.title}</a
-									></td
-								>
-								<td class="tg-0pky">{item.quantity} @ ${(item.price / item.deal).toFixed(2)}/pc</td>
-								<td class="tg-0pky">$ {((item.price / item.deal) * item.quantity).toFixed(2)}</td>
-								<td class="tg-0pky">$ {((item.price / 3) * item.quantity).toFixed(2)}</td>
-								<td class="tg-0pky print-hide">
-									<div class="clicker-content">
-										<button
-											on:click={() => {
-												changeQuantity(item.id, 'sub');
-											}}
-										>
-											-
-										</button>
-										<button
-											on:click={() => {
-												changeQuantity(item.id, 'add');
-											}}
-										>
-											+
-										</button>
-										<button
-											on:click={() => {
-												changeQuantity(item.id, 'del');
-											}}
-										>
-											<img src="/trashcan.svg" alt="trash can icon" />
-										</button>
-									</div>
-								</td>
-							</tr>
-						{/if}
-					{/each}
-					<tr>
-						<td class="tg-0pky" colspan="3">Totals (before tax): </td>
-						<td class="tg-0pky">$ {totals.vip.toFixed(2)} </td>
-						<td class="tg-0pky">$ {totals.hiro.toFixed(2)}</td>
-					</tr>
-				</tbody>
-			</table>
-			<p>
-				all aerial and explosive items carry a 12% tax in addition to the regular state sales tax
-			</p>
-			<span>
-				<Button on:click={() => window.print()}>Print</Button>
-			</span>
+	<div class="modal-backdrop" on:click={closeModal}></div>
+	<div class="modal" role="dialog" aria-modal="true" aria-label="Wishlist">
+		<div class="modal-header">
+			<h2>Wishlist</h2>
+			<button class="modal-close" type="button" on:click={closeModal}>×</button>
 		</div>
-	{:else}
-		<h2>No Items in wishlist</h2>
-		<p>You may add items to your wishlist from the <a href="/product">Product Page</a></p>
-	{/if}
-</Container>
+		<div class="modal-body">
+			<Container>
+				{#if $cart?.length >= 1}
+					<div class="table-container">
+						<table class="tg">
+							<thead>
+								<tr>
+									<th class="tg-0pky">ID</th>
+									<th class="tg-0pky">Title</th>
+									<th class="tg-0pky">Quantity</th>
+									<th class="tg-0pky">Regular/VIP Price</th>
+									<th class="tg-0pky">Hi-Roller Price</th>
+									<th class="tg-0pky print-hide">add/remove</th>
+								</tr>
+							</thead>
+
+							<tbody>
+								{#each $cart as item}
+									{#if item.quantity > 0}
+										<tr>
+											<td class="tg-0pky">{item.id}</td>
+											<td class="tg-0pky title">
+												<a href="/product/{item.id}/{slugify(item.title)}" target="_blank"
+													>{item.title}</a
+												>
+											</td>
+											<td class="tg-0pky">{item.quantity} @ ${(item.price / item.deal).toFixed(2)}/pc</td>
+											<td class="tg-0pky">$ {((item.price / item.deal) * item.quantity).toFixed(2)}</td>
+											<td class="tg-0pky">$ {((item.price / 3) * item.quantity).toFixed(2)}</td>
+											<td class="tg-0pky print-hide">
+												<div class="clicker-content">
+													<button on:click={() => changeQuantity(item.id, 'sub')}>-</button>
+													<button on:click={() => changeQuantity(item.id, 'add')}>+</button>
+													<button on:click={() => changeQuantity(item.id, 'del')}>
+														<img src="/trashcan.svg" alt="trash can icon" />
+													</button>
+												</div>
+											</td>
+										</tr>
+									{/if}
+								{/each}
+								<tr>
+									<td class="tg-0pky" colspan="3">Totals (before tax): </td>
+									<td class="tg-0pky">$ {totals.vip.toFixed(2)} </td>
+									<td class="tg-0pky">$ {totals.hiro.toFixed(2)}</td>
+								</tr>
+							</tbody>
+						</table>
+						<p>
+							all aerial and explosive items carry a 12% tax in addition to the regular state sales tax
+						</p>
+						<span>
+							<Button on:click={() => window.print()}>Print</Button>
+						</span>
+					</div>
+				{:else}
+					<h2>No Items in wishlist</h2>
+					<p>You may add items to your wishlist from the <a href="/product">Product Page</a></p>
+				{/if}
+			</Container>
+		</div>
+	</div>
+</div>
 
 <style lang="scss">
+	.modal-page {
+		position: relative;
+	}
+	.background {
+		filter: blur(1px);
+		opacity: 0.7;
+		pointer-events: none;
+	}
+	.modal-backdrop {
+		position: fixed;
+		inset: 0;
+		background: rgba(0, 0, 0, 0.55);
+		z-index: 40;
+	}
+	.modal {
+		position: fixed;
+		top: 50%;
+		left: 50%;
+		transform: translate(-50%, -50%);
+		width: min(90vw, 1100px);
+		max-height: 85vh;
+		overflow: auto;
+		background: var(--white);
+		border: 2px solid var(--grey);
+		box-shadow: 10px 10px 0 var(--yellow-accent);
+		z-index: 50;
+		padding: 1.5em;
+	}
+	.modal-header {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		margin-bottom: 1em;
+	}
+	.modal-header h2 {
+		margin: 0;
+		text-transform: uppercase;
+	}
+	.modal-close {
+		background: var(--grey);
+		color: var(--white);
+		border: none;
+		width: 36px;
+		height: 36px;
+		font-size: 1.5em;
+		cursor: pointer;
+	}
 	.table-container {
 		display: flex;
 		justify-content: center;
