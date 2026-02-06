@@ -159,16 +159,25 @@
 								{/each}
 							</div>
 						</div>
+						<div class="type-list list">
+							<h2 class="section-title">Cake Type</h2>
+							<div class="effects">
+								{#if product.type}
+									{#each product.type.split(',') as item}
+										<span class="effect-chip">{item.trim()}</span>
+									{/each}
+								{:else}
+									<span class="effect-chip">Unlisted</span>
+								{/if}
+							</div>
+						</div>
 					</div>
 					<h2 class="section-title">Specifications</h2>
-					<div class="specs-card">
-						<SpecTable
-							height={product.height}
-							duration={product.duration}
-							type={product.type}
-							shots={product.shotCount}
-						/>
-					</div>
+					<SpecTable
+						height={product.height}
+						duration={product.duration}
+						shots={product.shotCount}
+					/>
 				</div>
 			</div>
 		</Container>
@@ -342,9 +351,12 @@
 	}
 	.attributes {
 		display: grid;
-		grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+		grid-template-columns: repeat(4, minmax(0, 1fr));
 		gap: 1em;
-		@media screen and (max-width: 370px) {
+		@media screen and (max-width: 900px) {
+			grid-template-columns: repeat(2, minmax(0, 1fr));
+		}
+		@media screen and (max-width: 520px) {
 			grid-template-columns: 1fr;
 		}
 	}
@@ -378,11 +390,6 @@
 		padding: 0.2em 0.5em;
 		border-radius: 4px;
 		border: 1px solid var(--grey);
-	}
-	.specs-card {
-		border: 1px solid var(--grey);
-		padding: 0.75em;
-		background: var(--white);
 	}
 	@media screen and (max-width: 968px) {
 		.details-container {

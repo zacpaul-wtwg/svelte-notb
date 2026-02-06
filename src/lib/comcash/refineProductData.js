@@ -103,7 +103,7 @@ export const refineProductDetailsData = function (categories, brands, element) {
 		id: element.id,
 		images: element.images,
 		title: element.title,
-		price: Number(element.price) * dealCount,
+		price: Math.ceil(Number(element.price) * dealCount),
 		category: getCategoryById(categories, element.categoryId),
 		brand: brandTitle,
 		description: getAttributeByTitle(element.customAttributes, 'description'),

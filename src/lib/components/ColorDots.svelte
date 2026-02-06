@@ -86,8 +86,8 @@ export let showLabels = false;
 	flex-wrap: wrap;
 	align-items: center;
 	background: var(--grey);
-	padding: 0.35em 0.5em;
-	border-radius: 999px;
+	padding: 0.5em 0.7em;
+	border-radius: 18px;
 }
 .color-item {
 	display: inline-flex;
