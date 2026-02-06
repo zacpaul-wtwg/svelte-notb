@@ -1,5 +1,5 @@
 @import url(wtwg-reset.css);
-@import url(../static/fonts/langdon/stylesheet.css);
+@import url(/fonts/langdon/stylesheet.css);
 :root {
     /* color variables*/
     --grey: rgb(17, 17, 17);

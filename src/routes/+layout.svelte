@@ -1,5 +1,9 @@
-<script context="module">
+<script>
 	import { fallbackAllData as fallbackAllDataModule } from '$lib/cms/fallback';
+	import Navbar from '$lib/components/Navbar.svelte';
+	import '../app.css';
+	import Footer from '$lib/components/Footer.svelte';
+	import { fallbackAllData } from '$lib/cms/fallback';
 
 	export async function load({ fetch }) {
 		let allData = fallbackAllDataModule;
@@ -17,19 +21,9 @@
 			// keep fallback
 		}
 
-		return {
-			props: {
-				allData
-			}
-		};
+		return { props: { allData } };
 	}
-</script>
 
-<script>
-	import Navbar from '$lib/components/Navbar.svelte';
-	import '../app.css';
-	import Footer from '$lib/components/Footer.svelte';
-	import { fallbackAllData } from '$lib/cms/fallback';
 	export let allData = fallbackAllData;
 </script>
 

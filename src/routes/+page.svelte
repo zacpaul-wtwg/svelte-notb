@@ -1,5 +1,11 @@
-<script context="module">
+<script>
 	import { fallbackAllData as fallbackAllDataModule } from '$lib/cms/fallback';
+	import HomeNews from '$lib/components/HomeNews.svelte';
+	import Hero from '$lib/components/Hero.svelte';
+	import Container from '$lib/components/elements/Container.svelte';
+	import Featured from '$lib/components/Featured.svelte';
+	import BreakRange from '$lib/components/BreakRange.svelte';
+
 	export async function load({ fetch }) {
 		let allData = fallbackAllDataModule;
 		try {
@@ -13,27 +19,15 @@
 			// keep fallback
 		}
 
-		const { things } = await fetch('../data/getAllProducts.json').then((results) => {
-			return results.json();
-		});
+		const productsData = await fetch('../data/getAllProducts.json').then((results) =>
+			results.json()
+		);
 
-		return {
-			props: {
-				allData,
-				things
-			}
-		};
+		return { props: { allData, productsData } };
 	}
-</script>
 
-<script>
-	import HomeNews from '$lib/components/HomeNews.svelte';
-	import Hero from '$lib/components/Hero.svelte';
-	import Container from '$lib/components/elements/Container.svelte';
-	import Featured from '$lib/components/Featured.svelte';
-	import BreakRange from '$lib/components/BreakRange.svelte';
-	export let allData;
-	export let things;
+	export let allData = fallbackAllDataModule;
+	export let productsData = { products: [] };
 </script>
 
 <svelte:head>
@@ -47,5 +41,5 @@
 <Container>
 	<BreakRange {allData} />
 	<HomeNews {allData} />
-	<Featured {things} />
+	<Featured {productsData} />
 </Container>

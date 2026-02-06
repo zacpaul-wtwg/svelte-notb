@@ -1,4 +1,4 @@
-<script context="module">
+<script>
 	import { fallbackAllData as fallbackAllDataModule } from '$lib/cms/fallback';
 
 	export async function load({ fetch }) {

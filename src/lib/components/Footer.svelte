@@ -13,6 +13,7 @@
 	<div class="hours footer-section">
 		<div class="footer-header">Hours of Operation</div>
 		<table>
+			<tbody>
 			{#each allData.closedRange as breakItem}
 				{#if breakItem.isActive}
 					{#if breakItem.occasion}
@@ -109,6 +110,7 @@
 				<td> <strong>Saturday:</strong></td>
 				<td> {allData.regularHoursStrict.saturdayHours}</td>
 			</tr>
+			</tbody>
 		</table>
 	</div>
 	<div class="contact footer-section">

@@ -1,4 +1,4 @@
-<script context="module">
+<script>
 	export async function load({ fetch }) {
 		const { things } = await fetch('../data/getAllProducts.json').then((results) => {
 			return results.json();

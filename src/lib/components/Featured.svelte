@@ -2,14 +2,14 @@
 	//page settings
 	export const intervalBetweenChange = 4000;
 
-	export let things;
+	export let productsData;
 	import { blur } from 'svelte/transition';
 	import { getThumb } from '$lib/utility/imageThumb';
 	import Article from '$lib/components/Article.svelte';
 	import ShortenSentence from '$lib/utility/ShortenSentence.svelte';
 	import { slugify } from '$lib/utility/slugify';
 
-	export const sortedProducts = things.products.filter((x) => x.featured === 'yes');
+	export const sortedProducts = (productsData?.products ?? []).filter((x) => x.featured === 'yes');
 	export const productIdArray = sortedProducts.map((x) => x.id);
 	$: itemCount = sortedProducts.length;
 	$: haltRiffle = false;

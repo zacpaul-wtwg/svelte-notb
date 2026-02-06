@@ -1,6 +1,5 @@
 <script>
 	import ButtonLink from '$lib/components/elements/ButtonLink.svelte';
-	import { dataset_dev } from 'svelte/internal';
 	import Ribbon from './ribbon.svelte';
 	export let allData;
 
