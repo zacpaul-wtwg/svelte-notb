@@ -5,78 +5,51 @@
 	export let type = '';
 </script>
 
-<div class="tg-wrap">
-	<table class="tg">
-		<thead>
-			<tr>
-				<th class="tg-0lax">Attribute</th>
-				<th class="tg-0lax">Specification</th>
-			</tr>
-		</thead>
-		<tbody>
-			<tr>
-				<td class="tg-0pky">Height</td>
-				<td class="tg-0pky">{height} feet</td>
-			</tr>
-			<tr>
-				<td class="tg-0pky">Duration</td>
-				<td class="tg-0pky">{duration} seconds</td>
-			</tr>
-			<tr>
-				<td class="tg-0pky">Shot Count</td>
-				<td class="tg-0pky">{shots}</td>
-			</tr>
-			<tr>
-				<td class="tg-0pky">Cake Type</td>
-				<td class="tg-0pky">{type}</td>
-			</tr>
-		</tbody>
-	</table>
+<div class="spec-grid">
+	<div class="spec-card">
+		<span class="label">Height</span>
+		<span class="value">{height} feet</span>
+	</div>
+	<div class="spec-card">
+		<span class="label">Duration</span>
+		<span class="value">{duration} seconds</span>
+	</div>
+	<div class="spec-card">
+		<span class="label">Shot Count</span>
+		<span class="value">{shots}</span>
+	</div>
+	<div class="spec-card">
+		<span class="label">Cake Type</span>
+		<span class="value">{type}</span>
+	</div>
 </div>
 
 <style type="text/css">
-	.tg {
-		border-collapse: collapse;
-		border-spacing: 0;
+	.spec-grid {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+		gap: 0.75em;
 	}
-	.tg td {
-		border-color: black;
-		border-style: solid;
-		border-width: 1px;
-		font-family: Arial, sans-serif;
-		font-size: 14px;
-		overflow: hidden;
-		padding: 10px 5px;
-		word-break: normal;
+	.spec-card {
+		border: 1px solid var(--grey);
+		border-left: 4px solid var(--yellow-accent);
+		background: var(--white);
+		padding: 0.7em 0.9em;
+		display: flex;
+		flex-direction: column;
+		gap: 0.35em;
+		box-shadow: 3px 3px 0 var(--grey);
 	}
-	.tg th {
-		border-color: black;
-		border-style: solid;
-		border-width: 1px;
-		font-family: Arial, sans-serif;
-		font-size: 14px;
-		font-weight: normal;
-		overflow: hidden;
-		padding: 10px 5px;
-		word-break: normal;
+	.label {
+		text-transform: uppercase;
+		letter-spacing: 0.04em;
+		font-size: 0.75em;
+		color: var(--grey);
+		font-family: Langdon, Arial, sans-serif;
 	}
-	.tg .tg-0lax {
-		text-align: left;
-		vertical-align: top;
-		font-weight: 600;
-	}
-	.tg .tg-0pky {
-		border-color: inherit;
-		text-align: left;
-		vertical-align: top;
-	}
-	@media screen and (max-width: 767px) {
-		.tg {
-			width: auto !important;
-		}
-		.tg-wrap {
-			overflow-x: auto;
-			-webkit-overflow-scrolling: touch;
-		}
+	.value {
+		font-size: 1.05em;
+		font-weight: 700;
+		color: var(--black, #000);
 	}
 </style>
