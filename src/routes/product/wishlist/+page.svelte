@@ -1,15 +1,11 @@
 <script>
 	import Button from '$lib/components/elements/Button.svelte';
 	import Container from '$lib/components/elements/Container.svelte';
-	import ProductPage from '$lib/components/ProductPage.svelte';
 	import { cart } from '$lib/stores.js';
 	import { slugify } from '$lib/utility/slugify';
 	import { goto } from '$app/navigation';
 
 	export let data;
-	$: products = data?.products ?? [];
-	$: availableFilters = data?.availableFilters ?? {};
-	$: departments = data?.departments ?? [];
 
 	if (typeof window !== 'undefined') {
 		$cart = JSON.parse(localStorage.getItem('cart'));
@@ -57,10 +53,6 @@
 </script>
 
 <div class="modal-page">
-	<div class="background" aria-hidden="true">
-		<ProductPage {products} {availableFilters} {departments} />
-	</div>
-
 	<div class="modal-backdrop" on:click={closeModal}></div>
 	<div class="modal" role="dialog" aria-modal="true" aria-label="Wishlist">
 		<div class="modal-header">
@@ -134,11 +126,6 @@
 <style lang="scss">
 	.modal-page {
 		position: relative;
-	}
-	.background {
-		filter: blur(1px);
-		opacity: 0.7;
-		pointer-events: none;
 	}
 	.modal-backdrop {
 		position: fixed;

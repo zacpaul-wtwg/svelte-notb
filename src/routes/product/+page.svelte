@@ -1,9 +1,3 @@
 <script>
-	import ProductPage from '$lib/components/ProductPage.svelte';
-	export let data;
-	$: products = data?.products ?? [];
-	$: availableFilters = data?.availableFilters ?? {};
-	$: departments = data?.departments ?? [];
+	// Base route content is rendered by the product layout.
 </script>
-
-<ProductPage {products} {availableFilters} {departments} />

@@ -2,7 +2,7 @@
 	import Container from '$lib/components/elements/Container.svelte';
 	import Ribbon from '$lib/components/ribbon.svelte';
 	import SpecTable from '$lib/components/SpecTable.svelte';
-	import TitleBar from '$lib/components/TitleBar.svelte';
+	import { goto } from '$app/navigation';
 
 	export let data;
 	$: product = data.product;
@@ -30,111 +30,116 @@
 	// }`;
 </script>
 
-<TitleBar
-	title={product.title}
-	subtitle={`Department: ${product.category}`}
-	description={product.description}
-/>
-
-<Container>
-	<div class="product-container">
-		<div class="image-container">
-			<div class="ribbon-container">
-				{#if product.brand === '2 FOR'}
-					<h3 class="ribbon">
-						<Ribbon
-							bgColor={'red'}
-							fontColor={'white'}
-							padding={'1'}
-							string={`${product.brand} $${product.price}`}
-						/>
-					</h3>
-				{:else}
-					<h3 class="ribbon">
-						<Ribbon
-							bgColor={'yellow'}
-							fontColor={'grey'}
-							padding={'1'}
-							string={`${product.brand} $${product.price}`}
-						/>
-					</h3>
-				{/if}
+<div class="modal-page">
+	<div class="modal-frame">
+		<div class="modal-backdrop" on:click={() => goto('/product')}></div>
+		<div class="modal" role="dialog" aria-modal="true" aria-label="Product details">
+			<div class="modal-header">
+				<h2>{product.title}</h2>
+				<button class="modal-close" type="button" on:click={() => goto('/product')}>×</button>
 			</div>
-			{#if product.images?.length < 1}
-				<div class="images">
-					<img src={'/product-placeholder.jpg'} alt={`${product.title} placeholder image`} />
-				</div>
-			{:else}
-				{#each product.images as image}
-					<div class="images">
-						<img
-							src={image.full.replace('products/', 'products/thumb_')}
-							alt={`${product.title} ${image.title}`}
+			<Container>
+				<div class="product-container">
+					<div class="image-container">
+						<div class="ribbon-container">
+							{#if product.brand === '2 FOR'}
+								<h3 class="ribbon">
+									<Ribbon
+										bgColor={'red'}
+										fontColor={'white'}
+										padding={'1'}
+										string={`${product.brand} $${product.price}`}
+									/>
+								</h3>
+							{:else}
+								<h3 class="ribbon">
+									<Ribbon
+										bgColor={'yellow'}
+										fontColor={'grey'}
+										padding={'1'}
+										string={`${product.brand} $${product.price}`}
+									/>
+								</h3>
+							{/if}
+						</div>
+						{#if product.images?.length < 1}
+							<div class="images">
+								<img src={'/product-placeholder.jpg'} alt={`${product.title} placeholder image`} />
+							</div>
+						{:else}
+							{#each product.images as image}
+								<div class="images">
+									<img
+										src={image.full.replace('products/', 'products/thumb_')}
+										alt={`${product.title} ${image.title}`}
+									/>
+								</div>
+							{/each}
+						{/if}
+						<iframe
+							src="https://www.youtube.com/embed/{product.youtubeId}?autoplay=1&mute=1"
+							allowfullscreen
+							title="youtube video of {product.title}"
+						></iframe>
+					</div>
+					<div class="details-container">
+						<h2>Description:</h2>
+						<p>{product.description}</p>
+						<div class="attributes">
+							<div class="colors-list list">
+								<h2>Colors:</h2>
+								<ul>
+									{#each colorsArray as color}
+										<li>
+											<div class="color" style="background: {color}; width: 2em;"></div>
+											<strong>
+												{color}
+											</strong>
+										</li>
+										<br />
+									{/each}
+								</ul>
+							</div>
+							<div class="effects-list list">
+								<h2>Effects:</h2>
+								<ul>
+									{#each effectsArray as effect}
+										<li>
+											<strong>
+												{effect}
+											</strong>
+										</li>
+										<br />
+									{/each}
+								</ul>
+							</div>
+							<div class="sounds-list list">
+								<h2>Sounds:</h2>
+								<ul>
+									{#each soundsArray as sound}
+										<li>
+											<strong>
+												{sound}
+											</strong>
+										</li>
+										<br />
+									{/each}
+								</ul>
+							</div>
+						</div>
+						<h2>Specifications:</h2>
+						<SpecTable
+							height={product.height}
+							duration={product.duration}
+							type={product.type}
+							shots={product.shotCount}
 						/>
 					</div>
-				{/each}
-			{/if}
-			<iframe
-				src="https://www.youtube.com/embed/{product.youtubeId}?autoplay=1&mute=1"
-				allowfullscreen
-				title="youtube video of {product.title}"
-			></iframe>
-		</div>
-		<div class="details-container">
-			<h2>Description:</h2>
-			<p>{product.description}</p>
-			<div class="attributes">
-				<div class="colors-list list">
-					<h2>Colors:</h2>
-					<ul>
-						{#each colorsArray as color}
-							<li>
-								<div class="color" style="background: {color}; width: 2em;"></div>
-								<strong>
-									{color}
-								</strong>
-							</li>
-							<br />
-						{/each}
-					</ul>
 				</div>
-				<div class="effects-list list">
-					<h2>Effects:</h2>
-					<ul>
-						{#each effectsArray as effect}
-							<li>
-								<strong>
-									{effect}
-								</strong>
-							</li>
-							<br />
-						{/each}
-					</ul>
-				</div>
-				<div class="sounds-list list">
-					<h2>Sounds:</h2>
-					<ul>
-						{#each soundsArray as sound}
-							<li>
-								<strong>
-									{sound}
-								</strong>
-							</li>
-							<br />
-						{/each}
-					</ul>
-				</div>
-			</div>
-			<h2>Specifications:</h2>
-			<SpecTable
-				height={product.height}
-				duration={product.duration}
-				type={product.type}
-				shots={product.shotCount}
-			/>
+			</Container>
 		</div>
 	</div>
-</Container>
+</div>
 
 <style lang="scss">
 	.product-container {
@@ -195,5 +200,54 @@
 			flex-direction: column;
 			width: 100%;
 		}
+	}
+	.modal-page {
+		position: relative;
+	}
+	.modal-frame {
+		position: fixed;
+		inset: 0;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		z-index: 1000;
+		padding: calc(var(--nav-height) + 1.5em) 0 3.5em;
+	}
+	.modal-backdrop {
+		position: absolute;
+		inset: 0;
+		background: rgba(0, 0, 0, 0.55);
+		z-index: 1;
+	}
+	.modal {
+		position: relative;
+		transform: none;
+		width: min(86vw, 1100px);
+		max-height: calc(100vh - var(--nav-height) - 5em);
+		overflow: auto;
+		background: var(--white);
+		border: 2px solid var(--grey);
+		box-shadow: 10px 10px 0 var(--yellow-accent);
+		z-index: 2;
+		padding: 1.5em;
+	}
+	.modal-header {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		margin-bottom: 1em;
+	}
+	.modal-header h2 {
+		margin: 0;
+		text-transform: uppercase;
+	}
+	.modal-close {
+		background: var(--grey);
+		color: var(--white);
+		border: none;
+		width: 36px;
+		height: 36px;
+		font-size: 1.5em;
+		cursor: pointer;
 	}
 </style>
