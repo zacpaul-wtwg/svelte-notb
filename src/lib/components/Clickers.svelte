@@ -37,6 +37,12 @@
 </script>
 
 <div class="clicker-container">
+	<a
+		href="/product/{product.id}/{product.title ? product.title.toLowerCase().replace(/\\s+/g, '-') : ''}"
+		class="details-pill"
+	>
+		Details
+	</a>
 	<div class="clicker-content">
 		<button class="clicker clicker-sub" on:click={() => changeQuantity(itemObject, 'sub')}>
 			-
@@ -56,9 +62,7 @@
 		</button>
 	</div>
 	<span class="clicker-message">
-		<a href="/product/wishlist" class="wishlist-pill">
-			Wishlist
-		</a>
+		<a href="/product/wishlist" class="wishlist-pill">Wishlist</a>
 	</span>
 </div>
 
@@ -100,7 +104,7 @@
 	}
 	.clicker-sub {
 		margin-left: 1em;
-		border-radius: 5px 0px 0px 0px;
+		border-radius: 0px 0px 0px 0px;
 	}
 	.clicker-add {
 		margin-right: 1em;
@@ -112,7 +116,7 @@
 		text-align: center;
 		padding: 0.3em 0.6em;
 		border: 1px solid var(--grey);
-		border-radius: 0px 0px 6px 6px;
+		border-radius: 0px 0px 6px 0px;
 		text-transform: uppercase;
 		letter-spacing: 0.04em;
 		font-weight: 700;
@@ -121,6 +125,31 @@
 		box-shadow: none;
 		text-decoration: none;
 		transform: skew(-14deg) translateX(-23px);
+	}
+	.details-pill {
+		position: absolute;
+		right: calc(100% + 2px);
+		top: 0;
+		bottom: 0;
+		display: block;
+		width: 138px;
+		text-align: center;
+		border: 1px solid var(--grey);
+		border-radius: 6px 0px 0px 6px;
+		text-transform: uppercase;
+		letter-spacing: 0.04em;
+		font-weight: 700;
+		background: var(--grey);
+		color: var(--white);
+		text-decoration: none;
+		transform: skew(-14deg) translateX(6px);
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
+	.details-pill:hover {
+		background: var(--grey);
+		color: var(--white);
 	}
 	.wishlist-pill:hover {
 		background: var(--grey);
