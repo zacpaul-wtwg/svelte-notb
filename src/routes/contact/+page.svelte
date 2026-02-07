@@ -3,6 +3,10 @@
 	import Button from '$lib/components/elements/Button.svelte';
 	import Container from '$lib/components/elements/Container.svelte';
 	import TitleBar from '$lib/components/TitleBar.svelte';
+	import { fallbackAllData } from '$lib/cms/fallback';
+
+	export let data;
+	$: allData = data?.allData ?? fallbackAllData;
 </script>
 
 <TitleBar
@@ -12,25 +16,31 @@
 
 <Container>
 	<div class="display">
-		<Address />
-		<form name="contact" method="POST" action="/submit" data-netlify="true">
+		<div class="contact-card">
+			<div class="card-header">
+				<h2>Store Info</h2>
+			</div>
+			<div class="card-body">
+				<Address showHours hours={allData.hours} />
+			</div>
+		</div>
+		<form class="contact-card form-card" name="contact" method="POST" action="/submit" data-netlify="true">
 			<input type="hidden" name="form-name" value="contact" />
 			<input type="hidden" name="subject" value="General Inquiry from NOTBFireworks.com" />
-			<p>
-				<label for="name">Name: </label>
-				<br /><input id="name" type="text" name="name" />
-			</p>
-			<p>
-				<label for="email">Your Email: </label>
-				<br /><input id="email" type="email" name="email" />
-			</p>
-			<p>
-				<label for="message">Message: </label>
-				<br /><textarea id="message" name="message"></textarea>
-			</p>
-			<p>
-				<Button>Send</Button>
-			</p>
+			<div class="card-header">
+				<h2>Send A Message</h2>
+			</div>
+			<div class="card-body form-body">
+				<label for="name">Name</label>
+				<input id="name" type="text" name="name" />
+				<label for="email">Email</label>
+				<input id="email" type="email" name="email" />
+				<label for="message">Message</label>
+				<textarea id="message" name="message" rows="6"></textarea>
+				<div class="form-actions">
+					<Button>Send</Button>
+				</div>
+			</div>
 		</form>
 	</div>
 
@@ -46,22 +56,67 @@
 </Container>
 
 <style lang="scss">
-	div {
-		max-width: 1024px;
-		display: inline-block;
-	}
-	form {
-		width: 750px;
-		input,
-		textarea {
-			width: 100%;
-		}
-	}
 	.display {
+		display: grid;
+		grid-template-columns: minmax(260px, 1fr) minmax(320px, 2fr);
+		gap: 2em;
+		align-items: start;
+	}
+	.contact-card {
+		border: 2px solid var(--grey);
+		background: var(--white);
+		box-shadow: 6px 6px 0 var(--yellow-accent);
+		min-width: 0;
+	}
+	.card-header {
+		background: var(--grey);
+		color: var(--white);
+		padding: 0.5em 0.9em;
+	}
+	.card-header h2 {
+		margin: 0;
+		font-size: 1.1em;
+		letter-spacing: 0.04em;
+	}
+	.card-body {
+		padding: 1.1em 1.2em 1.4em;
+	}
+	.form-body {
+		display: grid;
+		gap: 0.75em;
+	}
+	label {
+		font-family: Langdon, Arial, sans-serif;
+		text-transform: uppercase;
+		letter-spacing: 0.04em;
+		color: var(--grey);
+	}
+	input,
+	textarea {
+		width: 100%;
+		border: 2px solid var(--grey);
+		background: var(--off-white);
+		padding: 0.55em 0.7em;
+		font-family: inherit;
+		box-sizing: border-box;
+	}
+	textarea {
+		resize: vertical;
+		min-height: 140px;
+	}
+	.form-actions {
 		display: flex;
-		flex-wrap: wrap;
+		justify-content: flex-end;
+		margin-top: 0.5em;
 	}
 	iframe {
 		margin-top: 2em;
+		border: 2px solid var(--grey);
+		box-shadow: 6px 6px 0 var(--yellow-accent);
+	}
+	@media (max-width: 900px) {
+		.display {
+			grid-template-columns: 1fr;
+		}
 	}
 </style>
