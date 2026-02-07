@@ -1,13 +1,13 @@
 <script>
 	// #region imports
-import { slugify } from '$lib/utility/slugify';
-import { getThumb } from '$lib/utility/imageThumb';
-import { sentenceify } from '$lib/utility/slugify';
-import ShortenSentence from '$lib/utility/ShortenSentence.svelte';
-import Clickers from './Clickers.svelte';
-import ColorDots from '$lib/components/ColorDots.svelte';
-import { onMount, onDestroy, tick } from 'svelte';
-import { browser } from '$app/environment';
+	import { slugify } from '$lib/utility/slugify';
+	import { getThumb } from '$lib/utility/imageThumb';
+	import { sentenceify } from '$lib/utility/slugify';
+	import Clickers from './Clickers.svelte';
+	import ColorDots from '$lib/components/ColorDots.svelte';
+	import ExpandableDescription from '$lib/components/ExpandableDescription.svelte';
+	import { onMount, onDestroy } from 'svelte';
+	import { browser } from '$app/environment';
 	export let product;
 	// #endregion
 
@@ -63,15 +63,7 @@ import { browser } from '$app/environment';
 	$: effects = Array.isArray(product.effects) ? product.effects : [];
 	let expanded = false;
 	let showEffects = false;
-	let collapsedHeight = 0;
-	let descriptionEl;
 	let effectsPopover;
-	const handleDocumentClick = (event) => {
-		if (!expanded) return;
-		if (!descriptionEl || !event?.target) return;
-		if (descriptionEl.contains(event.target)) return;
-		expanded = false;
-	};
 	const handleEffectsClick = (event) => {
 		event.stopPropagation();
 		showEffects = !showEffects;
@@ -82,17 +74,13 @@ import { browser } from '$app/environment';
 		if (effectsPopover.contains(event.target)) return;
 		showEffects = false;
 	};
-	onMount(async () => {
-		await tick();
-		if (descriptionEl) collapsedHeight = Math.ceil(descriptionEl.getBoundingClientRect().height);
+	onMount(() => {
 		if (browser) {
-			document.addEventListener('click', handleDocumentClick);
 			document.addEventListener('click', handleEffectsDocumentClick);
 		}
 	});
 	onDestroy(() => {
 		if (browser) {
-			document.removeEventListener('click', handleDocumentClick);
 			document.removeEventListener('click', handleEffectsDocumentClick);
 		}
 	});
@@ -149,33 +137,15 @@ import { browser } from '$app/environment';
 	<div class="product-dept">
 		<span class="dept-chip">Dept: {category}</span>
 	</div>
-	<div class="description-wrap" style="min-height: {collapsedHeight}px;">
-		<div
-			class="description-card {expanded ? 'expanded' : ''}"
-			role="button"
-			tabindex="0"
-			aria-expanded={expanded}
-			bind:this={descriptionEl}
-			on:click={() => (expanded = !expanded)}
-			on:keydown={(event) => {
-				if (event.key === 'Enter' || event.key === ' ') {
-					event.preventDefault();
-					expanded = !expanded;
-				}
-			}}
-		>
-		{#if description === undefined}
-			<p>
-				We just added this bad-boy and there's not a description for it yet! Don't worry, we will
-				get some good sentences down on this ASAP!
-			</p>
-		{:else}
-			<p>
-				<ShortenSentence string={description}>...</ShortenSentence>
-			</p>
-		{/if}
-		<span class="description-hint">{expanded ? 'Tap to close' : 'Tap for details'}</span>
-		</div>
+	<div class="description-wrap">
+		<ExpandableDescription
+			text={description}
+			fallbackText="We just added this bad-boy and there's not a description for it yet! Don't worry, we will get some good sentences down on this ASAP!"
+			truncateWords={25}
+			lineClamp={3}
+			overlay={true}
+			bind:expanded
+		/>
 	</div>
 	<Clickers {product} />
 </section>
@@ -350,46 +320,6 @@ import { browser } from '$app/environment';
 		border-radius: 999px;
 	}
 	.description-wrap {
-		position: relative;
 		margin: 0.5em 0.75em 0;
-	}
-	.description-card {
-		background: var(--white);
-		border: 1px solid var(--grey);
-		padding: 0.5em 0.6em;
-		cursor: pointer;
-		transition: box-shadow 0.2s ease;
-	}
-	.description-card:focus {
-		outline: 2px solid var(--yellow-accent);
-		outline-offset: 2px;
-	}
-	.description-card p {
-		margin: 0;
-		line-height: 1.35;
-		display: -webkit-box;
-		-webkit-line-clamp: 3;
-		-webkit-box-orient: vertical;
-		overflow: hidden;
-	}
-	.description-card.expanded p {
-		-webkit-line-clamp: unset;
-		overflow: visible;
-	}
-	.description-card.expanded {
-		position: absolute;
-		left: 0;
-		right: 0;
-		top: 0;
-		z-index: 40;
-		box-shadow: 0 10px 22px rgba(0, 0, 0, 0.2);
-	}
-	.description-hint {
-		display: inline-block;
-		margin-top: 0.35em;
-		font-size: 0.8em;
-		text-transform: uppercase;
-		letter-spacing: 0.04em;
-		color: var(--grey);
 	}
 </style>

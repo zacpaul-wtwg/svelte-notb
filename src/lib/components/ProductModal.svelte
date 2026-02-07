@@ -43,8 +43,9 @@
 	};
 </script>
 
+<svelte:window on:keydown={handleKey} />
+
 {#if product}
-	<svelte:window on:keydown={handleKey} />
 	<div class="modal-page">
 		<div class="modal-frame">
 			<div class="modal-backdrop" on:click={onClose}></div>
@@ -79,7 +80,10 @@
 							</div>
 							{#if !hasImages}
 								<div class="images">
-									<img src={'/product-placeholder.jpg'} alt={`${product.title} placeholder image`} />
+									<img
+										src={'/product-placeholder.jpg'}
+										alt={`${product.title} placeholder image`}
+									/>
 								</div>
 							{:else}
 								<div class="gallery">

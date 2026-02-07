@@ -1,12 +1,15 @@
 <script>
-import HomeNews from '$lib/components/HomeNews.svelte';
-import Hero from '$lib/components/Hero.svelte';
-import Container from '$lib/components/elements/Container.svelte';
-// import Featured from '$lib/components/Featured.svelte';
+	import HomeNews from '$lib/components/HomeNews.svelte';
+	import Hero from '$lib/components/Hero.svelte';
+	import FeaturedCarousel from '$lib/components/FeaturedCarousel.svelte';
+	import Container from '$lib/components/elements/Container.svelte';
+	import { isFeaturedProduct } from '$lib/filter-utils';
 
-export let data;
-$: allData = data?.allData;
-$: productsData = data?.productsData?.things ?? { products: [] };
+	export let data;
+	$: allData = data?.allData;
+	$: productsData = data?.productsData?.things ?? { products: [] };
+	$: allProducts = productsData?.products ?? [];
+	$: featuredProducts = allProducts.filter((product) => isFeaturedProduct(product));
 </script>
 
 <svelte:head>
@@ -18,6 +21,18 @@ $: productsData = data?.productsData?.things ?? { products: [] };
 </svelte:head>
 <Hero {allData} />
 <Container>
-	<HomeNews {allData} />
-	<!-- Featured carousel removed; rebuilding from scratch -->
+	<section class="page-stack home-stack">
+		<div class="home-section">
+			<HomeNews {allData} />
+		</div>
+		<div class="home-section">
+			<FeaturedCarousel products={featuredProducts} intervalMs={5000} />
+		</div>
+	</section>
 </Container>
+
+<style>
+	.home-section {
+		width: 100%;
+	}
+</style>
