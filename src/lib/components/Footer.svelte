@@ -14,6 +14,7 @@
 		{ key: 'friday', label: 'Friday' },
 		{ key: 'saturday', label: 'Saturday' }
 	];
+	const currentYear = new Date().getFullYear();
 </script>
 
 <footer class="site-footer">
@@ -57,6 +58,9 @@
 			<div class="footer-header">Contact Us</div>
 			<Address />
 		</section>
+	</div>
+	<div class="copyright-bar">
+		<p>&copy; {currentYear} North of the Border. All rights reserved.</p>
 	</div>
 </footer>
 
@@ -188,6 +192,29 @@
 		.poster-card {
 			padding: 0.75rem;
 			box-shadow: 4px 4px 0 var(--yellow-accent);
+		}
+	}
+
+	.copyright-bar {
+		margin: 1.5rem -1rem -2rem;
+		background: #000;
+		color: var(--white);
+		padding: 0.75rem 1rem;
+		border-top: 1px solid rgba(255, 255, 255, 0.2);
+	}
+
+	.copyright-bar p {
+		margin: 0;
+		text-align: center;
+		font-size: 0.85rem;
+		letter-spacing: 0.04em;
+		text-transform: uppercase;
+	}
+
+	@media (max-width: 680px) {
+		.copyright-bar {
+			margin: 1.2rem -0.7rem -1.6rem;
+			padding: 0.65rem 0.7rem;
 		}
 	}
 </style>

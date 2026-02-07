@@ -1,6 +1,6 @@
 <script>
 	import Container from '$lib/components/elements/Container.svelte';
-	import PageTitle from '$lib/components/PageTitle.svelte';
+	import SkewLabel from '$lib/components/SkewLabel.svelte';
 	import TitleBar from '$lib/components/TitleBar.svelte';
 	import { fallbackAllData } from '$lib/cms/fallback';
 
@@ -65,7 +65,7 @@
 							<h4 class="section-head">Highlights</h4>
 							<ul class="highlights">
 								{#each entry.highlights || [] as highlight}
-									<li><span>{highlight}</span></li>
+									<li><SkewLabel as="span" text={highlight} /></li>
 								{/each}
 							</ul>
 						</div>
@@ -255,17 +255,9 @@
 	}
 	.highlights li {
 		margin: 0.35em 0;
-		padding: 0.4em 1em 0.4em 3.2em;
-		background: var(--grey);
-		color: var(--white);
-		border: 1px solid var(--grey);
-		box-shadow: 4px 4px 0 var(--yellow-accent);
 		position: relative;
 		left: -2.7em;
-		display: block;
 		width: max-content;
-		transform: skew(-14deg);
-		border-radius: 0 6px 6px 0;
 	}
 	@media (max-width: 640px) {
 		.card-body :global(li) {
@@ -273,15 +265,8 @@
 			max-width: 100%;
 		}
 	}
-	.highlights li > * {
-		display: inline-block;
-		transform: skew(14deg);
-		color: var(--white);
-		position: relative;
-		z-index: 1;
-	}
-	.highlights li strong {
-		color: var(--white);
+	.highlights li :global(.skew-label) {
+		padding-left: 3.2em;
 	}
 	@media (max-width: 980px) {
 		.hero-strip {
