@@ -1,34 +1,40 @@
 {
   "newsPosts": {
     "title": "Fireworks, Not Fire Alarms",
-    "body": "### Tariff Talk, Transparent Pricing, and Our Commitment to You\nElephants are not normally associated with the advent of Spring, but this Spring, there is a \u2018tariff-elephant\u2019 in the room that can't be ignored. Here at North of the Border Fireworks, my wife, Gwen, and I want to bring clarity to you, our customers, and put your minds at ease. We have been very proactive, stretching all the way back to December when we brought in two shipments to begin to bolster our inventory at 2024 prices. As we entered into the new year, we continued to take actions that would mitigate the impact of any tariffs on our pricing. We initiated some pre-tariff shipments, we put some down payments on some pre-tariff orders so that the supplier would hold the price at pre-tariff levels, and we have maintained vigilant communication with our suppliers to take advantage of any freight and product reductions available to those who responded promptly. Consequently, the impact will be minimal. By the time July 4th arrives, we will have limited the increase to 10%. When compared to the size of the tariffs being employed against Chinese imports, a 10% increase is simply good stewardship. Our promise to you, our valued customers, is that we will do everything within our power to keep your costs reasonable and fair. We are in this for the long run. We want you to return time and time again with the confidence that we will continue to bring you the best quality, the best service, and the best pricing possible.\n\nWe are honored to be your fireworks supplier.\nThom and Gwen Hill, Owners",
-    "date": "Tuesday, May 6th, 2025"
+    "body": "### Tariff Talk, Transparent Pricing, and Our Commitment to You\nElephants are not normally associated with the advent of Spring, but this Spring, there is a ‘tariff-elephant’ in the room that can't be ignored. Here at North of the Border Fireworks, my wife, Gwen, and I want to bring clarity to you, our customers, and put your minds at ease. We have been very proactive, stretching all the way back to December when we brought in two shipments to begin to bolster our inventory at 2024 prices. As we entered into the new year, we continued to take actions that would mitigate the impact of any tariffs on our pricing. We initiated some pre-tariff shipments, we put some down payments on some pre-tariff orders so that the supplier would hold the price at pre-tariff levels, and we have maintained vigilant communication with our suppliers to take advantage of any freight and product reductions available to those who responded promptly. Consequently, the impact will be minimal. By the time July 4th arrives, we will have limited the increase to 10%. When compared to the size of the tariffs being employed against Chinese imports, a 10% increase is simply good stewardship. Our promise to you, our valued customers, is that we will do everything within our power to keep your costs reasonable and fair. We are in this for the long run. We want you to return time and time again with the confidence that we will continue to bring you the best quality, the best service, and the best pricing possible.\n\nWe are honored to be your fireworks supplier.\nThom and Gwen Hill, Owners",
+    "date": "2025-05-06T00:00:00-04:00"
   },
   "footerDescription": {
-    "title": "NOTB Fireworks",
     "body": "Nestled at the northern tip of Lake Wallenpaupack in the scenic Pocono Mountains, North of the Border fireworks is in the best spot to meet the fireworks demands of the Pocono Mountain area. We carry a large selection of fireworks: from sparklers to mortars, and Roman Candles to 500g cakes."
   },
   "hours": {
-    "title": "Store Hours",
-    "sunday": "10 am - 2 pm",
-    "monday": "Closed",
-    "tuesday": "Closed",
-    "wednesday": "Closed",
-    "thursday": "Closed",
-    "friday": "10 pm - 6 pm",
-    "saturday": "10 am - 6 pm",
-    "areSpecialHoursActive": false,
-    "specialHours": "__Memorial Day Weekend__\n- Friday 27th - Sunday 29th: 9 AM - 9 PM\n---\n- Monday 30th: 9 AM - 4 PM\n---\n"
-  },
-  "regularHoursStrict": {
-    "title": "Regular Hours Strict",
-    "sundayHours": "10:00AM-04:00PM",
-    "mondayHours": "CLOSED",
-    "tuesdayHours": "CLOSED",
-    "wednesdayHours": "CLOSED",
-    "thursdayHours": "CLOSED",
-    "fridayHours": "10:00AM-06:00PM",
-    "saturdayHours": "10:00AM-06:00PM"
+    "sunday": {
+      "closed": false,
+      "open": "10:00",
+      "close": "14:00"
+    },
+    "monday": {
+      "closed": true
+    },
+    "tuesday": {
+      "closed": true
+    },
+    "wednesday": {
+      "closed": true
+    },
+    "thursday": {
+      "closed": true
+    },
+    "friday": {
+      "closed": false,
+      "open": "22:00",
+      "close": "18:00"
+    },
+    "saturday": {
+      "closed": false,
+      "open": "10:00",
+      "close": "18:00"
+    }
   },
   "faq": [
     {
@@ -80,35 +86,61 @@
   "pricing": [
     {
       "title": "High Roller Rollback",
-      "entry": "High\u2011volume buyers get a simple, permanent upgrade: **3\u2011for\u20111 pricing** on every visit.\n\n#### Highlights\n- **Unlock at $750** spend (single visit or cumulative within 12 months).\n- **3\u2011for\u20111 pricing for life** once you qualify.\n- No points, no punch cards, no hoops.\n\n#### How it works\nQualify once, then your pricing always converts from **2\u2011for\u20111** to **3\u2011for\u20111**.\n\n#### Best for\nCustomers who buy big once or consistently throughout the year."
+      "subtitle": "High‑volume buyers get a simple, permanent upgrade: 3‑for‑1 pricing on every visit.",
+      "highlights": [
+        "Unlock at $750 spend (single visit or cumulative within 12 months).",
+        "3‑for‑1 pricing for life once you qualify.",
+        "No points, no punch cards, no hoops."
+      ],
+      "howItWorks": "Qualify once, then your pricing always converts from 2‑for‑1 to 3‑for‑1.",
+      "bestFor": "Customers who buy big once or consistently throughout the year.",
+      "order": 1
     },
     {
       "title": "Very Important Pyromaniac (VIP)",
-      "entry": "Our everyday loyalty program with instant value.\n\n#### Highlights\n- **$5 sign\u2011up bonus** on day one.\n- **$5 back for every $100** you spend.\n- Fast checkout \u2014 show your VIP card + ID.\n\n#### How it works\nEnroll in store, then your perks apply automatically on every visit.\n\n#### Best for\nRepeat shoppers who want consistent savings without tracking points."
+      "subtitle": "Our everyday loyalty program with instant value.",
+      "highlights": [
+        "$5 sign‑up bonus on day one.",
+        "$5 back for every $100 you spend.",
+        "Fast checkout — show your VIP card + ID."
+      ],
+      "howItWorks": "Enroll in store, then your perks apply automatically on every visit.",
+      "bestFor": "Repeat shoppers who want consistent savings without tracking points.",
+      "order": 2
     },
     {
       "title": "Camp Days Deals",
-      "entry": "Special pricing for camps and organizations.\n\n#### Highlights\n- **No minimum purchase** required.\n- **High Roller pricing** on all items.\n- Credentials + valid ID required at checkout.\n\n#### Best for\nCamps, clubs, and organized groups."
+      "subtitle": "Special pricing for camps and organizations.",
+      "highlights": [
+        "No minimum purchase required.",
+        "High Roller pricing on all items.",
+        "Credentials + valid ID required at checkout."
+      ],
+      "howItWorks": "",
+      "bestFor": "Camps, clubs, and organized groups.",
+      "order": 3
     },
     {
       "title": "Military Discount",
-      "entry": "A simple thank\u2011you for past and current service members.\n\n#### Highlights\n- **10% off** your final price.\n- **Stacks with VIP pricing**.\n\n#### Best for\nMilitary personnel and families."
+      "subtitle": "A simple thank‑you for past and current service members.",
+      "highlights": [
+        "10% off your final price.",
+        "Stacks with VIP pricing."
+      ],
+      "howItWorks": "",
+      "bestFor": "Military personnel and families.",
+      "order": 4
     }
   ],
   "specialHours": [
     {
-      "occasion": "FAMILY EVENT",
-      "isActive": false,
-      "dayOneHours": "CLOSED"
-    }
-  ],
-  "closedRange": [
-    {
-      "occasion": "Fall Break",
-      "isActive": false,
-      "startOfBreak": "2023-09-17",
-      "endOfBreak": "2023-09-28",
-      "moreInfo": "We will re-open on Friday, September 29th at 10 AM"
+      "title": "FAMILY EVENT",
+      "days": [
+        {
+          "date": "",
+          "closed": true
+        }
+      ]
     }
   ]
 }

@@ -40,7 +40,9 @@
     "lodash.kebabcase": "^4.1.1",
     "markdown-it": "^13.0.1",
     "mdsvex": "^0.12.6",
+    "quill": "^2.0.2",
     "remarkable": "^2.0.1",
+    "svelte-dnd-action": "^0.9.69",
     "vite": "^7.3.1"
   }
 }

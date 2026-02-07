@@ -5,6 +5,8 @@
 	export let answer;
 	export let open = false;
 	export let onToggle = () => {};
+
+	const looksLikeHtml = (value) => /<\/?[a-z][\s\S]*>/i.test(String(value || ''));
 </script>
 
 <div class="faq-item">
@@ -20,7 +22,11 @@
 	</button>
 	{#if open}
 		<div class="answer-wrap" transition:slide={{ duration: 260 }}>
-			<div class="answer md">{@html renderMarkdown(answer)}</div>
+			{#if looksLikeHtml(answer)}
+				<div class="answer md">{@html answer}</div>
+			{:else}
+				<div class="answer md">{@html renderMarkdown(answer)}</div>
+			{/if}
 		</div>
 	{/if}
 </div>

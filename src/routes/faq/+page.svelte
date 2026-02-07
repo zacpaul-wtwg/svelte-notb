@@ -48,6 +48,7 @@ const handleToggle = async (index) => {
 		structuredData['@type'] = 'FAQPage';
 
 		console.log(structuredData);
+		const stripTags = (html) => String(html || '').replace(/<[^>]*>/g, ' ');
 		const mainEntity = function (objArray) {
 			let array = [];
 			objArray.map((element) => {
@@ -57,7 +58,7 @@ const handleToggle = async (index) => {
 				objects['@type'] = 'Question';
 				objects.name = element.title;
 				acceptedAnswer['@type'] = 'Answer';
-				acceptedAnswer.text = element.answer;
+				acceptedAnswer.text = stripTags(element.answer);
 
 				objects.acceptedAnswer = acceptedAnswer;
 				console.log(array);

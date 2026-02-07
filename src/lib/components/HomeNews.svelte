@@ -1,14 +1,32 @@
 <script>
 	import { renderMarkdown } from '$lib/markdown';
 	export let allData;
+
+	const formatNewsDate = (value) => {
+		if (!value) return '';
+		const d = new Date(value);
+		if (Number.isNaN(d.getTime())) return '';
+		return d.toLocaleDateString('en-US', {
+			weekday: 'long',
+			month: 'long',
+			day: 'numeric',
+			year: 'numeric'
+		});
+	};
+
+	const looksLikeHtml = (value) => /<\/?[a-z][\s\S]*>/i.test(String(value || ''));
 </script>
 
 <div>
 	<div>
 		<h2>{allData.newsPosts.title}</h2>
-		<em>{allData.newsPosts.date}</em>
+		<em>{formatNewsDate(allData.newsPosts.date)}</em>
 	</div>
-	<div class="md">{@html renderMarkdown(allData.newsPosts.body)}</div>
+	{#if looksLikeHtml(allData.newsPosts.body)}
+		<div class="md">{@html allData.newsPosts.body}</div>
+	{:else}
+		<div class="md">{@html renderMarkdown(allData.newsPosts.body)}</div>
+	{/if}
 </div>
 
 <style lang="scss">

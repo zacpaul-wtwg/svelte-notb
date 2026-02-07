@@ -2,24 +2,10 @@
 import Container from '$lib/components/elements/Container.svelte';
 import PageTitle from '$lib/components/PageTitle.svelte';
 import TitleBar from '$lib/components/TitleBar.svelte';
-import { renderMarkdown } from '$lib/markdown';
 import { fallbackAllData } from '$lib/cms/fallback';
 
 export let data;
 $: allData = data?.allData ?? fallbackAllData;
-
-const decorateHeadings = (html) =>
-	html.replace(/<h4>([^<]+)<\/h4>/g, (match, text) => {
-		const key = text.trim().toLowerCase();
-		if (key === 'highlights') return '';
-		const cls =
-			key === 'how it works'
-				? 'section-head how'
-				: key === 'best for'
-					? 'section-head best'
-					: 'section-head';
-		return `<h3 class="${cls}">${text}</h3>`;
-	});
 
 </script>
 
@@ -74,7 +60,23 @@ const decorateHeadings = (html) =>
 					<span class="card-kicker">Program Overview</span>
 				</header>
 				<div class="card-body">
-					<div class="md">{@html decorateHeadings(renderMarkdown(entry.entry))}</div>
+					<p class="subtitle">{entry.subtitle}</p>
+					<div class="section">
+						<h4 class="section-head">Highlights</h4>
+						<ul class="highlights">
+							{#each entry.highlights || [] as highlight}
+								<li><span>{highlight}</span></li>
+							{/each}
+						</ul>
+					</div>
+					<div class="section">
+						<h4 class="section-head how">How It Works</h4>
+						<p>{entry.howItWorks}</p>
+					</div>
+					<div class="section">
+						<h4 class="section-head best">Best For</h4>
+						<p>{entry.bestFor}</p>
+					</div>
 				</div>
 			</article>
 		{/each}
@@ -82,9 +84,9 @@ const decorateHeadings = (html) =>
 </Container>
 
 <style>
-	.md > :global(ul) {
-		list-style: disc;
-		padding-left: 2em;
+	.subtitle {
+		margin: 0 0 0.8em 0;
+		font-size: 0.98em;
 	}
 	.pricing-hero {
 		display: grid;
@@ -176,6 +178,8 @@ const decorateHeadings = (html) =>
 		display: flex;
 		flex-direction: column;
 		min-height: 100%;
+		border-radius: 14px;
+		overflow: hidden;
 	}
 	.card-header {
 		background: var(--grey);
@@ -202,18 +206,18 @@ const decorateHeadings = (html) =>
 	.card-body {
 		padding: 0.9em 1em 1.1em;
 		color: var(--grey);
-		overflow: hidden;
 	}
-	.card-body :global(h3) {
-		margin: 1em 0 0.4em;
+	.section {
+		margin-top: 0.9em;
+	}
+	.section-head {
+		margin: 0 0 0.4em;
 		text-transform: uppercase;
 		letter-spacing: 0.05em;
-		font-size: 0.95em;
+		font-size: 0.9em;
 		color: var(--grey);
 		border-bottom: 1px solid var(--grey);
 		padding-bottom: 0.25em;
-	}
-	.section-head {
 		display: inline-flex;
 		align-items: center;
 		gap: 0.5em;
@@ -239,17 +243,17 @@ const decorateHeadings = (html) =>
 		-webkit-mask-image: url('data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22%3E%3Cpath d=%22M12 3l3 6 6 .9-4.5 4.4 1.1 6.4L12 17.8 6.4 20.7l1.1-6.4L3 9.9 9 9l3-6z%22 fill=%22black%22/%3E%3C/svg%3E');
 		mask-image: url('data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22%3E%3Cpath d=%22M12 3l3 6 6 .9-4.5 4.4 1.1 6.4L12 17.8 6.4 20.7l1.1-6.4L3 9.9 9 9l3-6z%22 fill=%22black%22/%3E%3C/svg%3E');
 	}
-	.card-body :global(p) {
-		margin: 0 0 0.8em 0;
+	.card-body p {
+		margin: 0 0 0.6em 0;
 		line-height: 1.5;
 	}
-	.card-body :global(ul) {
+	.highlights {
 		margin: 0.4em 0 0.8em;
 		padding-left: 0;
 		list-style: none;
 		padding-left: 1.2em;
 	}
-	.card-body :global(li) {
+	.highlights li {
 		margin: 0.35em 0;
 		padding: 0.4em 1em 0.4em 3.2em;
 		background: var(--grey);
@@ -269,18 +273,15 @@ const decorateHeadings = (html) =>
 			max-width: 100%;
 		}
 	}
-	.card-body :global(li > *) {
+	.highlights li > * {
 		display: inline-block;
 		transform: skew(14deg);
 		color: var(--white);
 		position: relative;
 		z-index: 1;
 	}
-	.card-body :global(li strong) {
+	.highlights li strong {
 		color: var(--white);
-	}
-	.card-body :global(strong) {
-		color: var(--black, #000);
 	}
 	@media (max-width: 980px) {
 		.hero-strip {

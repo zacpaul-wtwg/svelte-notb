@@ -1,6 +1,7 @@
 <script>
 	export let showHours = false;
 	export let hours = {};
+	import { formatDayHours } from '$lib/utility/time';
 	const days = [
 		{ key: 'sunday', label: 'Sun' },
 		{ key: 'monday', label: 'Mon' },
@@ -29,7 +30,7 @@
 				{#each days as day}
 					<li>
 						<span class="day">{day.label}</span>
-						<span class="time">{hours?.[day.key] ?? ''}</span>
+						<span class="time">{formatDayHours(hours?.[day.key])}</span>
 					</li>
 				{/each}
 			</ul>

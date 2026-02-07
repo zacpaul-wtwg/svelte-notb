@@ -2,7 +2,18 @@
 	import { renderMarkdown } from '$lib/markdown';
 	import Address from './Address.svelte';
 	export let allData;
-	import { date } from '$lib/utility/date';
+	import { formatDateLong } from '$lib/utility/date';
+	import { formatDayHours } from '$lib/utility/time';
+
+	const days = [
+		{ key: 'sunday', label: 'Sunday' },
+		{ key: 'monday', label: 'Monday' },
+		{ key: 'tuesday', label: 'Tuesday' },
+		{ key: 'wednesday', label: 'Wednesday' },
+		{ key: 'thursday', label: 'Thursday' },
+		{ key: 'friday', label: 'Friday' },
+		{ key: 'saturday', label: 'Saturday' }
+	];
 </script>
 
 <footer>
@@ -14,102 +25,28 @@
 		<div class="footer-header">Hours of Operation</div>
 		<table>
 			<tbody>
-			{#each allData.closedRange as breakItem}
-				{#if breakItem.isActive}
-					{#if breakItem.occasion}
-						<tr>
-							<th colspan="2"> {breakItem.occasion}:</th>
-						</tr>
-						<tr>
-							<td colspan="2" class="break">
-								<strong>{new Date(date(breakItem.startOfBreak)).toDateString()}</strong></td
-							>
-						</tr>
-						<tr>
-							<td colspan="2" class="break thru"> - thru - </td>
-						</tr>
-						<tr>
-							<td colspan="2" class="break">
-								<strong>{new Date(date(breakItem.endOfBreak)).toDateString()}</strong></td
-							>
-						</tr>
-						<tr>
-							<td colspan="2" class="break"><small>{breakItem.moreInfo}</small></td>
-						</tr>
-						<tr><td colspan="2"><hr /></td></tr>
-					{/if}
-				{/if}
-			{/each}
 			{#each allData.specialHours as occasion}
-				{#if occasion.isActive}
-					{#if occasion.dayOneDate}
-						<tr>
-							<th colspan="2">{occasion.occasion}</th>
-						</tr>
-					{/if}
-					{#if occasion.dayOneDate}
-						<tr>
-							<td> <strong>{new Date(date(occasion.dayOneDate)).toDateString()}</strong></td>
-							<td>{occasion.dayOneHours}</td>
-						</tr>
-					{/if}
-					{#if occasion.dayTwoDate}
-						<tr>
-							<td> <strong>{new Date(date(occasion.dayTwoDate)).toDateString()}</strong></td>
-							<td>{occasion.dayTwoHours}</td>
-						</tr>
-					{/if}
-					{#if occasion.dayThreeDate}
-						<tr>
-							<td> <strong>{new Date(date(occasion.dayThreeDate)).toDateString()}</strong></td>
-							<td>{occasion.dayThreeHours}</td>
-						</tr>
-					{/if}
-					{#if occasion.dayFourDate}
-						<tr>
-							<td> <strong>{new Date(date(occasion.dayFourDate)).toDateString()}</strong></td>
-							<td>{occasion.dayFourHours}</td>
-						</tr>
-					{/if}
-					{#if occasion.dayFiveDate}
-						<tr>
-							<td> <strong>{new Date(date(occasion.dayFiveDate)).toDateString()}</strong></td>
-							<td>{occasion.dayFiveHours}</td>
-						</tr>
-					{/if}
+				{#if occasion.title}
+					<tr>
+						<th colspan="2">{occasion.title}</th>
+					</tr>
 				{/if}
+				{#each occasion.days || [] as day}
+					<tr>
+						<td><strong>{formatDateLong(day.date)}</strong></td>
+						<td>{day.closed ? 'CLOSED' : formatDayHours(day)}</td>
+					</tr>
+				{/each}
 			{/each}
 			<tr>
 				<th colspan="2"><em>Regular Hours:</em></th>
 			</tr>
-			<tr>
-				<td> <strong>Sunday:</strong></td>
-				<td> {allData.regularHoursStrict.sundayHours}</td>
-			</tr>
-			<tr>
-				<td> <strong>Monday:</strong></td>
-				<td> {allData.regularHoursStrict.mondayHours}</td>
-			</tr>
-			<tr>
-				<td> <strong>Tuesday:</strong></td>
-				<td> {allData.regularHoursStrict.tuesdayHours}</td>
-			</tr>
-			<tr>
-				<td> <strong>Wednesday:</strong></td>
-				<td> {allData.regularHoursStrict.wednesdayHours}</td>
-			</tr>
-			<tr>
-				<td> <strong>Thursday:</strong></td>
-				<td> {allData.regularHoursStrict.thursdayHours}</td>
-			</tr>
-			<tr>
-				<td> <strong>Friday:</strong></td>
-				<td> {allData.regularHoursStrict.fridayHours}</td>
-			</tr>
-			<tr>
-				<td> <strong>Saturday:</strong></td>
-				<td> {allData.regularHoursStrict.saturdayHours}</td>
-			</tr>
+			{#each days as day}
+				<tr>
+					<td> <strong>{day.label}:</strong></td>
+					<td> {formatDayHours(allData.hours?.[day.key])}</td>
+				</tr>
+			{/each}
 			</tbody>
 		</table>
 	</div>

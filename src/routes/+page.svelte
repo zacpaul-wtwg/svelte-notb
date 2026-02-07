@@ -3,7 +3,6 @@ import HomeNews from '$lib/components/HomeNews.svelte';
 import Hero from '$lib/components/Hero.svelte';
 import Container from '$lib/components/elements/Container.svelte';
 import Featured from '$lib/components/Featured.svelte';
-import BreakRange from '$lib/components/BreakRange.svelte';
 
 export let data;
 $: allData = data?.allData;
@@ -19,7 +18,6 @@ $: productsData = data?.productsData ?? { products: [] };
 </svelte:head>
 <Hero {allData} />
 <Container>
-	<BreakRange {allData} />
 	<HomeNews {allData} />
 	<Featured {productsData} />
 </Container>

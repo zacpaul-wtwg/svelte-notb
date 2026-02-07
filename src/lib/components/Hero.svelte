@@ -1,16 +1,14 @@
 <script>
 	import ButtonLink from '$lib/components/elements/ButtonLink.svelte';
 	import Ribbon from './ribbon.svelte';
+	import { formatDayHours } from '$lib/utility/time';
 	export let allData;
 
 	// Get the current day name in the required format
 	const daysOfWeek = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
 	const today = new Date();
 	const dayName = daysOfWeek[today.getDay()]; // This will be 'sunday', 'monday', etc.
-	const hoursKey = dayName + 'Hours'; // Construct the key to access the hours
-
-	// Now you can use hoursKey to dynamically access the hours for the current day
-	// e.g., allData.regularHoursStrict[hoursKey]
+	const hoursKey = dayName; // Construct the key to access the hours
 </script>
 
 <div class="hero">
@@ -31,7 +29,9 @@
 		</div>
 	</div>
 	<ButtonLink destination={'product'} label={'Go to Products'} />
-	<span class="hours">{dayName.toUpperCase()} HOURS: {allData.regularHoursStrict[hoursKey]}</span>
+	<span class="hours">
+		{dayName.toUpperCase()} HOURS: {formatDayHours(allData.hours?.[hoursKey])}
+	</span>
 </div>
 
 <style>
