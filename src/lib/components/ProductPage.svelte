@@ -34,8 +34,69 @@
 	$: readyFilters = Object.entries(selectedFilters || {}).filter(([_, values]) => values.length > 0);
 	$: searchString = '';
 	$: searchStrings = searchString.toLowerCase().split(' ');
+	const getRange = (items, key, capMax) => {
+		const values = (items || [])
+			.map((item) => item?.[key])
+			.filter((v) => Number.isFinite(v));
+		if (!values.length) return { min: 0, max: capMax ?? 0, rawMax: capMax ?? 0 };
+		const min = 0;
+		const max = Math.ceil(Math.max(...values));
+		return { min, max: capMax ? Math.min(max, capMax) : max, rawMax: max };
+	};
+	const clampPercent = (value, min, max) => {
+		if (min === max) return 0;
+		const pct = ((value - min) / (max - min)) * 100;
+		return Math.min(100, Math.max(0, pct));
+	};
+	const formatValue = (value) =>
+		Number.isFinite(value) ? value.toLocaleString('en-US', { maximumFractionDigits: 0 }) : '--';
+	$: heightBounds = getRange(products, 'height');
+	$: durationBounds = getRange(products, 'duration');
+	$: shotBounds = getRange(products, 'shotCount', 300);
+	let heightMin = null;
+	let heightMax = null;
+	let durationMin = null;
+	let durationMax = null;
+	let shotMin = null;
+	let shotMax = null;
+	$: if (heightMin === null) heightMin = heightBounds.min;
+	$: if (heightMax === null) heightMax = heightBounds.max;
+	$: if (durationMin === null) durationMin = durationBounds.min;
+	$: if (durationMax === null) durationMax = durationBounds.max;
+	$: if (shotMin === null) shotMin = shotBounds.min;
+	$: if (shotMax === null) shotMax = shotBounds.max;
+	const resolveMax = (value, bounds) =>
+		bounds && value === bounds.max ? null : value;
+	$: rangeFilters = {
+		height: { min: heightMin, max: resolveMax(heightMax, heightBounds) },
+		duration: { min: durationMin, max: resolveMax(durationMax, durationBounds) },
+		shotCount: { min: shotMin, max: resolveMax(shotMax, shotBounds) }
+	};
+	const formatRangeValue = (value, bounds) => {
+		if (!Number.isFinite(value)) return '--';
+		const suffix = bounds && value === bounds.max ? '+' : '';
+		return `${value.toLocaleString('en-US', { maximumFractionDigits: 0 })}${suffix}`;
+	};
+	$: heightRangeStyle =
+		heightBounds && heightMin !== null && heightMax !== null
+			? `left:${clampPercent(heightMin, heightBounds.min, heightBounds.max)}%; right:${
+					100 - clampPercent(heightMax, heightBounds.min, heightBounds.max)
+			  }%`
+			: '';
+	$: durationRangeStyle =
+		durationBounds && durationMin !== null && durationMax !== null
+			? `left:${clampPercent(durationMin, durationBounds.min, durationBounds.max)}%; right:${
+					100 - clampPercent(durationMax, durationBounds.min, durationBounds.max)
+			  }%`
+			: '';
+	$: shotRangeStyle =
+		shotBounds && shotMin !== null && shotMax !== null
+			? `left:${clampPercent(shotMin, shotBounds.min, shotBounds.max)}%; right:${
+					100 - clampPercent(shotMax, shotBounds.min, shotBounds.max)
+			  }%`
+			: '';
 	$: filteredProducts = (products || []).filter(
-		filterProducts(searchStrings, readyFilters, pricing, department)
+		filterProducts(searchStrings, readyFilters, pricing, department, rangeFilters)
 	);
 	$: sortedProducts = sortProducts(filteredProducts, sortMethod);
 	$: featuredProducts = sortedProducts.filter((product) => product.featured === 'yes');
@@ -97,6 +158,118 @@
 				{/each}
 			</select>
 		</div>
+
+		{#if heightBounds}
+		<div class="filter-group range-group">
+			<div class="range-header">
+				<h3>Height (ft)</h3>
+				<div class="range-values">
+					<span>{formatRangeValue(heightMin, heightBounds)}</span>
+					<span class="range-sep">-</span>
+					<span>{formatRangeValue(heightMax, heightBounds)}</span>
+				</div>
+			</div>
+			<div class="range-inputs">
+				<div class="range-track">
+					<div class="range-fill" style={heightRangeStyle}></div>
+				</div>
+				<input
+					type="range"
+					min={heightBounds.min}
+						max={heightBounds.max}
+						step="1"
+						bind:value={heightMin}
+						on:input={() => {
+							if (heightMin > heightMax) heightMax = heightMin;
+						}}
+					/>
+					<input
+						type="range"
+						min={heightBounds.min}
+						max={heightBounds.max}
+						step="1"
+						bind:value={heightMax}
+						on:input={() => {
+							if (heightMax < heightMin) heightMin = heightMax;
+						}}
+					/>
+				</div>
+			</div>
+		{/if}
+		{#if durationBounds}
+		<div class="filter-group range-group">
+			<div class="range-header">
+				<h3>Duration (sec)</h3>
+				<div class="range-values">
+					<span>{formatRangeValue(durationMin, durationBounds)}</span>
+					<span class="range-sep">-</span>
+					<span>{formatRangeValue(durationMax, durationBounds)}</span>
+				</div>
+			</div>
+			<div class="range-inputs">
+				<div class="range-track">
+					<div class="range-fill" style={durationRangeStyle}></div>
+				</div>
+				<input
+					type="range"
+					min={durationBounds.min}
+						max={durationBounds.max}
+						step="1"
+						bind:value={durationMin}
+						on:input={() => {
+							if (durationMin > durationMax) durationMax = durationMin;
+						}}
+					/>
+					<input
+						type="range"
+						min={durationBounds.min}
+						max={durationBounds.max}
+						step="1"
+						bind:value={durationMax}
+						on:input={() => {
+							if (durationMax < durationMin) durationMin = durationMax;
+						}}
+					/>
+				</div>
+			</div>
+		{/if}
+		{#if shotBounds}
+		<div class="filter-group range-group">
+			<div class="range-header">
+				<h3>Shots</h3>
+				<div class="range-values">
+					<span>{formatRangeValue(shotMin, shotBounds)}</span>
+					<span class="range-sep">-</span>
+					<span>{formatRangeValue(shotMax, shotBounds)}</span>
+				</div>
+			</div>
+			<div class="range-inputs">
+				<div class="range-track">
+					<div class="range-fill" style={shotRangeStyle}></div>
+				</div>
+				<input
+					type="range"
+					min={shotBounds.min}
+						max={shotBounds.max}
+						step="1"
+						bind:value={shotMin}
+						on:input={() => {
+							if (shotMin > shotMax) shotMax = shotMin;
+						}}
+					/>
+					<input
+						type="range"
+						min={shotBounds.min}
+						max={shotBounds.max}
+						step="1"
+						bind:value={shotMax}
+						on:input={() => {
+							if (shotMax < shotMin) shotMin = shotMax;
+						}}
+					/>
+				</div>
+			</div>
+		{/if}
 
 		<div class="boxes filter-group bottom-group">
 			{#each categories as category}
@@ -275,10 +448,107 @@
 	.filter-group label {
 		display: block;
 	}
+	.range-group {
+		padding: 0.4em 0.2em 0.6em;
+		border-top: 1px dashed rgba(0, 0, 0, 0.15);
+	}
+	.range-header {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 0.6em;
+		margin-bottom: 0.2em;
+	}
+	.range-header h3 {
+		margin: 0;
+	}
+	.range-values {
+		display: flex;
+		justify-content: flex-end;
+		gap: 0.4em;
+		font-size: 0.8em;
+		color: var(--grey);
+	}
+	.range-sep {
+		color: var(--grey);
+	}
+	.range-inputs {
+		position: relative;
+		height: 28px;
+		padding: 0 8px;
+		box-sizing: border-box;
+	}
+	.range-track {
+		position: absolute;
+		left: 8px;
+		right: 8px;
+		top: 50%;
+		height: 6px;
+		transform: translateY(-50%);
+		border-radius: 999px;
+		background: var(--white);
+		z-index: 1;
+		overflow: hidden;
+	}
+	.range-fill {
+		position: absolute;
+		top: 0;
+		bottom: 0;
+		background: var(--black, #000);
+	}
+	.range-inputs input[type='range'] {
+		width: 100%;
+		position: absolute;
+		left: 0;
+		top: 0;
+		margin: 0;
+		height: 28px;
+		padding: 0 8px;
+		box-sizing: border-box;
+		background: transparent;
+		pointer-events: none;
+		-webkit-appearance: none;
+		appearance: none;
+		z-index: 3;
+	}
+	.range-inputs input[type='range']::-webkit-slider-runnable-track {
+		height: 6px;
+		background: transparent;
+		border-radius: 999px;
+		border: 0;
+	}
+	.range-inputs input[type='range']::-webkit-slider-thumb {
+		-webkit-appearance: none;
+		width: 16px;
+		height: 16px;
+		border-radius: 50%;
+		background: var(--black, #000);
+		border: 0;
+		margin-top: -5px;
+		pointer-events: auto;
+		cursor: pointer;
+		z-index: 3;
+	}
+	.range-inputs input[type='range']::-moz-range-track {
+		height: 6px;
+		background: transparent;
+		border-radius: 999px;
+		border: 0;
+	}
+	.range-inputs input[type='range']::-moz-range-thumb {
+		width: 16px;
+		height: 16px;
+		border-radius: 50%;
+		background: var(--black, #000);
+		border: 0;
+		pointer-events: auto;
+		cursor: pointer;
+		z-index: 4;
+	}
 	.filter-pill {
 		position: fixed;
 		top: calc(var(--nav-height) + 1.5em);
-		left: 0;
+		left: -12px;
 		z-index: 10;
 		display: inline-flex;
 		align-items: center;
@@ -286,7 +556,7 @@
 		background: var(--grey);
 		color: var(--white);
 		border: none;
-		border-radius: 0 999px 999px 0;
+		border-radius: 0 6px 6px 0;
 		padding: 0.6em 1.1em;
 		font-family: Langdon;
 		text-transform: uppercase;
@@ -294,6 +564,7 @@
 		cursor: pointer;
 		box-shadow: 4px 4px 0 var(--yellow-accent);
 		transition: background 0.2s ease;
+		transform: skew(-14deg);
 	}
 	.filter-pill .pill-icon {
 		display: inline-flex;
@@ -306,6 +577,10 @@
 		color: var(--grey);
 		font-weight: 900;
 		font-size: 1.1em;
+		transform: skew(14deg);
+	}
+	.filter-pill .pill-text {
+		transform: skew(14deg);
 	}
 	.filter-pill .pill-icon svg {
 		width: 1.1em;
@@ -314,6 +589,7 @@
 	}
 	.filter-pill:hover {
 		background: var(--grey);
+		box-shadow: 4px 4px 0 var(--yellow-accent);
 	}
 	.load-all {
 		width: 100%;

@@ -21,6 +21,11 @@ const getAttributeByTitle = function (array, title) {
 		return element.title === title;
 	})?.value;
 };
+const parseNumericAttr = function (value) {
+	if (value === null || value === undefined) return 0;
+	const match = String(value).match(/(\d+(\.\d+)?)/);
+	return match ? Number(match[1]) : 0;
+};
 const badValues = [' ', 'undefined'];
 const getAttributeArrayByTitle = function (array, title) {
 	return (
@@ -80,6 +85,9 @@ export const refineProductIndexData = function (categories, brands, products) {
 				effects: getAttributeArrayByTitle(element.customAttributes, 'effects'),
 				colors: getAttributeArrayByTitle(element.customAttributes, 'colors'),
 				sounds: getAttributeArrayByTitle(element.customAttributes, 'sounds'),
+				height: parseNumericAttr(getAttributeByTitle(element.customAttributes, 'height')),
+				duration: parseNumericAttr(getAttributeByTitle(element.customAttributes, 'duration')),
+				shotCount: parseNumericAttr(getAttributeByTitle(element.customAttributes, 'shot count')),
 				searchableParts: element.title?.toLowerCase()?.split(' ') ?? []
 			});
 		});

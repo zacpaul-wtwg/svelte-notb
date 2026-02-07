@@ -45,16 +45,32 @@ const checkDepartmentMatch = function ({ category }, option) {
 	}
 	return category === option;
 };
+const checkRangeMatch = function (product, ranges) {
+	if (!ranges) return true;
+	const inRange = (value, min, max) => {
+		if (value === null || value === undefined) value = 0;
+		if (min !== null && value < min) return false;
+		if (max !== null && value > max) return false;
+		return true;
+	};
+	if (ranges.height && !inRange(product.height, ranges.height.min, ranges.height.max)) return false;
+	if (ranges.duration && !inRange(product.duration, ranges.duration.min, ranges.duration.max))
+		return false;
+	if (ranges.shotCount && !inRange(product.shotCount, ranges.shotCount.min, ranges.shotCount.max))
+		return false;
+	return true;
+};
 
 //the final function here takes the functions in this file and requires that all tests return true
 //if both are true then we pass a boolean: true to the filter method on the product page
 //which in turn includes the product in the new products array, the $: makes this
 //a reactive statement and therefore re-renders the page
-export const filterProducts = (strings, filters, pricing, department) => (product) =>
+export const filterProducts = (strings, filters, pricing, department, ranges) => (product) =>
 	checkSearchStringMatch(product, strings) &&
 	checkForFilterMatch(product, filters) &&
 	checkPricingMatch(product, pricing) &&
-	(department === 'FEATURED' ? product.featured === 'yes' : checkDepartmentMatch(product, department));
+	(department === 'FEATURED' ? product.featured === 'yes' : checkDepartmentMatch(product, department)) &&
+	checkRangeMatch(product, ranges);
 
 //sorting functions go below
 export const sortProducts = function (filteredProducts, sortMethod) {

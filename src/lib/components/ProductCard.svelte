@@ -1,7 +1,6 @@
 <script>
 	// #region imports
 import { slugify } from '$lib/utility/slugify';
-import Ribbon from './ribbon.svelte';
 import { getThumb } from '$lib/utility/imageThumb';
 import { sentenceify } from '$lib/utility/slugify';
 import ShortenSentence from '$lib/utility/ShortenSentence.svelte';
@@ -63,24 +62,38 @@ import { browser } from '$app/environment';
 	$: colors = sortColors(Array.isArray(product.colors) ? product.colors : []);
 	$: effects = Array.isArray(product.effects) ? product.effects : [];
 	let expanded = false;
+	let showEffects = false;
 	let collapsedHeight = 0;
 	let descriptionEl;
+	let effectsPopover;
 	const handleDocumentClick = (event) => {
 		if (!expanded) return;
 		if (!descriptionEl || !event?.target) return;
 		if (descriptionEl.contains(event.target)) return;
 		expanded = false;
 	};
+	const handleEffectsClick = (event) => {
+		event.stopPropagation();
+		showEffects = !showEffects;
+	};
+	const handleEffectsDocumentClick = (event) => {
+		if (!showEffects) return;
+		if (!effectsPopover || !event?.target) return;
+		if (effectsPopover.contains(event.target)) return;
+		showEffects = false;
+	};
 	onMount(async () => {
 		await tick();
 		if (descriptionEl) collapsedHeight = Math.ceil(descriptionEl.getBoundingClientRect().height);
 		if (browser) {
 			document.addEventListener('click', handleDocumentClick);
+			document.addEventListener('click', handleEffectsDocumentClick);
 		}
 	});
 	onDestroy(() => {
 		if (browser) {
 			document.removeEventListener('click', handleDocumentClick);
+			document.removeEventListener('click', handleEffectsDocumentClick);
 		}
 	});
 	// #endregion
@@ -90,36 +103,52 @@ import { browser } from '$app/environment';
 	<div class="title">
 		<div class="meta">
 			{#if colors.length > 0}
-				<ColorDots {colors} maxDots={4} dotSize={20} burstInterval={200} />
+				<div class="meta-top">
+					<ColorDots {colors} dotSize={20} burstInterval={200} />
+					<button class="effects-toggle" type="button" on:click={handleEffectsClick}>
+						<span class="effects-icon" aria-hidden="true">
+							<svg viewBox="0 0 24 24" role="img" focusable="false" aria-hidden="true">
+								<path
+									d="M7 1l1.2 3.8L12.3 6 8.2 7.3 7 11 5.8 7.3 1.7 6l4.1-1.2L7 1zm10 2.5l1.8 5.2 5.2 1.8-5.2 1.9L17 18l-1.8-5.4-5.2-1.9 5.2-1.8L17 3.5zm-4 11l1.1 3.2 3.2 1.1-3.2 1.1-1.1 3.2-1.1-3.2-3.2-1.1 3.2-1.1 1.1-3.2z"
+									fill="currentColor"
+								/>
+							</svg>
+						</span>
+						<span class="sr-only">Show effects</span>
+					</button>
+				</div>
 			{/if}
-			{#if effects.length > 0}
-				<div class="effects">
-					{#each effects.slice(0, 2) as effect}
-						<span class="effect-chip">{effect}</span>
-					{/each}
+			<div class="meta-bottom"></div>
+			{#if showEffects}
+				<div class="effects-popover" bind:this={effectsPopover}>
+					{#if effects.length > 0}
+						<div class="effects">
+							{#each effects as effect}
+								<span class="effect-chip">{effect}</span>
+							{/each}
+						</div>
+					{:else}
+						<span class="effect-chip">No effects listed</span>
+					{/if}
 				</div>
 			{/if}
 		</div>
 	</div>
-	<a href={`/product/${id}/${slugify(title)}`} target="_blank" class="product-link">
-		<div class="image-wrapper">
-			<div class="image-container">
-				<img loading="lazy" src={getThumb(imageThumb)} alt="{sentenceify(title)} product" />
-			</div>
-			<div class="ribbon-container">
-				<div class="ribbon">
-					<Ribbon
-						string={`${deal} $${price}`}
-						bgColor={ribbonColor.bg}
-						fontColor={ribbonColor.text}
-						padding={'.5'}
-					/>
-				</div>
-			</div>
+	<div class="image-wrapper">
+		<div class="image-container">
+			<img loading="lazy" src={getThumb(imageThumb)} alt="{sentenceify(title)} product" />
 		</div>
-	</a>
+		<div
+			class="price-tag"
+			style={`--price-bg:${ribbonColor.bg === 'yellow' ? 'var(--yellow)' : ribbonColor.bg === 'red' ? 'var(--red)' : 'var(--grey)'}; --price-fg:${ribbonColor.text === 'white' ? 'var(--white)' : 'var(--grey)'}`}
+		>
+			<span class="price-text">{deal} ${price}</span>
+		</div>
+	</div>
 	<h4 class="product-name">{title}</h4>
-	<div class="product-dept">Dept: {category}</div>
+	<div class="product-dept">
+		<span class="dept-chip">Dept: {category}</span>
+	</div>
 	<div class="description-wrap" style="min-height: {collapsedHeight}px;">
 		<div
 			class="description-card {expanded ? 'expanded' : ''}"
@@ -170,28 +199,96 @@ import { browser } from '$app/environment';
 	.title {
 		background: var(--grey);
 		color: var(--white);
-		padding: 0.3em 0.6em;
-		min-height: 2.4em;
+		padding: 0.05em 0.55em 0.3em;
+		min-height: 3em;
 		font-weight: 100;
+		position: relative;
 	}
 	.meta {
 		display: flex;
-		align-items: center;
+		flex-direction: column;
+		align-items: stretch;
 		justify-content: space-between;
-		gap: 0.5em;
+		gap: 0.15em;
+		min-height: 2.6em;
+	}
+	.meta-top,
+	.meta-bottom {
+		display: flex;
+		align-items: center;
+		justify-content: flex-start;
+	}
+	.meta-top {
+		justify-content: space-between;
+		gap: 0.4em;
+	}
+	.effects-toggle {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		width: 30px;
+		height: 30px;
+		border: 1px solid var(--grey);
+		background: var(--white);
+		color: var(--grey);
+		border-radius: 0;
+		box-shadow: 3px 3px 0 var(--yellow-accent);
+		cursor: pointer;
+	}
+	.effects-icon {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		width: 24px;
+		height: 24px;
+		line-height: 1;
+	}
+	.effects-icon svg {
+		width: 24px;
+		height: 24px;
+		display: block;
+	}
+	.effects-popover {
+		position: absolute;
+		right: 0.6em;
+		top: calc(100% - 2px);
+		background: var(--white);
+		border: 1px solid var(--grey);
+		padding: 0.4em 0.6em;
+		box-shadow: 4px 4px 0 var(--yellow-accent);
+		z-index: 5;
+	}
+	.effects-popover .effects {
+		flex-wrap: wrap;
+		max-width: 220px;
 	}
 	.effects {
 		display: inline-flex;
 		gap: 0.4em;
+		flex-wrap: nowrap;
+		overflow: hidden;
+		white-space: nowrap;
 	}
 	.effect-chip {
 		font-size: 0.65em;
 		text-transform: uppercase;
 		letter-spacing: 0.04em;
-		background: var(--white);
+		background: transparent;
 		color: var(--grey);
 		padding: 0.15em 0.4em;
-		border-radius: 4px;
+		border-radius: 999px;
+		border: 1px solid var(--grey);
+	}
+	.sr-only {
+		position: absolute;
+		width: 1px;
+		height: 1px;
+		padding: 0;
+		margin: -1px;
+		overflow: hidden;
+		clip: rect(0, 0, 0, 0);
+		white-space: nowrap;
+		border: 0;
 	}
 
 	.image-wrapper {
@@ -213,27 +310,24 @@ import { browser } from '$app/environment';
 		}
 	}
 
-	.ribbon-container {
+	.price-tag {
 		position: absolute;
-		right: 0;
-		bottom: 0;
+		right: -16px;
+		top: 121px;
+		background: var(--price-bg);
+		color: var(--price-fg);
+		padding: 0.35em 0.7em;
+		transform: skew(-14deg);
+		box-shadow: 4px 4px 0 var(--grey);
+		border: 1px solid var(--grey);
 	}
-	.ribbon {
-		position: absolute;
-		right: -30px;
-		bottom: 5px;
-		top: auto;
-		transform: rotate(-10deg);
-		font-size: 1.43em;
-		pointer-events: none;
-	}
-	.ribbon :global(div) {
+	.price-text {
 		display: inline-block;
+		transform: skew(14deg);
+		font-family: Langdon, Arial, sans-serif;
+		font-size: 1.85em;
 		white-space: nowrap;
 		text-transform: none;
-	}
-	a.product-link {
-		text-decoration: none;
 	}
 	h4.product-name {
 		margin: 0.5em 0.75em 0;
@@ -246,6 +340,14 @@ import { browser } from '$app/environment';
 		text-transform: uppercase;
 		letter-spacing: 0.05em;
 		color: var(--grey);
+	}
+	.dept-chip {
+		display: inline-flex;
+		align-items: center;
+		background: var(--grey);
+		color: var(--white);
+		padding: 0.2em 0.55em;
+		border-radius: 999px;
 	}
 	.description-wrap {
 		position: relative;
