@@ -61,6 +61,16 @@ const checkRangeMatch = function (product, ranges) {
 	return true;
 };
 
+export const isFeaturedProduct = (product) => {
+	const value = product?.featured;
+	if (value === true || value === 1) return true;
+	if (typeof value === 'string') {
+		const normalized = value.trim().toLowerCase();
+		return normalized === 'yes' || normalized === 'true' || normalized === '1';
+	}
+	return false;
+};
+
 //the final function here takes the functions in this file and requires that all tests return true
 //if both are true then we pass a boolean: true to the filter method on the product page
 //which in turn includes the product in the new products array, the $: makes this
@@ -69,7 +79,9 @@ export const filterProducts = (strings, filters, pricing, department, ranges) =>
 	checkSearchStringMatch(product, strings) &&
 	checkForFilterMatch(product, filters) &&
 	checkPricingMatch(product, pricing) &&
-	(department === 'FEATURED' ? product.featured === 'yes' : checkDepartmentMatch(product, department)) &&
+	(department === 'FEATURED'
+		? isFeaturedProduct(product)
+		: checkDepartmentMatch(product, department)) &&
 	checkRangeMatch(product, ranges);
 
 //sorting functions go below

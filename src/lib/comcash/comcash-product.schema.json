@@ -1,0 +1,151 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"$id": "https://northoftheborder.local/schemas/comcash-product.schema.json",
+	"title": "Comcash Product API Schemas",
+	"description": "Observed schema for Comcash product/list and product/view payloads.",
+	"$defs": {
+		"knownCustomAttributeTitle": {
+			"type": "string",
+			"enum": [
+				"description",
+				"featured",
+				"effects",
+				"colors",
+				"sounds",
+				"youtube",
+				"height",
+				"duration",
+				"shot count",
+				"type"
+			]
+		},
+		"customAttribute": {
+			"type": "object",
+			"properties": {
+				"attributeId": { "type": ["integer", "null"] },
+				"value": { "type": ["string", "number", "boolean", "null"] },
+				"title": {
+					"anyOf": [
+						{ "$ref": "#/$defs/knownCustomAttributeTitle" },
+						{ "type": "string" },
+						{ "type": "null" }
+					]
+				},
+				"typeId": { "type": ["integer", "null"] },
+				"typeTitle": { "type": ["string", "null"] }
+			},
+			"required": ["title", "value"],
+			"allOf": [
+				{
+					"if": {
+						"properties": {
+							"title": { "const": "featured" }
+						},
+						"required": ["title"]
+					},
+					"then": {
+						"properties": {
+							"value": {
+								"type": ["string", "boolean", "null"],
+								"enum": ["yes", "no", "Yes", "No", true, false, null]
+							}
+						}
+					}
+				},
+				{
+					"if": {
+						"properties": {
+							"title": {
+								"enum": ["description", "effects", "colors", "sounds", "youtube", "type"]
+							}
+						},
+						"required": ["title"]
+					},
+					"then": {
+						"properties": {
+							"value": { "type": ["string", "null"] }
+						}
+					}
+				},
+				{
+					"if": {
+						"properties": {
+							"title": {
+								"enum": ["height", "duration", "shot count"]
+							}
+						},
+						"required": ["title"]
+					},
+					"then": {
+						"properties": {
+							"value": {
+								"type": ["string", "number", "null"],
+								"pattern": "^(\\d+(\\.\\d+)?)?\\s*.*$"
+							}
+						}
+					}
+				}
+			],
+			"additionalProperties": true
+		},
+		"productImage": {
+			"type": "object",
+			"properties": {
+				"uid": { "type": ["string", "null"] },
+				"title": { "type": ["string", "null"] },
+				"full": { "type": ["string", "null"], "format": "uri" }
+			},
+			"required": ["uid", "full"],
+			"additionalProperties": true
+		},
+		"product": {
+			"type": "object",
+			"properties": {
+				"id": { "type": ["integer", "string"] },
+				"created": { "type": ["string", "null"] },
+				"title": { "type": ["string", "null"] },
+				"categoryId": { "type": ["integer", "string", "null"] },
+				"typeId": { "type": ["integer", "string", "null"] },
+				"brandId": { "type": ["integer", "string", "null"] },
+				"price": { "type": ["number", "string", "null"] },
+				"taxId": { "type": ["integer", "string", "null"] },
+				"statusId": { "type": ["integer", "string", "boolean", "null"] },
+				"status": { "type": ["integer", "string", "boolean", "null"] },
+				"isSellableOnWeb": { "type": ["integer", "string", "boolean", "null"] },
+				"imageUrl": { "type": ["string", "null"], "format": "uri" },
+				"images": {
+					"type": ["array", "null"],
+					"items": { "$ref": "#/$defs/productImage" }
+				},
+				"customAttributes": {
+					"type": ["array", "null"],
+					"items": { "$ref": "#/$defs/customAttribute" }
+				}
+			},
+			"required": [
+				"id",
+				"title",
+				"price",
+				"brandId",
+				"categoryId",
+				"status",
+				"statusId",
+				"isSellableOnWeb",
+				"customAttributes"
+			],
+			"additionalProperties": true
+		}
+	},
+	"type": "object",
+	"properties": {
+		"productListResponse": {
+			"type": "array",
+			"items": { "$ref": "#/$defs/product" }
+		},
+		"productViewResponse": {
+			"$ref": "#/$defs/product"
+		}
+	},
+	"required": ["productListResponse", "productViewResponse"],
+	"additionalProperties": false
+}

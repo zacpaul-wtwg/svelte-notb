@@ -1,7 +1,7 @@
 <script>
 	import { fly, fade, slide } from 'svelte/transition';
 	import MatchGroup from '$lib/matchGroup.svelte';
-	import { filterProducts, sortProducts } from '$lib/filter-utils';
+	import { filterProducts, isFeaturedProduct, sortProducts } from '$lib/filter-utils';
 	import TitleBar from '$lib/components/TitleBar.svelte';
 	import ProductCard from '$lib/components/ProductCard.svelte';
 
@@ -31,13 +31,13 @@
 		}),
 		{}
 	);
-	$: readyFilters = Object.entries(selectedFilters || {}).filter(([_, values]) => values.length > 0);
+	$: readyFilters = Object.entries(selectedFilters || {}).filter(
+		([_, values]) => values.length > 0
+	);
 	$: searchString = '';
 	$: searchStrings = searchString.toLowerCase().split(' ');
 	const getRange = (items, key, capMax) => {
-		const values = (items || [])
-			.map((item) => item?.[key])
-			.filter((v) => Number.isFinite(v));
+		const values = (items || []).map((item) => item?.[key]).filter((v) => Number.isFinite(v));
 		if (!values.length) return { min: 0, max: capMax ?? 0, rawMax: capMax ?? 0 };
 		const min = 0;
 		const max = Math.ceil(Math.max(...values));
@@ -65,8 +65,7 @@
 	$: if (durationMax === null) durationMax = durationBounds.max;
 	$: if (shotMin === null) shotMin = shotBounds.min;
 	$: if (shotMax === null) shotMax = shotBounds.max;
-	const resolveMax = (value, bounds) =>
-		bounds && value === bounds.max ? null : value;
+	const resolveMax = (value, bounds) => (bounds && value === bounds.max ? null : value);
 	$: rangeFilters = {
 		height: { min: heightMin, max: resolveMax(heightMax, heightBounds) },
 		duration: { min: durationMin, max: resolveMax(durationMax, durationBounds) },
@@ -81,25 +80,25 @@
 		heightBounds && heightMin !== null && heightMax !== null
 			? `left:${clampPercent(heightMin, heightBounds.min, heightBounds.max)}%; right:${
 					100 - clampPercent(heightMax, heightBounds.min, heightBounds.max)
-			  }%`
+				}%`
 			: '';
 	$: durationRangeStyle =
 		durationBounds && durationMin !== null && durationMax !== null
 			? `left:${clampPercent(durationMin, durationBounds.min, durationBounds.max)}%; right:${
 					100 - clampPercent(durationMax, durationBounds.min, durationBounds.max)
-			  }%`
+				}%`
 			: '';
 	$: shotRangeStyle =
 		shotBounds && shotMin !== null && shotMax !== null
 			? `left:${clampPercent(shotMin, shotBounds.min, shotBounds.max)}%; right:${
 					100 - clampPercent(shotMax, shotBounds.min, shotBounds.max)
-			  }%`
+				}%`
 			: '';
 	$: filteredProducts = (products || []).filter(
 		filterProducts(searchStrings, readyFilters, pricing, department, rangeFilters)
 	);
 	$: sortedProducts = sortProducts(filteredProducts, sortMethod);
-	$: featuredProducts = sortedProducts.filter((product) => product.featured === 'yes');
+	$: featuredProducts = sortedProducts.filter((product) => isFeaturedProduct(product));
 	let showAllProducts = false;
 	let highlightDepartments = false;
 	$: visibleProducts = showAllProducts ? sortedProducts : featuredProducts;
@@ -134,11 +133,7 @@
 			<label for="departments">
 				<h3>Departments:</h3>
 			</label>
-			<select
-				id="departments"
-				class:highlight={highlightDepartments}
-				bind:value={department}
-			>
+			<select id="departments" class:highlight={highlightDepartments} bind:value={department}>
 				<option value="FEATURED">FEATURED</option>
 				<option value="ALL DEPARTMENTS">ALL</option>
 				{#each departmentsAlphabetical as dept}
@@ -160,22 +155,22 @@
 		</div>
 
 		{#if heightBounds}
-		<div class="filter-group range-group">
-			<div class="range-header">
-				<h3>Height (ft)</h3>
-				<div class="range-values">
-					<span>{formatRangeValue(heightMin, heightBounds)}</span>
-					<span class="range-sep">-</span>
-					<span>{formatRangeValue(heightMax, heightBounds)}</span>
+			<div class="filter-group range-group">
+				<div class="range-header">
+					<h3>Height (ft)</h3>
+					<div class="range-values">
+						<span>{formatRangeValue(heightMin, heightBounds)}</span>
+						<span class="range-sep">-</span>
+						<span>{formatRangeValue(heightMax, heightBounds)}</span>
+					</div>
 				</div>
-			</div>
-			<div class="range-inputs">
-				<div class="range-track">
-					<div class="range-fill" style={heightRangeStyle}></div>
-				</div>
-				<input
-					type="range"
-					min={heightBounds.min}
+				<div class="range-inputs">
+					<div class="range-track">
+						<div class="range-fill" style={heightRangeStyle}></div>
+					</div>
+					<input
+						type="range"
+						min={heightBounds.min}
 						max={heightBounds.max}
 						step="1"
 						bind:value={heightMin}
@@ -197,22 +192,22 @@
 			</div>
 		{/if}
 		{#if durationBounds}
-		<div class="filter-group range-group">
-			<div class="range-header">
-				<h3>Duration (sec)</h3>
-				<div class="range-values">
-					<span>{formatRangeValue(durationMin, durationBounds)}</span>
-					<span class="range-sep">-</span>
-					<span>{formatRangeValue(durationMax, durationBounds)}</span>
+			<div class="filter-group range-group">
+				<div class="range-header">
+					<h3>Duration (sec)</h3>
+					<div class="range-values">
+						<span>{formatRangeValue(durationMin, durationBounds)}</span>
+						<span class="range-sep">-</span>
+						<span>{formatRangeValue(durationMax, durationBounds)}</span>
+					</div>
 				</div>
-			</div>
-			<div class="range-inputs">
-				<div class="range-track">
-					<div class="range-fill" style={durationRangeStyle}></div>
-				</div>
-				<input
-					type="range"
-					min={durationBounds.min}
+				<div class="range-inputs">
+					<div class="range-track">
+						<div class="range-fill" style={durationRangeStyle}></div>
+					</div>
+					<input
+						type="range"
+						min={durationBounds.min}
 						max={durationBounds.max}
 						step="1"
 						bind:value={durationMin}
@@ -234,22 +229,22 @@
 			</div>
 		{/if}
 		{#if shotBounds}
-		<div class="filter-group range-group">
-			<div class="range-header">
-				<h3>Shots</h3>
-				<div class="range-values">
-					<span>{formatRangeValue(shotMin, shotBounds)}</span>
-					<span class="range-sep">-</span>
-					<span>{formatRangeValue(shotMax, shotBounds)}</span>
+			<div class="filter-group range-group">
+				<div class="range-header">
+					<h3>Shots</h3>
+					<div class="range-values">
+						<span>{formatRangeValue(shotMin, shotBounds)}</span>
+						<span class="range-sep">-</span>
+						<span>{formatRangeValue(shotMax, shotBounds)}</span>
+					</div>
 				</div>
-			</div>
-			<div class="range-inputs">
-				<div class="range-track">
-					<div class="range-fill" style={shotRangeStyle}></div>
-				</div>
-				<input
-					type="range"
-					min={shotBounds.min}
+				<div class="range-inputs">
+					<div class="range-track">
+						<div class="range-fill" style={shotRangeStyle}></div>
+					</div>
+					<input
+						type="range"
+						min={shotBounds.min}
 						max={shotBounds.max}
 						step="1"
 						bind:value={shotMin}
@@ -368,7 +363,9 @@
 		width: 13em;
 		padding: 4.25em 1em 1.5em 1em;
 		background: var(--off-white);
-		box-shadow: inset -1px 0 0 var(--grey), 4px 0 12px rgba(0, 0, 0, 0.08);
+		box-shadow:
+			inset -1px 0 0 var(--grey),
+			4px 0 12px rgba(0, 0, 0, 0.08);
 		border-right: 1px solid var(--grey);
 		z-index: 6;
 		overflow: scroll;
