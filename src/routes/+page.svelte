@@ -1,7 +1,8 @@
 <script>
 	import HomeNews from '$lib/components/HomeNews.svelte';
 	import Hero from '$lib/components/Hero.svelte';
-	import ProductCard from '$lib/components/ProductCard.svelte';
+	import FeaturedCarousel from '$lib/components/FeaturedCarousel.svelte';
+	import ProductModal from '$lib/components/ProductModal.svelte';
 	import Container from '$lib/components/elements/Container.svelte';
 	import { isFeaturedProduct } from '$lib/filter-utils';
 
@@ -9,21 +10,35 @@
 	$: allData = data?.allData;
 	$: productsData = data?.productsData?.things ?? { products: [] };
 	$: allProducts = productsData?.products ?? [];
-
 	$: featuredProducts = allProducts.filter((product) => isFeaturedProduct(product));
 
-	let carouselEl;
-	const scrollByCards = 2;
-	const cardWidth = 300;
-	const cardGap = 16;
-	const scrollAmount = scrollByCards * (cardWidth + cardGap);
+	let selectedProduct = null;
+	let productModalLoading = false;
+	let productModalError = '';
 
-	const scrollFeatured = (direction) => {
-		if (!carouselEl) return;
-		carouselEl.scrollBy({
-			left: direction === 'left' ? -scrollAmount : scrollAmount,
-			behavior: 'smooth'
-		});
+	const closeProductModal = () => {
+		selectedProduct = null;
+		productModalLoading = false;
+		productModalError = '';
+	};
+
+	const openProductModal = async (product) => {
+		if (!product?.id) return;
+		productModalLoading = true;
+		productModalError = '';
+		selectedProduct = null;
+		try {
+			const response = await fetch(`/data/product/${product.id}`);
+			const payload = await response.json();
+			if (!response.ok || !payload?.product) {
+				throw new Error(payload?.error ?? 'Failed to load product details.');
+			}
+			selectedProduct = payload.product;
+		} catch (error) {
+			productModalError = error?.message ?? 'Failed to load product details.';
+		} finally {
+			productModalLoading = false;
+		}
 	};
 </script>
 
@@ -36,79 +51,72 @@
 </svelte:head>
 <Hero {allData} />
 <Container>
-	<HomeNews {allData} />
-	<section class="featured-products">
-		<div class="featured-header">
-			<h2>Featured Fireworks</h2>
-			<div class="controls">
-				<button type="button" class="nav-button" on:click={() => scrollFeatured('left')}>
-					Prev
-				</button>
-				<button type="button" class="nav-button" on:click={() => scrollFeatured('right')}>
-					Next
-				</button>
-			</div>
+	<section class="page-stack home-stack">
+		<div class="home-section">
+			<HomeNews {allData} />
 		</div>
-
-		{#if featuredProducts.length > 0}
-			<div class="featured-carousel" bind:this={carouselEl}>
-				{#each featuredProducts as product (product.id)}
-					<div class="featured-item">
-						<ProductCard {product} />
-					</div>
-				{/each}
-			</div>
-		{:else}
-			<p class="empty-state">No featured products are currently marked in Comcash.</p>
-		{/if}
+		<div class="home-section">
+			<FeaturedCarousel
+				products={featuredProducts}
+				intervalMs={5000}
+				on:openproduct={(event) => openProductModal(event.detail.product)}
+			/>
+		</div>
 	</section>
 </Container>
 
+{#if selectedProduct}
+	<ProductModal product={selectedProduct} onClose={closeProductModal} />
+{:else if productModalLoading}
+	<div class="loading-backdrop">
+		<div class="loading-card" role="status" aria-live="polite">Loading product details...</div>
+	</div>
+{:else if productModalError}
+	<div class="loading-backdrop">
+		<div class="loading-card error">
+			<p>{productModalError}</p>
+			<button type="button" on:click={closeProductModal}>Close</button>
+		</div>
+	</div>
+{/if}
+
 <style>
-	.featured-products {
-		margin: 2rem 0 3rem;
+	.home-section {
+		width: 100%;
 	}
-	.featured-header {
+
+	.loading-backdrop {
+		position: fixed;
+		inset: 0;
+		background: rgba(0, 0, 0, 0.45);
 		display: flex;
 		align-items: center;
-		justify-content: space-between;
-		gap: 1rem;
-		margin-bottom: 0.75rem;
+		justify-content: center;
+		z-index: 1200;
 	}
-	.featured-header h2 {
-		margin: 0;
-	}
-	.controls {
-		display: flex;
-		gap: 0.5rem;
-	}
-	.nav-button {
-		border: 1px solid var(--grey);
+
+	.loading-card {
 		background: var(--white);
 		color: var(--grey);
-		padding: 0.45rem 0.7rem;
-		cursor: pointer;
+		padding: 1rem 1.2rem;
+		border: 2px solid var(--grey);
+		box-shadow: 6px 6px 0 var(--yellow-accent);
 		font-weight: 700;
 	}
-	.featured-carousel {
-		display: flex;
-		gap: 1rem;
-		overflow-x: auto;
-		padding: 0.4rem 0.2rem 1rem;
-		scroll-snap-type: x mandatory;
+
+	.loading-card.error {
+		max-width: min(90vw, 420px);
 	}
-	.featured-item {
-		flex: 0 0 auto;
-		scroll-snap-align: start;
+
+	.loading-card.error p {
+		margin: 0 0 0.75rem 0;
 	}
-	.empty-state {
-		margin: 0.25rem 0 0;
-		color: var(--grey);
-	}
-	@media (max-width: 700px) {
-		.featured-header {
-			flex-direction: column;
-			align-items: flex-start;
-		}
+
+	.loading-card.error button {
+		border: 1px solid var(--grey);
+		background: var(--grey);
+		color: var(--white);
+		padding: 0.45rem 0.75rem;
+		cursor: pointer;
 	}
 </style>

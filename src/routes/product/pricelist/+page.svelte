@@ -1,8 +1,8 @@
 <script>
-import ColumnButton from '$lib/components/ColumnButton.svelte';
-import Button from '$lib/components/elements/Button.svelte';
-import Container from '$lib/components/elements/Container.svelte';
-import TitleBar from '$lib/components/TitleBar.svelte';
+	import ColumnButton from '$lib/components/ColumnButton.svelte';
+	import Button from '$lib/components/elements/Button.svelte';
+	import Container from '$lib/components/elements/Container.svelte';
+	import TitleBar from '$lib/components/TitleBar.svelte';
 
 	export const verticalize = function (array) {
 		return array.join(', ');
@@ -30,106 +30,106 @@ import TitleBar from '$lib/components/TitleBar.svelte';
 
 <TitleBar title={'Price List'} description="North of the Border Printable Price List. " />
 <Container>
-	<div>
-		<button class="print-button" type="button" on:click={() => window.print()}>
-			Print
-		</button>
-	</div>
+	<section class="page-stack pricelist-page">
+		<div>
+			<button class="print-button" type="button" on:click={() => window.print()}> Print </button>
+		</div>
 
-	<label for="department-filter"><h3>Department Filter:</h3></label>
-	<select
-		name="department-filter"
-		id="department-filter"
-		bind:value={departmentFilter}
-		class="noprint"
-	>
-		<option value="all departments" default>ALL DEPARTMENTS</option>
-		{#each departments as department}
-			<option value={department}>{department}</option>
-		{/each}
-	</select>
-	<hr class="noprint" />
-	<!-- //TODO: refactor buttons, create component. -->
+		<label for="department-filter"><h3>Department Filter:</h3></label>
+		<select
+			name="department-filter"
+			id="department-filter"
+			bind:value={departmentFilter}
+			class="noprint"
+		>
+			<option value="all departments" default>ALL DEPARTMENTS</option>
+			{#each departments as department}
+				<option value={department}>{department}</option>
+			{/each}
+		</select>
+		<hr class="noprint" />
+		<!-- //TODO: refactor buttons, create component. -->
 
-	<ColumnButton bind:toggle={description} title={'description'} />
-	<ColumnButton bind:toggle={effects} title={'effects'} />
-	<ColumnButton bind:toggle={colors} title={'colors'} />
-	<ColumnButton bind:toggle={sounds} title={'sounds'} />
+		<ColumnButton bind:toggle={description} title={'description'} />
+		<ColumnButton bind:toggle={effects} title={'effects'} />
+		<ColumnButton bind:toggle={colors} title={'colors'} />
+		<ColumnButton bind:toggle={sounds} title={'sounds'} />
 
-	<div class="noprint">
+		<div class="noprint">
+			<p>
+				If you select too many columns for your printable pricelist, you may need to set your
+				print-job to landscape. This may result in a larger print job. To reduce the amount of
+				printing you have to do, remove columns and set to portrait.
+			</p>
+			<p><strong>Information below the line will print.</strong></p>
+		</div>
+		<hr class="noprint" />
+		<img src="/logo_large_inverse.png" alt="North of the Border Logo" />
 		<p>
-			If you select too many columns for your printable pricelist, you may need to set your
-			print-job to landscape. This may result in a larger print job. To reduce the amount of
-			printing you have to do, remove columns and set to portrait.
+			These prices are current as of, <strong>{new Date().toDateString()}</strong>. The information
+			here is updated automatically whenever it is changed in the store on our point-of-sale system.
+			Prices and availability are subject to change and the price is not guaranteed at the counter.
 		</p>
-		<p><strong>Information below the line will print.</strong></p>
-	</div>
-	<hr class="noprint" />
-	<img src="/logo_large_inverse.png" alt="North of the Border Logo" />
-	<p>
-		These prices are current as of, <strong>{new Date().toDateString()}</strong>. The information
-		here is updated automatically whenever it is changed in the store on our point-of-sale system.
-		Prices and availability are subject to change and the price is not guaranteed at the counter.
-	</p>
-	<h2 class="doprint">{departmentFilter}</h2>
-	<table id="tg-1oY8l" class="tg table-sort remember-sort">
-		<thead>
-			<tr>
-				<th class="tg-0lax disable-sort">ID</th>
-				<th class="tg-0lax">Title</th>
-				<th class="tg-0lax">Department</th>
-				<th class="tg-0lax">Pricing</th>
-				<th class="tg-0lax">Price</th>
-				{#if description}
-					<th class="tg-0lax">Description</th>
-				{/if}
-				{#if effects}
-					<th class="tg-0lax">Effects</th>
-				{/if}
-				{#if colors}
-					<th class="tg-0lax">Colors</th>
-				{/if}
-				{#if sounds}
-					<th class="tg-0lax">Sounds</th>
-				{/if}
-			</tr>
-		</thead>
-		<tbody>
-			{#each sortedProducts as product}
+		<h2 class="doprint">{departmentFilter}</h2>
+		<table id="tg-1oY8l" class="tg table-sort remember-sort">
+			<thead>
 				<tr>
-					<td class="tg-0lax">{product.id}</td>
-					<td class="tg-0lax">{product.title}</td>
-					<td class="tg-0lax">{product.category}</td>
-					<td class="tg-0lax">{product.deal}</td>
-					<td class="tg-0lax">{product.price.toFixed(2)}</td>
+					<th class="tg-0lax disable-sort">ID</th>
+					<th class="tg-0lax">Title</th>
+					<th class="tg-0lax">Department</th>
+					<th class="tg-0lax">Pricing</th>
+					<th class="tg-0lax">Price</th>
 					{#if description}
-						<td class="tg-0lax">{product.description}</td>
+						<th class="tg-0lax">Description</th>
 					{/if}
 					{#if effects}
-						<td class="tg-0lax">
-							{#each product.effects as effect}
-								{effect}<br />
-							{/each}
-						</td>
+						<th class="tg-0lax">Effects</th>
 					{/if}
 					{#if colors}
-						<td class="tg-0lax">
-							{#each product.colors as color}
-								{color}<br />
-							{/each}
-						</td>
+						<th class="tg-0lax">Colors</th>
 					{/if}
 					{#if sounds}
-						<td class="tg-0lax">
-							{#each product.sounds as sound}
-								{sound}<br />
-							{/each}
-						</td>
+						<th class="tg-0lax">Sounds</th>
 					{/if}
 				</tr>
-			{/each}
-		</tbody>
-	</table>
+			</thead>
+			<tbody>
+				{#each sortedProducts as product}
+					<tr>
+						<td class="tg-0lax">{product.id}</td>
+						<td class="tg-0lax">{product.title}</td>
+						<td class="tg-0lax">{product.category}</td>
+						<td class="tg-0lax">{product.deal}</td>
+						<td class="tg-0lax">{product.price.toFixed(2)}</td>
+						{#if description}
+							<td class="tg-0lax">{product.description}</td>
+						{/if}
+						{#if effects}
+							<td class="tg-0lax">
+								{#each product.effects as effect}
+									{effect}<br />
+								{/each}
+							</td>
+						{/if}
+						{#if colors}
+							<td class="tg-0lax">
+								{#each product.colors as color}
+									{color}<br />
+								{/each}
+							</td>
+						{/if}
+						{#if sounds}
+							<td class="tg-0lax">
+								{#each product.sounds as sound}
+									{sound}<br />
+								{/each}
+							</td>
+						{/if}
+					</tr>
+				{/each}
+			</tbody>
+		</table>
+	</section>
 </Container>
 
 <style lang="scss">

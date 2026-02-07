@@ -5,37 +5,37 @@
 	import TitleBar from '$lib/components/TitleBar.svelte';
 	import { fallbackAllData } from '$lib/cms/fallback';
 
-export let data;
-$: allData = data?.allData ?? fallbackAllData;
-let openIndex = 0;
-let cardEls = [];
-const getNavOffset = () => {
-	if (typeof window === 'undefined') return 0;
-	const nav = document.querySelector('nav');
-	if (!nav) return 0;
-	const height = nav.getBoundingClientRect().height || 0;
-	return height + 8;
-};
-const scrollToHeader = (index) => {
-	const button = cardEls[index]?.querySelector('.summary');
-	if (!button) return;
-	const top = button.getBoundingClientRect().top + window.scrollY - getNavOffset();
-	window.scrollTo({ top, behavior: 'smooth' });
-};
-const handleToggle = async (index) => {
-	if (openIndex === index) {
+	export let data;
+	$: allData = data?.allData ?? fallbackAllData;
+	let openIndex = 0;
+	let cardEls = [];
+	const getNavOffset = () => {
+		if (typeof window === 'undefined') return 0;
+		const nav = document.querySelector('nav');
+		if (!nav) return 0;
+		const height = nav.getBoundingClientRect().height || 0;
+		return height + 8;
+	};
+	const scrollToHeader = (index) => {
+		const button = cardEls[index]?.querySelector('.summary');
+		if (!button) return;
+		const top = button.getBoundingClientRect().top + window.scrollY - getNavOffset();
+		window.scrollTo({ top, behavior: 'smooth' });
+	};
+	const handleToggle = async (index) => {
+		if (openIndex === index) {
+			openIndex = -1;
+			return;
+		}
 		openIndex = -1;
-		return;
-	}
-	openIndex = -1;
-	await tick();
-	setTimeout(() => {
-		scrollToHeader(index);
-		requestAnimationFrame(() => {
-			openIndex = index;
-		});
-	}, 260);
-};
+		await tick();
+		setTimeout(() => {
+			scrollToHeader(index);
+			requestAnimationFrame(() => {
+				openIndex = index;
+			});
+		}, 260);
+	};
 
 	onMount(() => {
 		const scriptEl = document.createElement('script');
@@ -82,7 +82,7 @@ const handleToggle = async (index) => {
 />
 
 <Container>
-	<section class="faq-stack">
+	<section class="page-stack faq-stack">
 		{#each allData.faq as entry, i}
 			<article class="faq-card" bind:this={cardEls[i]}>
 				<Accordion
@@ -97,11 +97,6 @@ const handleToggle = async (index) => {
 </Container>
 
 <style>
-	.faq-stack {
-		display: flex;
-		flex-direction: column;
-		gap: 1.2em;
-	}
 	.faq-card {
 		display: block;
 	}

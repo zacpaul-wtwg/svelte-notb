@@ -15,47 +15,58 @@
 />
 
 <Container>
-	<div class="display">
-		<div class="contact-card">
-			<div class="card-header">
-				<h2>Store Info</h2>
-			</div>
-			<div class="card-body">
-				<Address showHours hours={allData.hours} />
-			</div>
-		</div>
-		<form class="contact-card form-card" name="contact" method="POST" action="/submit" data-netlify="true">
-			<input type="hidden" name="form-name" value="contact" />
-			<input type="hidden" name="subject" value="General Inquiry from NOTBFireworks.com" />
-			<div class="card-header">
-				<h2>Send A Message</h2>
-			</div>
-			<div class="card-body form-body">
-				<label for="name">Name</label>
-				<input id="name" type="text" name="name" />
-				<label for="email">Email</label>
-				<input id="email" type="email" name="email" />
-				<label for="message">Message</label>
-				<textarea id="message" name="message" rows="6"></textarea>
-				<div class="form-actions">
-					<Button>Send</Button>
+	<section class="page-stack contact-page">
+		<div class="display">
+			<div class="contact-card">
+				<div class="card-header">
+					<h2>Store Info</h2>
+				</div>
+				<div class="card-body">
+					<Address showHours hours={allData.hours} />
 				</div>
 			</div>
-		</form>
-	</div>
+			<form
+				class="contact-card form-card"
+				name="contact"
+				method="POST"
+				action="/submit"
+				data-netlify="true"
+			>
+				<input type="hidden" name="form-name" value="contact" />
+				<input type="hidden" name="subject" value="General Inquiry from NOTBFireworks.com" />
+				<div class="card-header">
+					<h2>Send A Message</h2>
+				</div>
+				<div class="card-body form-body">
+					<label for="name">Name</label>
+					<input id="name" type="text" name="name" />
+					<label for="email">Email</label>
+					<input id="email" type="email" name="email" />
+					<label for="message">Message</label>
+					<textarea id="message" name="message" rows="6"></textarea>
+					<div class="form-actions">
+						<Button>Send</Button>
+					</div>
+				</div>
+			</form>
+		</div>
 
-	<iframe
-		title="Google Map location of NOTB Fireworks"
-		src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d58549.477868478614!2d-75.20533079338747!3d41.47115060997673!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x89c4b035154a07bd%3A0xa98135bf82797b39!2sNorth%20of%20the%20Border%20Fireworks!5e0!3m2!1sen!2sus!4v1655396333859!5m2!1sen!2sus"
-		width="100%"
-		height="450"
-		style="border:0;"
-		loading="lazy"
-		referrerpolicy="no-referrer-when-downgrade"
-	></iframe>
+		<iframe
+			title="Google Map location of NOTB Fireworks"
+			src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d58549.477868478614!2d-75.20533079338747!3d41.47115060997673!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x89c4b035154a07bd%3A0xa98135bf82797b39!2sNorth%20of%20the%20Border%20Fireworks!5e0!3m2!1sen!2sus!4v1655396333859!5m2!1sen!2sus"
+			width="100%"
+			height="450"
+			style="border:0;"
+			loading="lazy"
+			referrerpolicy="no-referrer-when-downgrade"
+		></iframe>
+	</section>
 </Container>
 
 <style lang="scss">
+	.contact-page {
+		margin-bottom: 1.4rem;
+	}
 	.display {
 		display: grid;
 		grid-template-columns: minmax(260px, 1fr) minmax(320px, 2fr);
@@ -110,7 +121,6 @@
 		margin-top: 0.5em;
 	}
 	iframe {
-		margin-top: 2em;
 		border: 2px solid var(--grey);
 		box-shadow: 6px 6px 0 var(--yellow-accent);
 	}

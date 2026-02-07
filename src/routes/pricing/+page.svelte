@@ -1,12 +1,11 @@
 <script>
-import Container from '$lib/components/elements/Container.svelte';
-import PageTitle from '$lib/components/PageTitle.svelte';
-import TitleBar from '$lib/components/TitleBar.svelte';
-import { fallbackAllData } from '$lib/cms/fallback';
+	import Container from '$lib/components/elements/Container.svelte';
+	import PageTitle from '$lib/components/PageTitle.svelte';
+	import TitleBar from '$lib/components/TitleBar.svelte';
+	import { fallbackAllData } from '$lib/cms/fallback';
 
-export let data;
-$: allData = data?.allData ?? fallbackAllData;
-
+	export let data;
+	$: allData = data?.allData ?? fallbackAllData;
 </script>
 
 <TitleBar
@@ -14,72 +13,74 @@ $: allData = data?.allData ?? fallbackAllData;
 	description={'See our vip loyalty program, high roller rollback program, and camp and military discount information'}
 />
 <Container>
-	<section class="pricing-hero">
-		<div class="hero-strip">
-			<div class="hero-badge">
-				<span class="badge-title">VIP</span>
-				<span class="badge-sub">Bonus + rewards</span>
-			</div>
-			<div class="hero-badge">
-				<span class="badge-title">High Roller</span>
-				<span class="badge-sub">3‑for‑1 pricing</span>
-			</div>
-			<div class="hero-badge">
-				<span class="badge-title">Camp Days</span>
-				<span class="badge-sub">Credentials required</span>
-			</div>
-			<div class="hero-badge">
-				<span class="badge-title">Military</span>
-				<span class="badge-sub">10% discount</span>
-			</div>
-		</div>
-		<div class="hero-compare">
-			<div class="compare-label">Relative Savings</div>
-			<div class="compare-bars">
-				<div class="bar-row">
-					<span>Standard</span>
-					<div class="bar"><span style="width: 45%"></span></div>
+	<section class="page-stack pricing-page">
+		<section class="pricing-hero">
+			<div class="hero-strip">
+				<div class="hero-badge">
+					<span class="badge-title">VIP</span>
+					<span class="badge-sub">Bonus + rewards</span>
 				</div>
-				<div class="bar-row">
-					<span>VIP</span>
-					<div class="bar"><span style="width: 70%"></span></div>
+				<div class="hero-badge">
+					<span class="badge-title">High Roller</span>
+					<span class="badge-sub">3‑for‑1 pricing</span>
 				</div>
-				<div class="bar-row">
-					<span>High Roller</span>
-					<div class="bar"><span style="width: 95%"></span></div>
+				<div class="hero-badge">
+					<span class="badge-title">Camp Days</span>
+					<span class="badge-sub">Credentials required</span>
+				</div>
+				<div class="hero-badge">
+					<span class="badge-title">Military</span>
+					<span class="badge-sub">10% discount</span>
 				</div>
 			</div>
-		</div>
-	</section>
+			<div class="hero-compare">
+				<div class="compare-label">Relative Savings</div>
+				<div class="compare-bars">
+					<div class="bar-row">
+						<span>Standard</span>
+						<div class="bar"><span style="width: 45%"></span></div>
+					</div>
+					<div class="bar-row">
+						<span>VIP</span>
+						<div class="bar"><span style="width: 70%"></span></div>
+					</div>
+					<div class="bar-row">
+						<span>High Roller</span>
+						<div class="bar"><span style="width: 95%"></span></div>
+					</div>
+				</div>
+			</div>
+		</section>
 
-	<section class="pricing-stack">
-		{#each allData.pricing as entry}
-			<article class="pricing-card">
-				<header class="card-header">
-					<h3>{entry.title}</h3>
-					<span class="card-kicker">Program Overview</span>
-				</header>
-				<div class="card-body">
-					<p class="subtitle">{entry.subtitle}</p>
-					<div class="section">
-						<h4 class="section-head">Highlights</h4>
-						<ul class="highlights">
-							{#each entry.highlights || [] as highlight}
-								<li><span>{highlight}</span></li>
-							{/each}
-						</ul>
+		<section class="pricing-stack">
+			{#each allData.pricing as entry}
+				<article class="pricing-card">
+					<header class="card-header">
+						<h3>{entry.title}</h3>
+						<span class="card-kicker">Program Overview</span>
+					</header>
+					<div class="card-body">
+						<p class="subtitle">{entry.subtitle}</p>
+						<div class="section">
+							<h4 class="section-head">Highlights</h4>
+							<ul class="highlights">
+								{#each entry.highlights || [] as highlight}
+									<li><span>{highlight}</span></li>
+								{/each}
+							</ul>
+						</div>
+						<div class="section">
+							<h4 class="section-head how">How It Works</h4>
+							<p>{entry.howItWorks}</p>
+						</div>
+						<div class="section">
+							<h4 class="section-head best">Best For</h4>
+							<p>{entry.bestFor}</p>
+						</div>
 					</div>
-					<div class="section">
-						<h4 class="section-head how">How It Works</h4>
-						<p>{entry.howItWorks}</p>
-					</div>
-					<div class="section">
-						<h4 class="section-head best">Best For</h4>
-						<p>{entry.bestFor}</p>
-					</div>
-				</div>
-			</article>
-		{/each}
+				</article>
+			{/each}
+		</section>
 	</section>
 </Container>
 
@@ -92,7 +93,6 @@ $: allData = data?.allData ?? fallbackAllData;
 		display: grid;
 		grid-template-columns: 2fr 1.2fr;
 		gap: 1.2em;
-		margin-bottom: 1.6em;
 	}
 	.hero-strip {
 		display: grid;
