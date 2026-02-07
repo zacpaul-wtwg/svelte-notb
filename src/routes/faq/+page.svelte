@@ -1,12 +1,41 @@
 <script>
-	import { onMount } from 'svelte';
+	import { onMount, tick } from 'svelte';
 	import Accordion from '$lib/components/accordion.svelte';
 	import Container from '$lib/components/elements/Container.svelte';
 	import TitleBar from '$lib/components/TitleBar.svelte';
-import { fallbackAllData } from '$lib/cms/fallback';
+	import { fallbackAllData } from '$lib/cms/fallback';
 
 export let data;
 $: allData = data?.allData ?? fallbackAllData;
+let openIndex = 0;
+let cardEls = [];
+const getNavOffset = () => {
+	if (typeof window === 'undefined') return 0;
+	const nav = document.querySelector('nav');
+	if (!nav) return 0;
+	const height = nav.getBoundingClientRect().height || 0;
+	return height + 8;
+};
+const scrollToHeader = (index) => {
+	const button = cardEls[index]?.querySelector('.summary');
+	if (!button) return;
+	const top = button.getBoundingClientRect().top + window.scrollY - getNavOffset();
+	window.scrollTo({ top, behavior: 'smooth' });
+};
+const handleToggle = async (index) => {
+	if (openIndex === index) {
+		openIndex = -1;
+		return;
+	}
+	openIndex = -1;
+	await tick();
+	setTimeout(() => {
+		scrollToHeader(index);
+		requestAnimationFrame(() => {
+			openIndex = index;
+		});
+	}, 260);
+};
 
 	onMount(() => {
 		const scriptEl = document.createElement('script');
@@ -52,11 +81,27 @@ $: allData = data?.allData ?? fallbackAllData;
 />
 
 <Container>
-	<section>
-		{#each allData.faq as entry}
-			<article>
-				<Accordion title={entry.title} answer={entry.answer} />
+	<section class="faq-stack">
+		{#each allData.faq as entry, i}
+			<article class="faq-card" bind:this={cardEls[i]}>
+				<Accordion
+					title={entry.title}
+					answer={entry.answer}
+					open={openIndex === i}
+					onToggle={() => handleToggle(i)}
+				/>
 			</article>
 		{/each}
 	</section>
 </Container>
+
+<style>
+	.faq-stack {
+		display: flex;
+		flex-direction: column;
+		gap: 1.2em;
+	}
+	.faq-card {
+		display: block;
+	}
+</style>
