@@ -331,7 +331,21 @@
 			if (sectionKey === 'newsPosts') stampNewsDate();
 			if (isLocalDev) {
 				saveDraftToStorage(allData);
-				status = 'Saved to local draft.';
+				try {
+					const res = await fetch('/data/cms', {
+						method: 'POST',
+						headers: { 'content-type': 'application/json' },
+						body: JSON.stringify({ allData })
+					});
+					if (!res.ok) {
+						const info = await res.json().catch(() => ({}));
+						status = `Saved draft, but failed to write cms.json: ${info?.error || res.status}`;
+						return;
+					}
+					status = 'Saved to local draft and cms.json.';
+				} catch (e) {
+					status = `Saved draft, but failed to write cms.json: ${e?.message || e}`;
+				}
 				return;
 			}
 			const res = await fetch('/.netlify/functions/update-cms-json', {

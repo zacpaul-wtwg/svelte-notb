@@ -2,11 +2,11 @@
 import HomeNews from '$lib/components/HomeNews.svelte';
 import Hero from '$lib/components/Hero.svelte';
 import Container from '$lib/components/elements/Container.svelte';
-import Featured from '$lib/components/Featured.svelte';
+// import Featured from '$lib/components/Featured.svelte';
 
 export let data;
 $: allData = data?.allData;
-$: productsData = data?.productsData ?? { products: [] };
+$: productsData = data?.productsData?.things ?? { products: [] };
 </script>
 
 <svelte:head>
@@ -19,5 +19,5 @@ $: productsData = data?.productsData ?? { products: [] };
 <Hero {allData} />
 <Container>
 	<HomeNews {allData} />
-	<Featured {productsData} />
+	<!-- Featured carousel removed; rebuilding from scratch -->
 </Container>
