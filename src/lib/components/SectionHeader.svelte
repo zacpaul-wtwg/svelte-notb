@@ -1,5 +1,6 @@
 <script>
 	import { onMount } from 'svelte';
+	import { fly } from 'svelte/transition';
 
 	export let text = '';
 	export let as = 'h2';
@@ -10,6 +11,7 @@
 	let headerEl;
 	let labelEl;
 	let groupX = '0px';
+	let flyX = Number(place) <= 0 ? -90 : 90;
 
 	const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
 
@@ -25,6 +27,7 @@
 		const maxCenter = headerWidth - labelWidth / 2 - safePad;
 		const clampedCenter = clamp(desiredCenter, minCenter, maxCenter);
 		groupX = `${clampedCenter - headerWidth / 2}px`;
+		flyX = clampedCenter <= headerWidth / 2 ? -90 : 90;
 	};
 
 	onMount(() => {
@@ -45,7 +48,7 @@
 <div bind:this={headerEl} class={`section-header ${className}`.trim()} style={`--group-x:${groupX}`}>
 	<div class="header-group">
 		<div class="edge-line edge-line-left" aria-hidden="true"></div>
-		<svelte:element bind:this={labelEl} this={as} class="label">
+		<svelte:element bind:this={labelEl} this={as} class="label" in:fly={{ x: flyX, duration: 260 }}>
 			<span><slot>{text}</slot></span>
 		</svelte:element>
 		<div class="edge-line edge-line-right" aria-hidden="true"></div>
