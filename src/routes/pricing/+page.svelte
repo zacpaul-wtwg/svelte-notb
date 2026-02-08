@@ -99,7 +99,7 @@
 		pointer-events: none;
 	}
 	:global(.pricing-page-title) {
-		margin-top: -0.9rem;
+		margin-top: calc(-0.9rem - 50px);
 		margin-bottom: 0.6rem;
 	}
 	.subtitle {
