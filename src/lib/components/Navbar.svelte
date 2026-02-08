@@ -1,13 +1,9 @@
 <script>
 	import { onMount } from 'svelte';
-	import { goto } from '$app/navigation';
 	import { fade, fly } from 'svelte/transition';
 	import { page } from '$app/stores';
 
 	let showMobileMenu = false;
-	let pendingMobileHref = '';
-	let mobileNavClickTimer;
-	const NAV_STATE_ANIMATION_MS = 220;
 
 	const navItems = [
 		{ label: 'Home', href: '/' },
@@ -19,11 +15,6 @@
 
 	const closeMobileMenu = () => {
 		showMobileMenu = false;
-		pendingMobileHref = '';
-		if (mobileNavClickTimer) {
-			clearTimeout(mobileNavClickTimer);
-			mobileNavClickTimer = undefined;
-		}
 	};
 
 	const toggleMobileMenu = () => {
@@ -34,25 +25,6 @@
 		const path = $page.url.pathname;
 		if (href === '/') return path === '/';
 		return path === href || path.startsWith(`${href}/`);
-	};
-
-	const isMobileActive = (href) => {
-		if (pendingMobileHref) return pendingMobileHref === href;
-		return isActive(href);
-	};
-
-	const handleMobileNavClick = (event, href) => {
-		event.preventDefault();
-		if (pendingMobileHref) return;
-		pendingMobileHref = href;
-		mobileNavClickTimer = setTimeout(async () => {
-			showMobileMenu = false;
-			if (!isActive(href)) {
-				await goto(href);
-			}
-			pendingMobileHref = '';
-			mobileNavClickTimer = undefined;
-		}, NAV_STATE_ANIMATION_MS);
 	};
 
 	onMount(() => {
@@ -132,8 +104,8 @@
 					<li>
 						<a
 							href={item.href}
-							class:active={isMobileActive(item.href)}
-							on:click={(event) => handleMobileNavClick(event, item.href)}
+							class:active={isActive(item.href)}
+							on:click={closeMobileMenu}
 						>
 							<span>{item.label}</span>
 						</a>
