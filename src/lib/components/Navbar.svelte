@@ -265,13 +265,20 @@
 
 	.navbar-list a span,
 	.mobile-nav-list a span {
-		display: inline-block;
+		display: block;
+		width: 100%;
+		text-align: left;
 		transform: skew(14deg);
 	}
 
 	.navbar-list a.active,
 	.mobile-nav-list a.active {
 		--nav-shadow: var(--yellow-accent);
+	}
+
+	.navbar-list a.active span,
+	.mobile-nav-list a.active span {
+		text-align: right;
 	}
 
 	.mobile-backdrop {
