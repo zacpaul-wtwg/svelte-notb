@@ -21,7 +21,7 @@
 		margin-bottom: 0.75rem;
 		padding: 0 1rem;
 		box-sizing: border-box;
-		overflow-x: hidden;
+		overflow: hidden;
 		white-space: nowrap;
 		text-align: center;
 	}
