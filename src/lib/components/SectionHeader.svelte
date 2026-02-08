@@ -18,8 +18,6 @@
 	let hasEntered = false;
 	let isVisible = false;
 	const IN_VIEW_DELAY_MS = 140;
-	const TRIGGER_TOP_RATIO = 0.75;
-	const TRIGGER_BOTTOM_RATIO = 0.25;
 	const animatedLabelCenter = tweened(0, { duration: 0, easing: cubicOut });
 	let enterTimer;
 
@@ -67,12 +65,6 @@
 			async (entries) => {
 				const entry = entries[0];
 				if (!entry?.isIntersecting || hasEntered) return;
-				const viewportHeight = window.innerHeight || document.documentElement.clientHeight;
-				const topGate = viewportHeight * TRIGGER_TOP_RATIO;
-				const bottomGate = viewportHeight * TRIGGER_BOTTOM_RATIO;
-				if (entry.boundingClientRect.top > topGate || entry.boundingClientRect.bottom < bottomGate) {
-					return;
-				}
 				let entryEdge = nearestEdge;
 				if (Math.abs(Number(place)) <= 1) {
 					entryEdge = Math.random() < 0.5 ? 'left' : 'right';
@@ -87,7 +79,7 @@
 				}, IN_VIEW_DELAY_MS);
 				io.disconnect();
 			},
-			{ threshold: 0, rootMargin: '0px' }
+			{ threshold: 0, rootMargin: '-25% 0px -25% 0px' }
 		);
 		if (headerEl) io.observe(headerEl);
 
@@ -107,11 +99,13 @@
 	class={`section-header ${size === 'mini' ? 'is-mini' : ''} ${isVisible ? 'is-visible' : ''} ${className}`.trim()}
 	style={`--label-center:${$animatedLabelCenter}px;--label-half:${labelWidth / 2}px`}
 >
-	<div class="edge-line edge-line-left" aria-hidden="true"></div>
+	<div class="line-layer" aria-hidden="true">
+		<div class="edge-line edge-line-left"></div>
+		<div class="edge-line edge-line-right"></div>
+	</div>
 	<svelte:element bind:this={labelEl} this={as} class={`label size-${size}`.trim()}>
 		<span><slot>{text}</slot></span>
 	</svelte:element>
-	<div class="edge-line edge-line-right" aria-hidden="true"></div>
 </div>
 
 <style>
@@ -128,9 +122,17 @@
 		min-height: 3.6rem;
 	}
 
-	.section-header:not(.is-visible) .edge-line,
+	.section-header:not(.is-visible) .line-layer,
 	.section-header:not(.is-visible) .label {
 		visibility: hidden;
+	}
+
+	.line-layer {
+		position: absolute;
+		inset: 0;
+		overflow: hidden;
+		z-index: 0;
+		pointer-events: none;
 	}
 
 	.edge-line {
