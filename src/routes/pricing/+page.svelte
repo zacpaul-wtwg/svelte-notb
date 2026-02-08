@@ -13,7 +13,7 @@
 	title={'Pricing'}
 	description={'See our vip loyalty program, high roller rollback program, and camp and military discount information'}
 />
-<SectionHeader as="h1" text="Pricing" size="large" className="pricing-page-title" />
+<SectionHeader place="-50" as="h1" text="Pricing" size="large" className="pricing-page-title" />
 <Container>
 	<section class="page-stack pricing-page">
 		<section class="pricing-hero">
@@ -104,6 +104,7 @@
 		position: relative;
 		top: -34px;
 		z-index: 4;
+		overflow: visible;
 	}
 	.subtitle {
 		margin: 0 0 0.8em 0;
