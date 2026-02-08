@@ -1,10 +1,8 @@
 <script>
 	import { onMount } from 'svelte';
 
-	// Show mobile icon and display menu
 	let showMobileMenu = false;
 
-	// List of navigation items
 	const navItems = [
 		{ label: 'Home', href: '/' },
 		{ label: 'Products', href: '/product' },
@@ -13,27 +11,33 @@
 		{ label: 'Contact', href: '/contact' }
 	];
 
-	// Mobile menu click event handler
-	const handleMobileIconClick = () => (showMobileMenu = !showMobileMenu);
-	const removeMobileMenu = function () {
-		if (showMobileMenu) {
-			showMobileMenu = !showMobileMenu;
-		}
+	const closeMobileMenu = () => {
+		showMobileMenu = false;
 	};
 
-	// Media match query handler
-	const mediaQueryHandler = (e) => {
-		// Reset mobile state
-		if (!e.matches) {
-			showMobileMenu = false;
-		}
+	const toggleMobileMenu = () => {
+		showMobileMenu = !showMobileMenu;
 	};
 
-	// Attach media query listener on mount hook
 	onMount(() => {
 		const mediaListener = window.matchMedia('(max-width: 700px)');
+		const handleMediaChange = (event) => {
+			if (!event.matches) showMobileMenu = false;
+		};
 
-		mediaListener.addListener(mediaQueryHandler);
+		if (mediaListener.addEventListener) {
+			mediaListener.addEventListener('change', handleMediaChange);
+		} else {
+			mediaListener.addListener(handleMediaChange);
+		}
+
+		return () => {
+			if (mediaListener.removeEventListener) {
+				mediaListener.removeEventListener('change', handleMediaChange);
+			} else {
+				mediaListener.removeListener(handleMediaChange);
+			}
+		};
 	});
 </script>
 
@@ -48,23 +52,44 @@
 	</div>
 	<div class="hr"></div>
 	<div class="bottom inner">
-		<a href="/"><img src="/logo_large.png" alt="North of the Border Logo" /></a>
+		<a class="logo-link" href="/" aria-label="North of the Border Home">
+			<img src="/logo_large.png" alt="North of the Border Logo" />
+		</a>
 		<button
 			type="button"
-			class={`mobile-icon${showMobileMenu ? ' active' : ''}`}
-			aria-label="Toggle navigation"
-			on:click={handleMobileIconClick}
+			class="menu-toggle"
+			aria-label="Toggle navigation menu"
+			aria-expanded={showMobileMenu}
+			on:click={toggleMobileMenu}
 		>
-			<div class="middle-line"></div>
+			{showMobileMenu ? 'CLOSE' : 'MENU'}
 		</button>
-		<ul class={`navbar-list${showMobileMenu ? ' mobile' : ''}`}>
+		<ul class="navbar-list desktop-nav">
 			{#each navItems as item}
 				<li>
-					<a href={item.href} on:click={removeMobileMenu}>{item.label}</a>
+					<a href={item.href}>{item.label}</a>
 				</li>
 			{/each}
 		</ul>
 	</div>
+
+	{#if showMobileMenu}
+		<button
+			type="button"
+			class="mobile-backdrop"
+			aria-label="Close menu"
+			on:click={closeMobileMenu}
+		></button>
+		<div class="mobile-panel" role="dialog" aria-label="Site navigation">
+			<ul class="mobile-nav-list">
+				{#each navItems as item}
+					<li>
+						<a href={item.href} on:click={closeMobileMenu}>{item.label}</a>
+					</li>
+				{/each}
+			</ul>
+		</div>
+	{/if}
 </nav>
 
 <style lang="scss">
@@ -75,6 +100,7 @@
 		color: white;
 		height: 20px;
 	}
+
 	.bottom {
 		display: flex;
 		justify-content: space-between;
@@ -87,12 +113,10 @@
 		margin-left: 10px;
 		font-size: 0.9em;
 		color: white;
-		a {
-			color: white;
-		}
-		:after {
-			margin: 10px;
-		}
+	}
+
+	.top-item a {
+		color: white;
 	}
 
 	.hr {
@@ -104,6 +128,7 @@
 		height: 55px;
 		margin-right: 50px;
 	}
+
 	nav {
 		background-color: var(--grey);
 		font-family: 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif;
@@ -122,106 +147,46 @@
 		box-sizing: border-box;
 	}
 
-	.mobile-icon {
-		width: 25px;
-		height: 14px;
-		position: relative;
-		cursor: pointer;
+	.logo-link {
+		display: inline-flex;
+		align-items: center;
+	}
+
+	.menu-toggle {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		padding: 0.35em 0.8em;
+		border: 1px solid var(--white);
 		background: transparent;
-		border: 0;
-		padding: 0;
+		color: var(--white);
+		font-family: Langdon, Arial, sans-serif;
+		letter-spacing: 0.06em;
+		font-size: 0.95rem;
+		text-transform: uppercase;
+		box-shadow: 3px 3px 0 var(--yellow-accent);
+		cursor: pointer;
 	}
 
-	.mobile-icon:after,
-	.mobile-icon:before,
-	.middle-line {
-		content: '';
-		position: absolute;
-		width: 100%;
-		height: 2px;
-		background-color: #fff;
-		transition: all 0.4s;
-		transform-origin: center;
-	}
-
-	.mobile-icon:before,
-	.middle-line {
-		top: 0;
-	}
-
-	.mobile-icon:after,
-	.middle-line {
-		bottom: 0;
-	}
-
-	.mobile-icon:before {
-		width: 100%;
-	}
-
-	.mobile-icon:after {
-		width: 100%;
-	}
-
-	.middle-line {
-		margin: auto;
-	}
-
-	.mobile-icon:hover:before,
-	.mobile-icon:hover:after,
-	.mobile-icon.active:before,
-	.mobile-icon.active:after,
-	.mobile-icon.active .middle-line {
-		width: 100%;
-	}
-
-	.mobile-icon.active:before,
-	.mobile-icon.active:after {
-		top: 50%;
-		transform: rotate(-45deg);
-	}
-
-	.mobile-icon.active .middle-line {
-		transform: rotate(45deg);
+	.desktop-nav {
+		display: none;
 	}
 
 	.navbar-list {
-		display: none;
 		width: 100%;
 		justify-content: space-between;
 		margin: 0;
-		padding: 0 40px;
+		padding: 0;
 	}
 
-	.navbar-list.mobile {
-		background-color: var(--grey);
-		position: fixed;
-		display: block;
-		top: 100px;
-		height: calc(100vh - 100px);
-		left: 0;
-		right: 0;
-		padding: 0 12px;
-		box-sizing: border-box;
-		overflow-y: auto;
-		-webkit-overflow-scrolling: touch;
-	}
-
-	.navbar-list li {
+	.navbar-list li,
+	.mobile-nav-list li {
 		list-style-type: none;
 		position: relative;
 	}
 
-	.navbar-list li:before {
-		content: '';
-		position: absolute;
-		bottom: 0;
-		left: 0;
-		right: 0;
-		height: 1px;
-		background-color: var(--off-white);
-	}
-
-	.navbar-list a {
+	.navbar-list a,
+	.mobile-nav-list a {
 		color: #fff;
 		text-decoration: none;
 		display: flex;
@@ -231,14 +196,58 @@
 		font-size: 13px;
 	}
 
+	.mobile-backdrop {
+		position: fixed;
+		left: 0;
+		right: 0;
+		top: 100px;
+		bottom: 0;
+		background: rgba(0, 0, 0, 0.35);
+		border: 0;
+		padding: 0;
+		margin: 0;
+		z-index: 98;
+	}
+
+	.mobile-panel {
+		position: fixed;
+		top: 100px;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		background: var(--grey);
+		z-index: 99;
+		padding: 0.6rem 0.8rem 1rem;
+		box-sizing: border-box;
+		overflow-y: auto;
+		-webkit-overflow-scrolling: touch;
+	}
+
+	.mobile-nav-list {
+		margin: 0;
+		padding: 0;
+	}
+
+	.mobile-nav-list li {
+		border-bottom: 1px solid rgba(255, 255, 255, 0.25);
+	}
+
+	.mobile-nav-list a {
+		height: 52px;
+		font-family: Langdon, Arial, sans-serif;
+		font-size: 1rem;
+		letter-spacing: 0.05em;
+		text-transform: uppercase;
+		padding: 0 0.35rem;
+	}
+
 	@media only screen and (min-width: 701px) {
-		.mobile-icon {
+		.menu-toggle {
 			display: none;
 		}
 
-		.navbar-list {
+		.desktop-nav {
 			display: flex;
-			padding: 0;
 		}
 
 		.navbar-list a {
@@ -248,6 +257,6 @@
 
 	.cart {
 		height: 15px;
-		margin-right: 0px;
+		margin-right: 0;
 	}
 </style>
