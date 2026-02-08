@@ -54,6 +54,22 @@
 		return headerWidth + labelWidth / 2 + offscreenPad;
 	};
 
+	const enter = async () => {
+		if (hasEntered || !headerEl) return;
+		let entryEdge = nearestEdge;
+		if (Math.abs(Number(place)) <= 1) {
+			entryEdge = Math.random() < 0.5 ? 'left' : 'right';
+		}
+		const startCenter = getOffscreenStartCenter(entryEdge);
+		animatedLabelCenter.set(startCenter, { duration: 0 });
+		isVisible = true;
+		await tick();
+		enterTimer = setTimeout(() => {
+			hasEntered = true;
+			animatedLabelCenter.set(labelCenter, { duration: 360, easing: cubicOut });
+		}, IN_VIEW_DELAY_MS);
+	};
+
 	onMount(() => {
 		const ro = new ResizeObserver(() => updatePlacement());
 		if (headerEl) ro.observe(headerEl);
@@ -62,26 +78,21 @@
 		updatePlacement();
 
 		const io = new IntersectionObserver(
-			async (entries) => {
+			(entries) => {
 				const entry = entries[0];
 				if (!entry?.isIntersecting || hasEntered) return;
-				let entryEdge = nearestEdge;
-				if (Math.abs(Number(place)) <= 1) {
-					entryEdge = Math.random() < 0.5 ? 'left' : 'right';
-				}
-				const startCenter = getOffscreenStartCenter(entryEdge);
-				animatedLabelCenter.set(startCenter, { duration: 0 });
-				isVisible = true;
-				await tick();
-				enterTimer = setTimeout(() => {
-					hasEntered = true;
-					animatedLabelCenter.set(labelCenter, { duration: 360, easing: cubicOut });
-				}, IN_VIEW_DELAY_MS);
+				enter();
 				io.disconnect();
 			},
 			{ threshold: 0, rootMargin: '-25% 0px -25% 0px' }
 		);
 		if (headerEl) io.observe(headerEl);
+		// If already on-screen at load (e.g. page title), enter immediately.
+		const rect = headerEl?.getBoundingClientRect();
+		if (rect && rect.bottom > 0 && rect.top < window.innerHeight) {
+			enter();
+			io.disconnect();
+		}
 
 		return () => {
 			ro.disconnect();
