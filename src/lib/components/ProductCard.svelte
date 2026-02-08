@@ -329,15 +329,16 @@
 	}
 
 	.description-wrap :global(.description-card)::before {
-		content: 'description';
+		content: 'DESCRIPTION';
 		position: absolute;
 		left: 0.6em;
 		top: 0.35em;
 		font-size: 0.9em;
 		font-weight: 500;
 		letter-spacing: 0;
-		text-transform: none;
+		text-transform: uppercase;
 		color: var(--grey);
+		pointer-events: none;
 	}
 
 	.description-wrap :global(.description-card)::after {
@@ -351,6 +352,7 @@
 		border-bottom: 2px solid var(--grey);
 		transform: rotate(45deg);
 		transition: transform 0.2s ease;
+		pointer-events: none;
 	}
 
 	.description-wrap :global(.description-card.expanded)::after {
