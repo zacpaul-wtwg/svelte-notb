@@ -1,5 +1,6 @@
 <script>
 	import Container from '$lib/components/elements/Container.svelte';
+	import SectionHeader from '$lib/components/SectionHeader.svelte';
 	import SkewLabel from '$lib/components/SkewLabel.svelte';
 	import TitleBar from '$lib/components/TitleBar.svelte';
 	import { fallbackAllData } from '$lib/cms/fallback';
@@ -54,31 +55,42 @@
 
 		<section class="pricing-stack">
 			{#each allData.pricing as entry}
-				<article class="pricing-card">
-					<header class="card-header">
-						<h3>{entry.title}</h3>
-						<span class="card-kicker">Program Overview</span>
-					</header>
-					<div class="card-body">
-						<p class="subtitle">{entry.subtitle}</p>
-						<div class="section">
-							<h4 class="section-head">Highlights</h4>
-							<ul class="highlights">
-								{#each entry.highlights || [] as highlight}
-									<li><SkewLabel as="span" text={highlight} /></li>
-								{/each}
-							</ul>
+				<section class="pricing-option">
+					<SectionHeader
+						as="h3"
+						text={entry.title}
+						size="mini"
+						place={-35}
+						showLines={true}
+						fullBleed={false}
+						className="pricing-option-label"
+					/>
+					<article class="pricing-card">
+						<header class="card-header">
+							<h3>{entry.title}</h3>
+							<span class="card-kicker">Program Overview</span>
+						</header>
+						<div class="card-body">
+							<p class="subtitle">{entry.subtitle}</p>
+							<div class="section">
+								<h4 class="section-head">Highlights</h4>
+								<ul class="highlights">
+									{#each entry.highlights || [] as highlight}
+										<li><SkewLabel as="span" text={highlight} /></li>
+									{/each}
+								</ul>
+							</div>
+							<div class="section">
+								<h4 class="section-head how">How It Works</h4>
+								<p>{entry.howItWorks}</p>
+							</div>
+							<div class="section">
+								<h4 class="section-head best">Best For</h4>
+								<p>{entry.bestFor}</p>
+							</div>
 						</div>
-						<div class="section">
-							<h4 class="section-head how">How It Works</h4>
-							<p>{entry.howItWorks}</p>
-						</div>
-						<div class="section">
-							<h4 class="section-head best">Best For</h4>
-							<p>{entry.bestFor}</p>
-						</div>
-					</div>
-				</article>
+					</article>
+				</section>
 			{/each}
 		</section>
 	</section>
@@ -170,6 +182,14 @@
 		display: flex;
 		flex-direction: column;
 		gap: 1.2em;
+	}
+	.pricing-option {
+		display: flex;
+		flex-direction: column;
+	}
+	:global(.pricing-option-label) {
+		margin-top: 0;
+		margin-bottom: 0.45rem;
 	}
 	.pricing-card {
 		background: var(--white);
