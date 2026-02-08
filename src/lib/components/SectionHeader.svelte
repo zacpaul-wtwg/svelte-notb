@@ -21,12 +21,13 @@
 		position: relative;
 		width: 100vw;
 		margin-left: calc(50% - 50vw);
+		margin-right: 0;
+		margin-top: 0.75rem;
+		margin-bottom: 0.75rem;
 		display: flex;
 		padding: 0 var(--section-pad);
 		box-sizing: border-box;
 		overflow-x: clip;
-		margin-top: 0;
-		margin-bottom: 0;
 	}
 
 	.section-header.side-left {
