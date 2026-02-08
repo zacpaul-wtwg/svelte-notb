@@ -2,34 +2,50 @@
 	export let as = 'div';
 	export let text = '';
 	export let className = '';
+	export let classSide = '';
 </script>
 
 <svelte:element this={as} class={`skew-label ${className}`.trim()}>
-	<span><slot>{text}</slot></span>
+	<div class="rule"></div>
+	<div class={`internal ${classSide}`.trim()}>
+		<div class="deskew"><slot>{text}</slot></div>
+	</div>
 </svelte:element>
 
 <style>
+	.rule {
+		position: absolute;
+		width: 100%;
+		height: 2px;
+		background-color: black;
+		margin-top: 40px;
+		width: 100%;
+		right: -33%;
+	}
 	.skew-label {
-		display: inline-flex;
-		align-items: center;
-		justify-content: center;
-		padding: 0.4em 1em;
-		background: var(--grey);
-		color: var(--white);
-		border: 1px solid var(--grey);
-		box-shadow: 4px 4px 0 var(--yellow-accent);
+		margin-bottom: 80px;
+	}
+	.internal {
+		background-color: var(--grey);
+		color: white;
+		font-family: 'Agency FB', 'AgencyFB', 'Arial Narrow', 'Langdon', Arial, sans-serif;
+		padding: 7px;
 		transform: skew(-14deg);
-		border-radius: 0 6px 6px 0;
-		text-transform: uppercase;
-		letter-spacing: 0.04em;
-		line-height: 1.1;
+		position: absolute;
+		left: -50px;
+		width: 30%;
+		border-radius: 5px;
+		box-shadow: 5px 5px rgb(186, 201, 38);
+		font-size: 2rem;
+	}
+	.left {
+		padding-left: 60px;
+		padding-right: 10px;
+		text-align: right;
 	}
 
-	.skew-label > span {
-		display: inline-block;
+	.deskew {
 		transform: skew(14deg);
-		color: var(--white);
-		position: relative;
-		z-index: 1;
+		width: auto;
 	}
 </style>

@@ -41,7 +41,6 @@
 		background: var(--white);
 		border: 2px solid var(--grey);
 		box-shadow: 6px 6px 0 var(--yellow-accent);
-		margin-bottom: 2em;
 	}
 	.news-header {
 		background: var(--grey);

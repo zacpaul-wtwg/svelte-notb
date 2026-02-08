@@ -195,7 +195,7 @@
 	.featured-carousel-wrap {
 		width: 100%;
 		max-width: 100%;
-		margin: 2rem 0 3rem;
+		margin: 0;
 		padding: 0.75rem 0.75rem 3rem;
 		border: 2px solid var(--grey);
 		background: var(--white);
@@ -492,7 +492,7 @@
 	@media (max-width: 680px) {
 		.featured-carousel-wrap {
 			padding: 0.55rem 0.55rem 3rem;
-			margin: 1.1rem 0 2rem;
+			margin: 0;
 		}
 
 		.heading-row h2 {

@@ -1,6 +1,7 @@
 <script>
 	import { renderMarkdown } from '$lib/markdown';
 	import Address from './Address.svelte';
+	import SkewLabel from './SkewLabel.svelte';
 	export let allData;
 	import { formatDateLong } from '$lib/utility/date';
 	import { formatDayHours } from '$lib/utility/time';
@@ -15,20 +16,25 @@
 		{ key: 'saturday', label: 'Saturday' }
 	];
 	const currentYear = new Date().getFullYear();
+	$: footerBody = allData?.footerDescription?.body ?? '';
+	$: specialHours = Array.isArray(allData?.specialHours) ? allData.specialHours : [];
+	$: regularHours = allData?.hours ?? {};
 </script>
 
 <footer class="site-footer">
 	<div class="footer-inner">
 		<section class="message footer-section poster-card">
-			<img src="/logo_large.png" alt="North of the Border Logo" />
-			<div class="md">{@html renderMarkdown(allData.footerDescription.body)}</div>
+			<SkewLabel as="div" className="footer-logo-pill is-bleed-left">
+				<img src="/logo_large.png" alt="North of the Border Logo" />
+			</SkewLabel>
+			<div class="md">{@html renderMarkdown(footerBody)}</div>
 		</section>
 
 		<section class="hours footer-section poster-card">
 			<div class="footer-header">Hours of Operation</div>
 			<table>
 				<tbody>
-					{#each allData.specialHours as occasion}
+					{#each specialHours as occasion}
 						{#if occasion.title}
 							<tr>
 								<th colspan="2">{occasion.title}</th>
@@ -47,7 +53,7 @@
 					{#each days as day}
 						<tr>
 							<td><strong>{day.label}:</strong></td>
-							<td>{formatDayHours(allData.hours?.[day.key])}</td>
+							<td>{formatDayHours(regularHours?.[day.key])}</td>
 						</tr>
 					{/each}
 				</tbody>
@@ -69,14 +75,16 @@
 		position: relative;
 		overflow: hidden;
 		background:
-			radial-gradient(circle at 12% -15%, rgba(145, 25, 0, 0.45) 0 35%, transparent 60%),
-			radial-gradient(circle at 84% 120%, rgba(220, 237, 34, 0.3) 0 28%, transparent 56%),
 			repeating-linear-gradient(
 				125deg,
-				rgba(255, 255, 255, 0.04) 0 3px,
+				rgba(255, 255, 255, 0.05) 0 3px,
 				rgba(255, 255, 255, 0) 3px 10px
 			),
-			var(--grey);
+			linear-gradient(rgba(0, 0, 0, 0.62), rgba(0, 0, 0, 0.62)),
+			url('/hero-bg.jpg');
+		background-size: cover;
+		background-position: center;
+		background-repeat: no-repeat;
 		color: var(--white);
 		padding: 2.5rem 1rem 2rem;
 		border-top: 2px solid var(--yellow-accent);
@@ -100,6 +108,7 @@
 		padding: 1rem;
 		min-height: 100%;
 		box-sizing: border-box;
+		overflow: hidden;
 	}
 
 	.footer-header {
@@ -113,6 +122,15 @@
 		display: inline-block;
 		margin-bottom: 0.7rem;
 		box-shadow: 3px 3px 0 var(--yellow-accent);
+	}
+
+	.message :global(.footer-logo-pill) {
+		padding: 0.35rem 0.65rem;
+	}
+
+	.message :global(.footer-logo-pill > span) {
+		display: flex;
+		align-items: center;
 	}
 
 	.message img {
@@ -193,6 +211,7 @@
 			padding: 0.75rem;
 			box-shadow: 4px 4px 0 var(--yellow-accent);
 		}
+
 	}
 
 	.copyright-bar {
