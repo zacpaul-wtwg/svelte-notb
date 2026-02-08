@@ -1,9 +1,13 @@
 <script>
 	import { onMount } from 'svelte';
+	import { goto } from '$app/navigation';
 	import { fade, fly } from 'svelte/transition';
 	import { page } from '$app/stores';
 
 	let showMobileMenu = false;
+	let pendingMobileHref = '';
+	let mobileNavClickTimer;
+	const NAV_STATE_ANIMATION_MS = 240;
 
 	const navItems = [
 		{ label: 'Home', href: '/' },
@@ -15,6 +19,11 @@
 
 	const closeMobileMenu = () => {
 		showMobileMenu = false;
+		pendingMobileHref = '';
+		if (mobileNavClickTimer) {
+			clearTimeout(mobileNavClickTimer);
+			mobileNavClickTimer = undefined;
+		}
 	};
 
 	const toggleMobileMenu = () => {
@@ -25,6 +34,27 @@
 		const path = $page.url.pathname;
 		if (href === '/') return path === '/';
 		return path === href || path.startsWith(`${href}/`);
+	};
+
+	const isMobileActive = (href) => {
+		if (pendingMobileHref) return pendingMobileHref === href;
+		return isActive(href);
+	};
+
+	const handleMobileNavClick = (event, href) => {
+		event.preventDefault();
+		if (pendingMobileHref) return;
+		if (isActive(href)) {
+			closeMobileMenu();
+			return;
+		}
+		pendingMobileHref = href;
+		mobileNavClickTimer = setTimeout(async () => {
+			showMobileMenu = false;
+			await goto(href);
+			pendingMobileHref = '';
+			mobileNavClickTimer = undefined;
+		}, NAV_STATE_ANIMATION_MS);
 	};
 
 	onMount(() => {
@@ -104,8 +134,8 @@
 					<li>
 						<a
 							href={item.href}
-							class:active={isActive(item.href)}
-							on:click={closeMobileMenu}
+							class:active={isMobileActive(item.href)}
+							on:click={(event) => handleMobileNavClick(event, item.href)}
 						>
 							<span>{item.label}</span>
 						</a>
@@ -258,9 +288,11 @@
 		box-shadow: 6px 6px 0 var(--nav-shadow);
 		transform: skew(-14deg);
 		transition:
-			transform 0.18s ease,
-			box-shadow 0.18s ease,
-			filter 0.18s ease;
+			width 0.24s ease,
+			height 0.24s ease,
+			padding 0.24s ease,
+			font-size 0.24s ease,
+			box-shadow 0.24s ease;
 	}
 
 	.navbar-list a span,
@@ -329,9 +361,11 @@
 		padding: 0 0.75rem;
 		margin: 0;
 		transition:
-			transform 0.18s ease,
-			box-shadow 0.18s ease,
-			filter 0.18s ease;
+			width 0.24s ease,
+			height 0.24s ease,
+			padding 0.24s ease,
+			font-size 0.24s ease,
+			box-shadow 0.24s ease;
 	}
 
 	.mobile-nav-list a:not(.active) {
@@ -344,9 +378,7 @@
 
 	.mobile-nav-list a:hover,
 	.mobile-nav-list a:focus-visible {
-		transform: translate(-1px, -1px);
-		box-shadow: 7px 7px 0 var(--nav-shadow);
-		filter: brightness(1.06);
+		transform: skew(-14deg);
 		outline: none;
 	}
 
@@ -364,9 +396,11 @@
 			height: 34px;
 			padding: 0 0.75rem;
 			transition:
-				transform 0.18s ease,
-				box-shadow 0.18s ease,
-				filter 0.18s ease;
+				width 0.24s ease,
+				height 0.24s ease,
+				padding 0.24s ease,
+				font-size 0.24s ease,
+				box-shadow 0.24s ease;
 		}
 
 		.navbar-list a:not(.active) {
@@ -378,9 +412,7 @@
 
 		.navbar-list a:hover,
 		.navbar-list a:focus-visible {
-			transform: translate(-1px, -1px);
-			box-shadow: 7px 7px 0 var(--nav-shadow);
-			filter: brightness(1.06);
+			transform: skew(-14deg);
 			outline: none;
 		}
 	}
