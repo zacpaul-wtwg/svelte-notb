@@ -9,7 +9,7 @@
 	let showMobileMenu = false;
 	let pendingMobileHref = '';
 	let mobileNavClickTimer;
-	const NAV_BUTTON_ANIMATION_MS = 24;
+	const NAV_BUTTON_ANIMATION_MS = 0;
 	const NAV_CLOSE_DELAY_MS = 500;
 	const MOBILE_ACTIVE_WIDTH = 13.2;
 	const MOBILE_INACTIVE_WIDTH = 9.9;
@@ -51,11 +51,15 @@
 
 	const getWidthMap = (activeHref) =>
 		Object.fromEntries(
-			navItems.map((item) => [item.href, item.href === activeHref ? MOBILE_ACTIVE_WIDTH : MOBILE_INACTIVE_WIDTH])
+			navItems.map((item) => [
+				item.href,
+				item.href === activeHref ? MOBILE_ACTIVE_WIDTH : MOBILE_INACTIVE_WIDTH
+			])
 		);
 
 	const getMobileLinkStyle = (href, widthMap) => {
-		const width = widthMap[href] ?? (isMobileActive(href) ? MOBILE_ACTIVE_WIDTH : MOBILE_INACTIVE_WIDTH);
+		const width =
+			widthMap[href] ?? (isMobileActive(href) ? MOBILE_ACTIVE_WIDTH : MOBILE_INACTIVE_WIDTH);
 		return `--mobile-pill-width:${width}rem`;
 	};
 
@@ -381,6 +385,7 @@
 		padding: 0 0.75rem;
 		margin: 0;
 		box-shadow: 6px 6px 0 var(--nav-shadow);
+		transition: none;
 	}
 
 	.mobile-nav-list a:hover,
