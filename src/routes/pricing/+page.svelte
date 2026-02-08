@@ -99,8 +99,11 @@
 		pointer-events: none;
 	}
 	:global(.pricing-page-title) {
-		margin-top: calc(-0.9rem - 50px);
-		margin-bottom: 0.6rem;
+		margin-top: -0.9rem;
+		margin-bottom: calc(0.6rem - 34px);
+		position: relative;
+		top: -34px;
+		z-index: 4;
 	}
 	.subtitle {
 		margin: 0 0 0.8em 0;
