@@ -229,7 +229,7 @@
 		justify-content: flex-start;
 		margin: 0;
 		padding: 0;
-		gap: 10px;
+		gap: 17px;
 	}
 
 	.navbar-list li,
@@ -306,7 +306,7 @@
 		padding: 0;
 		display: flex;
 		flex-direction: column;
-		gap: 10px;
+		gap: 17px;
 	}
 
 	.mobile-nav-list li {
@@ -322,6 +322,12 @@
 			transform 0.18s ease,
 			box-shadow 0.18s ease,
 			filter 0.18s ease;
+	}
+
+	.mobile-nav-list a:not(.active) {
+		height: 33px;
+		font-size: 0.93rem;
+		padding: 0 0.56rem;
 	}
 
 	.mobile-nav-list a:hover,
@@ -349,6 +355,12 @@
 				transform 0.18s ease,
 				box-shadow 0.18s ease,
 				filter 0.18s ease;
+		}
+
+		.navbar-list a:not(.active) {
+			height: 26px;
+			font-size: 0.82rem;
+			padding: 2px 0.56rem;
 		}
 
 		.navbar-list a:hover,
