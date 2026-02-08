@@ -50,6 +50,7 @@
 		--section-pad: 1rem;
 		--content-edge: max(calc((100vw - var(--section-max)) / 2 + var(--section-pad)), var(--section-pad));
 		--label-offset: var(--section-pad);
+		--line-gap: 15px;
 		position: relative;
 		width: 100vw;
 		margin-left: calc(50% - 50vw);
@@ -80,7 +81,7 @@
 		position: absolute;
 		left: 0;
 		top: 75%;
-		width: var(--line-meet-x, 50%);
+		width: max(0px, calc(var(--line-meet-x, 50%) - var(--line-gap)));
 		height: 2px;
 		background: var(--grey);
 		box-shadow: 3px 3px 0 var(--yellow-accent);
@@ -96,7 +97,7 @@
 		position: absolute;
 		right: 0;
 		top: 25%;
-		width: calc(100% - var(--line-meet-x, 50%));
+		width: max(0px, calc(100% - var(--line-meet-x, 50%) - var(--line-gap)));
 		height: 2px;
 		background: var(--grey);
 		box-shadow: 3px 3px 0 var(--yellow-accent);
