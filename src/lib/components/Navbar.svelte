@@ -185,6 +185,8 @@
 						style={getDesktopLinkStyle(item.href, $desktopLift)}
 						on:mouseenter={() => setDesktopHover(item.href, true)}
 						on:mouseleave={() => setDesktopHover(item.href, false)}
+						on:focus={() => setDesktopHover(item.href, true)}
+						on:blur={() => setDesktopHover(item.href, false)}
 					>
 						<span>{item.label}</span>
 					</a>
@@ -494,7 +496,6 @@
 
 		.navbar-list a:hover,
 		.navbar-list a:focus-visible {
-			transform: skew(-14deg);
 			outline: none;
 		}
 	}
