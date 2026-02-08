@@ -387,6 +387,7 @@
 		max-width: 1200px;
 		margin-left: auto;
 		margin-right: auto;
+		overflow-x: clip;
 	}
 	.detoggle {
 		display: block;
