@@ -144,13 +144,13 @@
 			class="mobile-backdrop"
 			aria-label="Close menu"
 			on:click={closeMobileMenu}
-			transition:fade={{ duration: 140 }}
+			transition:fade={{ duration: 80 }}
 		></button>
 		<div
 			class="mobile-panel"
 			role="dialog"
 			aria-label="Site navigation"
-			transition:fly={{ x: -40, duration: 180 }}
+			transition:fly={{ x: -120, duration: 220 }}
 		>
 			<ul class="mobile-nav-list">
 				{#each navItems as item}
