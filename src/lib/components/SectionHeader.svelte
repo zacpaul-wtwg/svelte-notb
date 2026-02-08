@@ -4,7 +4,7 @@
 	export let text = '';
 	export let as = 'h2';
 	export let className = '';
-	export let place = 50; // target center position across header width (0-100)
+	export let place = 0; // offset from center in percent of half-width (-100 to 100 typical)
 	export let nudge = 0; // pixel offset applied after place
 
 	let headerEl;
@@ -20,7 +20,7 @@
 		if (!headerWidth || !labelWidth) return;
 
 		const safePad = 10;
-		const desiredCenter = (Number(place) / 100) * headerWidth + Number(nudge);
+		const desiredCenter = headerWidth / 2 + (Number(place) / 100) * (headerWidth / 2) + Number(nudge);
 		const minCenter = labelWidth / 2 + safePad;
 		const maxCenter = headerWidth - labelWidth / 2 - safePad;
 		const clampedCenter = clamp(desiredCenter, minCenter, maxCenter);
