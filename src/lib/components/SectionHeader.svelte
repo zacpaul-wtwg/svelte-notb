@@ -21,7 +21,7 @@
 		box-sizing: border-box;
 		overflow-x: clip;
 		margin-top: 0;
-		margin-bottom: 0.9rem;
+		margin-bottom: 0;
 	}
 
 	.section-header.side-left {
