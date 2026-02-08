@@ -157,7 +157,7 @@
 		display: block;
 		position: relative;
 		z-index: 3;
-		padding-bottom: 5em;
+		padding-bottom: 1.1em;
 		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 		background: var(--white);
 		overflow: visible;
