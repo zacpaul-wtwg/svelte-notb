@@ -246,8 +246,8 @@
 		display: flex;
 		height: var(--nav-height);
 		align-items: center;
-		justify-content: center;
-		text-align: center;
+		justify-content: flex-start;
+		text-align: left;
 		padding: 3px 10px;
 		font-size: 1.44rem;
 		font-family: Langdon, Arial, sans-serif;
@@ -255,7 +255,7 @@
 		text-transform: uppercase;
 		background: var(--grey);
 		border: 1px solid var(--white);
-		box-shadow: 3px 3px 0 var(--nav-shadow);
+		box-shadow: 6px 6px 0 var(--nav-shadow);
 		transform: skew(-14deg);
 		transition:
 			transform 0.18s ease,
@@ -271,7 +271,7 @@
 
 	.navbar-list a.active,
 	.mobile-nav-list a.active {
-		--nav-shadow: var(--red);
+		--nav-shadow: var(--yellow-accent);
 	}
 
 	.mobile-backdrop {
@@ -328,14 +328,12 @@
 		height: 33px;
 		font-size: 1.48rem;
 		padding: 0 0.56rem;
-		transform: scaleX(0.7) skew(-14deg);
-		transform-origin: center;
 	}
 
 	.mobile-nav-list a:hover,
 	.mobile-nav-list a:focus-visible {
 		transform: translate(-1px, -1px);
-		box-shadow: 4px 4px 0 var(--nav-shadow);
+		box-shadow: 7px 7px 0 var(--nav-shadow);
 		filter: brightness(1.06);
 		outline: none;
 	}
@@ -363,14 +361,12 @@
 			height: 26px;
 			font-size: 1.3rem;
 			padding: 2px 0.56rem;
-			transform: scaleX(0.7) skew(-14deg);
-			transform-origin: center;
 		}
 
 		.navbar-list a:hover,
 		.navbar-list a:focus-visible {
 			transform: translate(-1px, -1px);
-			box-shadow: 4px 4px 0 var(--nav-shadow);
+			box-shadow: 7px 7px 0 var(--nav-shadow);
 			filter: brightness(1.06);
 			outline: none;
 		}
