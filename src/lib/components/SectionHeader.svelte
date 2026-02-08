@@ -93,7 +93,11 @@
 	$: place, nudge, updatePlacement();
 </script>
 
-<div bind:this={headerEl} class={`section-header ${className}`.trim()} style={`--group-x:${$animatedGroupX}px`}>
+<div
+	bind:this={headerEl}
+	class={`section-header ${size === 'mini' ? 'is-mini' : ''} ${className}`.trim()}
+	style={`--group-x:${$animatedGroupX}px`}
+>
 	<div class={`header-group ${isVisible ? 'is-visible' : ''}`.trim()}>
 		<div class="edge-line edge-line-left" aria-hidden="true"></div>
 		<svelte:element bind:this={labelEl} this={as} class={`label size-${size}`.trim()}>
@@ -168,6 +172,12 @@
 
 	.label.size-mini {
 		font-size: clamp(0.92rem, 1.4vw, 1.3rem);
+	}
+
+	.section-header.is-mini {
+		margin-bottom: -1rem;
+		position: relative;
+		z-index: 2;
 	}
 
 	.label.size-small {

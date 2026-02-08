@@ -66,10 +66,6 @@
 						className="pricing-option-label"
 					/>
 					<article class="pricing-card">
-						<header class="card-header">
-							<h3>{entry.title}</h3>
-							<span class="card-kicker">Program Overview</span>
-						</header>
 						<div class="card-body">
 							<p class="subtitle">{entry.subtitle}</p>
 							<div class="section">
@@ -201,28 +197,6 @@
 		border-radius: 14px;
 		overflow: hidden;
 	}
-	.card-header {
-		background: var(--grey);
-		color: var(--white);
-		padding: 0.6em 0.9em;
-		text-transform: uppercase;
-		letter-spacing: 0.04em;
-		border-bottom: 2px solid var(--white);
-		display: flex;
-		align-items: center;
-		justify-content: space-between;
-		gap: 1em;
-	}
-	.card-header h3 {
-		margin: 0;
-		font-family: Langdon, Arial, sans-serif;
-		font-size: 1.2em;
-	}
-	.card-kicker {
-		font-size: 0.75em;
-		color: var(--yellow-accent);
-		letter-spacing: 0.05em;
-	}
 	.card-body {
 		padding: 0.9em 1em 1.1em;
 		color: var(--grey);
@@ -296,9 +270,6 @@
 	@media (max-width: 700px) {
 		.pricing-hero {
 			grid-template-columns: 1fr;
-		}
-		.card-header {
-			padding: 0.5em 0.8em;
 		}
 		.card-body {
 			padding: 0.8em 0.9em 1em;
