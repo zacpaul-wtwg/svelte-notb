@@ -182,12 +182,17 @@
 
 	.section-header.is-mini .edge-line {
 		position: relative;
-		z-index: -2;
+		z-index: 0;
 	}
 
 	.section-header.is-mini .label {
 		position: relative;
-		z-index: 3;
+		z-index: 2;
+	}
+
+	:global(.section-header.is-mini) + :global(*) {
+		position: relative;
+		z-index: 1;
 	}
 
 	.label.size-small {
