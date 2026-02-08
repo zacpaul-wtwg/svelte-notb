@@ -43,7 +43,7 @@
 		display: none;
 	}
 
-	.section-header.side-left .edge-line-left {
+	.section-header .edge-line-left {
 		display: block;
 		position: absolute;
 		left: 0;
@@ -59,7 +59,7 @@
 		margin-left: var(--label-offset);
 	}
 
-	.section-header.side-right .edge-line-right {
+	.section-header .edge-line-right {
 		display: block;
 		position: absolute;
 		right: 0;
