@@ -369,7 +369,7 @@
 		}
 
 		.card :global(.clicker-container) {
-			margin-top: 4px;
+			margin-top: 24px;
 		}
 	}
 </style>
