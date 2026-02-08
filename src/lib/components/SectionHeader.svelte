@@ -1,13 +1,10 @@
 <script>
 	export let text = '';
-	export let side = 'left'; // left | right
 	export let as = 'h2';
 	export let className = '';
 </script>
 
-<div class={`section-header side-${side} ${className}`.trim()}>
-	<span class="edge-line edge-line-left" aria-hidden="true"></span>
-	<span class="edge-line edge-line-right" aria-hidden="true"></span>
+<div class={`section-header ${className}`.trim()}>
 	<svelte:element this={as} class="label">
 		<span><slot>{text}</slot></span>
 	</svelte:element>
@@ -15,10 +12,6 @@
 
 <style>
 	.section-header {
-		--section-max: 1024px;
-		--section-pad: 1rem;
-		--content-edge: max(calc((100vw - var(--section-max)) / 2 + var(--section-pad)), var(--section-pad));
-		--label-offset: var(--section-pad);
 		position: relative;
 		width: 100vw;
 		margin-left: calc(50% - 50vw);
@@ -31,56 +24,7 @@
 		overflow-x: hidden;
 	}
 
-	.section-header.side-left {
-		justify-content: flex-start;
-	}
-
-	.section-header.side-right {
-		justify-content: flex-end;
-	}
-
-	.edge-line {
-		display: none;
-		z-index: 0;
-	}
-
-	.section-header .edge-line-left {
-		display: block;
-		position: absolute;
-		left: 0;
-		margin-left: 20px;
-		top: 75%;
-		width: 1400px;
-		height: 2px;
-		background: var(--grey);
-		box-shadow: 3px 3px 0 var(--yellow-accent);
-		transform: translateY(-50%);
-	}
-
-	.section-header.side-left .label {
-		margin-left: var(--label-offset);
-	}
-
-	.section-header .edge-line-right {
-		display: block;
-		position: absolute;
-		right: 0;
-		margin-right: 20px;
-		top: 25%;
-		width: 1400px;
-		height: 2px;
-		background: var(--grey);
-		box-shadow: 3px 3px 0 var(--yellow-accent);
-		transform: translateY(-50%);
-	}
-
-	.section-header.side-right .label {
-		margin-right: var(--label-offset);
-	}
-
 	.label {
-		position: relative;
-		z-index: 1;
 		margin: 0;
 		display: inline-flex;
 		align-items: center;
@@ -106,14 +50,7 @@
 
 	@media (max-width: 700px) {
 		.section-header {
-			--section-pad: 0.75rem;
-			padding: 0 var(--section-pad);
-		}
-	}
-
-	@media (min-width: 1025px) {
-		.section-header {
-			--label-offset: calc(var(--content-edge) + (var(--section-max) * 0.2));
+			padding: 0 0.75rem;
 		}
 	}
 </style>
