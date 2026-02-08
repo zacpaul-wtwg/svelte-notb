@@ -259,14 +259,8 @@
 		transform: skew(-14deg);
 		transition:
 			transform 0.18s ease,
-			box-shadow 0.22s ease,
-			filter 0.18s ease,
-			height 0.22s ease,
-			width 0.22s ease,
-			padding 0.22s ease,
-			font-size 0.22s ease,
-			background-color 0.22s ease,
-			color 0.22s ease;
+			box-shadow 0.18s ease,
+			filter 0.18s ease;
 	}
 
 	.navbar-list a span,
@@ -321,20 +315,13 @@
 
 	.mobile-nav-list a {
 		height: 44px;
-		width: 100%;
 		font-size: 1.64rem;
 		padding: 0 0.75rem;
 		margin: 0;
 		transition:
 			transform 0.18s ease,
-			box-shadow 0.22s ease,
-			filter 0.18s ease,
-			height 0.22s ease,
-			width 0.22s ease,
-			padding 0.22s ease,
-			font-size 0.22s ease,
-			background-color 0.22s ease,
-			color 0.22s ease;
+			box-shadow 0.18s ease,
+			filter 0.18s ease;
 	}
 
 	.mobile-nav-list a:not(.active) {
@@ -368,14 +355,8 @@
 			padding: 0 0.75rem;
 			transition:
 				transform 0.18s ease,
-				box-shadow 0.22s ease,
-				filter 0.18s ease,
-				height 0.22s ease,
-				width 0.22s ease,
-				padding 0.22s ease,
-				font-size 0.22s ease,
-				background-color 0.22s ease,
-				color 0.22s ease;
+				box-shadow 0.18s ease,
+				filter 0.18s ease;
 		}
 
 		.navbar-list a:not(.active) {
