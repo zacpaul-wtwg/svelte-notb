@@ -229,6 +229,7 @@
 		justify-content: space-between;
 		margin: 0;
 		padding: 0;
+		gap: 7px;
 	}
 
 	.navbar-list li,
@@ -303,6 +304,9 @@
 	.mobile-nav-list {
 		margin: 0;
 		padding: 0;
+		display: flex;
+		flex-direction: column;
+		gap: 7px;
 	}
 
 	.mobile-nav-list li {
@@ -313,7 +317,7 @@
 		height: 44px;
 		font-size: 1.24rem;
 		padding: 0 0.75rem;
-		margin: 0.45rem 0;
+		margin: 0;
 		transition:
 			transform 0.18s ease,
 			box-shadow 0.18s ease,
