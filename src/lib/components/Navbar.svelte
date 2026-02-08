@@ -31,7 +31,7 @@
 
 	// Attach media query listener on mount hook
 	onMount(() => {
-		const mediaListener = window.matchMedia('(max-width: 767px)');
+		const mediaListener = window.matchMedia('(max-width: 700px)');
 
 		mediaListener.addListener(mediaQueryHandler);
 	});
@@ -196,9 +196,14 @@
 		background-color: var(--grey);
 		position: fixed;
 		display: block;
-		height: calc(100% - 60px);
-		bottom: 0;
+		top: 100px;
+		height: calc(100vh - 100px);
 		left: 0;
+		right: 0;
+		padding: 0 12px;
+		box-sizing: border-box;
+		overflow-y: auto;
+		-webkit-overflow-scrolling: touch;
 	}
 
 	.navbar-list li {
@@ -211,7 +216,7 @@
 		position: absolute;
 		bottom: 0;
 		left: 0;
-		width: 100%;
+		right: 0;
 		height: 1px;
 		background-color: var(--off-white);
 	}
@@ -226,7 +231,7 @@
 		font-size: 13px;
 	}
 
-	@media only screen and (min-width: 767px) {
+	@media only screen and (min-width: 701px) {
 		.mobile-icon {
 			display: none;
 		}
