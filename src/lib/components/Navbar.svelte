@@ -286,10 +286,15 @@
 		box-shadow: 6px 6px 0 var(--nav-shadow);
 		transform: skew(-14deg);
 		transition:
+			transform 0.18s ease,
+			box-shadow 0.22s ease,
+			filter 0.18s ease,
 			height 0.22s ease,
 			width 0.22s ease,
 			padding 0.22s ease,
-			font-size 0.22s ease;
+			font-size 0.22s ease,
+			background-color 0.22s ease,
+			color 0.22s ease;
 	}
 
 	.navbar-list a span,
@@ -348,6 +353,16 @@
 		font-size: 1.64rem;
 		padding: 0 0.75rem;
 		margin: 0;
+		transition:
+			transform 0.18s ease,
+			box-shadow 0.22s ease,
+			filter 0.18s ease,
+			height 0.22s ease,
+			width 0.22s ease,
+			padding 0.22s ease,
+			font-size 0.22s ease,
+			background-color 0.22s ease,
+			color 0.22s ease;
 	}
 
 	.mobile-nav-list a:not(.active) {
@@ -360,7 +375,9 @@
 
 	.mobile-nav-list a:hover,
 	.mobile-nav-list a:focus-visible {
-		transform: skew(-14deg);
+		transform: translate(-1px, -1px);
+		box-shadow: 7px 7px 0 var(--nav-shadow);
+		filter: brightness(1.06);
 		outline: none;
 	}
 
@@ -377,6 +394,16 @@
 			display: inline-flex;
 			height: 34px;
 			padding: 0 0.75rem;
+			transition:
+				transform 0.18s ease,
+				box-shadow 0.22s ease,
+				filter 0.18s ease,
+				height 0.22s ease,
+				width 0.22s ease,
+				padding 0.22s ease,
+				font-size 0.22s ease,
+				background-color 0.22s ease,
+				color 0.22s ease;
 		}
 
 		.navbar-list a:not(.active) {
@@ -388,7 +415,9 @@
 
 		.navbar-list a:hover,
 		.navbar-list a:focus-visible {
-			transform: skew(-14deg);
+			transform: translate(-1px, -1px);
+			box-shadow: 7px 7px 0 var(--nav-shadow);
+			filter: brightness(1.06);
 			outline: none;
 		}
 	}
