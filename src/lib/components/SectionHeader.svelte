@@ -22,10 +22,14 @@
 		padding: 0 1rem;
 		box-sizing: border-box;
 		overflow-x: hidden;
+		white-space: nowrap;
+		text-align: center;
 	}
 
 	.edge-line {
-		width: 100%;
+		display: inline-block;
+		vertical-align: middle;
+		width: 40%;
 		height: 2px;
 		background: var(--grey);
 		box-shadow: 3px 3px 0 var(--yellow-accent);
@@ -33,7 +37,8 @@
 
 	.label {
 		display: inline-block;
-		margin: 0.5rem 0;
+		vertical-align: middle;
+		margin: 0.5rem 0.9rem;
 		background: var(--grey);
 		color: var(--white);
 		border: 1px solid var(--white);
