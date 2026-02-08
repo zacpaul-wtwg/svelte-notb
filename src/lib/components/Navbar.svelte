@@ -1,6 +1,8 @@
 <script>
 	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
+	import { tweened } from 'svelte/motion';
+	import { cubicOut } from 'svelte/easing';
 	import { fade, fly } from 'svelte/transition';
 	import { page } from '$app/stores';
 
@@ -9,6 +11,9 @@
 	let mobileNavClickTimer;
 	let suppressMobilePanelExit = false;
 	const NAV_CLOSE_DELAY_MS = 420;
+	const MOBILE_ACTIVE_WIDTH = 13.2;
+	const MOBILE_INACTIVE_WIDTH = 9.9;
+	const mobileWidths = tweened({}, { duration: 280, easing: cubicOut });
 
 	const navItems = [
 		{ label: 'Home', href: '/' },
@@ -44,11 +49,25 @@
 		return isActive(href);
 	};
 
+	const getCurrentActiveHref = () => navItems.find((item) => isActive(item.href))?.href ?? '';
+
+	const getWidthMap = (activeHref) =>
+		Object.fromEntries(
+			navItems.map((item) => [item.href, item.href === activeHref ? MOBILE_ACTIVE_WIDTH : MOBILE_INACTIVE_WIDTH])
+		);
+
+	const getMobileLinkStyle = (href, widthMap) => {
+		const width = widthMap[href] ?? (isMobileActive(href) ? MOBILE_ACTIVE_WIDTH : MOBILE_INACTIVE_WIDTH);
+		return `--mobile-pill-width:${width}rem`;
+	};
+
 	const handleMobileNavClick = (event, href) => {
 		event.preventDefault();
+		event.stopPropagation();
 		if (pendingMobileHref) return;
 		pendingMobileHref = href;
 		suppressMobilePanelExit = true;
+		mobileWidths.set(getWidthMap(href), { duration: 280, easing: cubicOut });
 		mobileNavClickTimer = setTimeout(async () => {
 			showMobileMenu = false;
 			if (!isActive(href)) {
@@ -61,6 +80,7 @@
 	};
 
 	onMount(() => {
+		mobileWidths.set(getWidthMap(getCurrentActiveHref()), { duration: 0 });
 		const mediaListener = window.matchMedia('(max-width: 700px)');
 		const handleMediaChange = (event) => {
 			if (!event.matches) showMobileMenu = false;
@@ -80,6 +100,10 @@
 			}
 		};
 	});
+
+	$: if (showMobileMenu && !pendingMobileHref) {
+		mobileWidths.set(getWidthMap(getCurrentActiveHref()), { duration: 0 });
+	}
 </script>
 
 <nav>
@@ -138,6 +162,9 @@
 						<a
 							href={item.href}
 							class:active={isMobileActive(item.href)}
+							style={getMobileLinkStyle(item.href, $mobileWidths)}
+							on:mousedown|preventDefault
+							on:touchstart|preventDefault
 							on:click={(event) => handleMobileNavClick(event, item.href)}
 						>
 							<span>{item.label}</span>
@@ -354,16 +381,11 @@
 
 	.mobile-nav-list a {
 		height: 44px;
-		width: 13.2rem;
+		width: var(--mobile-pill-width);
 		font-size: 1.64rem;
 		padding: 0 0.75rem;
 		margin: 0;
 		box-shadow: 6px 6px 0 var(--nav-shadow);
-		transition: width 0.28s ease;
-	}
-
-	.mobile-nav-list a:not(.active) {
-		width: 9.9rem;
 	}
 
 	.mobile-nav-list a:hover,
