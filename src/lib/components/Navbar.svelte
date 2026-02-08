@@ -1,6 +1,7 @@
 <script>
 	import { onMount } from 'svelte';
 	import { fade, fly } from 'svelte/transition';
+	import { page } from '$app/stores';
 
 	let showMobileMenu = false;
 
@@ -18,6 +19,12 @@
 
 	const toggleMobileMenu = () => {
 		showMobileMenu = !showMobileMenu;
+	};
+
+	const isActive = (href) => {
+		const path = $page.url.pathname;
+		if (href === '/') return path === '/';
+		return path === href || path.startsWith(`${href}/`);
 	};
 
 	onMount(() => {
@@ -72,7 +79,7 @@
 		<ul class="navbar-list desktop-nav">
 			{#each navItems as item}
 				<li>
-					<a href={item.href}>{item.label}</a>
+					<a href={item.href} class:active={isActive(item.href)}><span>{item.label}</span></a>
 				</li>
 			{/each}
 		</ul>
@@ -95,7 +102,13 @@
 			<ul class="mobile-nav-list">
 				{#each navItems as item}
 					<li>
-						<a href={item.href} on:click={closeMobileMenu}>{item.label}</a>
+						<a
+							href={item.href}
+							class:active={isActive(item.href)}
+							on:click={closeMobileMenu}
+						>
+							<span>{item.label}</span>
+						</a>
 					</li>
 				{/each}
 			</ul>
@@ -226,7 +239,7 @@
 
 	.navbar-list a,
 	.mobile-nav-list a {
-		color: #fff;
+		color: var(--grey);
 		text-decoration: none;
 		display: flex;
 		height: var(--nav-height);
@@ -236,6 +249,26 @@
 		font-family: Langdon, Arial, sans-serif;
 		letter-spacing: 0.05em;
 		text-transform: uppercase;
+		background: var(--yellow);
+		border: 1px solid var(--grey);
+		box-shadow: 3px 3px 0 var(--white);
+		transform: skew(-14deg);
+		transition:
+			transform 0.18s ease,
+			box-shadow 0.18s ease,
+			filter 0.18s ease;
+	}
+
+	.navbar-list a span,
+	.mobile-nav-list a span {
+		display: inline-block;
+		transform: skew(14deg);
+	}
+
+	.navbar-list a.active,
+	.mobile-nav-list a.active {
+		background: var(--red);
+		color: var(--white);
 	}
 
 	.mobile-backdrop {
@@ -279,20 +312,17 @@
 		font-size: 1rem;
 		padding: 0 0.75rem;
 		margin: 0.45rem 0;
-		border: 1px solid rgba(255, 255, 255, 0.85);
-		box-shadow: 3px 3px 0 var(--yellow-accent);
-		background: rgba(0, 0, 0, 0.24);
 		transition:
 			transform 0.18s ease,
 			box-shadow 0.18s ease,
-			background 0.18s ease;
+			filter 0.18s ease;
 	}
 
 	.mobile-nav-list a:hover,
 	.mobile-nav-list a:focus-visible {
 		transform: translate(-1px, -1px);
-		box-shadow: 4px 4px 0 var(--yellow-accent);
-		background: rgba(0, 0, 0, 0.42);
+		box-shadow: 4px 4px 0 var(--white);
+		filter: brightness(1.06);
 		outline: none;
 	}
 
@@ -309,21 +339,17 @@
 			display: inline-flex;
 			height: 38px;
 			padding: 0 0.75rem;
-			border: 1px solid transparent;
-			box-shadow: 0 0 0 transparent;
 			transition:
 				transform 0.18s ease,
 				box-shadow 0.18s ease,
-				border-color 0.18s ease,
-				background 0.18s ease;
+				filter 0.18s ease;
 		}
 
 		.navbar-list a:hover,
 		.navbar-list a:focus-visible {
-			background: rgba(0, 0, 0, 0.3);
-			border-color: rgba(255, 255, 255, 0.85);
-			box-shadow: 3px 3px 0 var(--yellow-accent);
 			transform: translate(-1px, -1px);
+			box-shadow: 4px 4px 0 var(--white);
+			filter: brightness(1.06);
 			outline: none;
 		}
 	}
