@@ -1,45 +1,14 @@
 <script>
-	import { onMount } from 'svelte';
-
 	export let text = '';
 	export let side = 'left'; // left | right
 	export let as = 'h2';
 	export let className = '';
-
-	let headerEl;
-	let labelEl;
-	let lineMeetX = 0;
-
-	const recalcLineMeet = () => {
-		if (!headerEl || !labelEl) return;
-		const headerRect = headerEl.getBoundingClientRect();
-		const labelRect = labelEl.getBoundingClientRect();
-		lineMeetX = labelRect.left - headerRect.left + labelRect.width / 2;
-	};
-
-	onMount(() => {
-		recalcLineMeet();
-		const ro = new ResizeObserver(() => recalcLineMeet());
-		if (headerEl) ro.observe(headerEl);
-		if (labelEl) ro.observe(labelEl);
-		window.addEventListener('resize', recalcLineMeet);
-		return () => {
-			ro.disconnect();
-			window.removeEventListener('resize', recalcLineMeet);
-		};
-	});
-
-	$: text, side, recalcLineMeet();
 </script>
 
-<div
-	bind:this={headerEl}
-	style={`--line-meet-x:${lineMeetX}px`}
-	class={`section-header side-${side} ${className}`.trim()}
->
+<div class={`section-header side-${side} ${className}`.trim()}>
 	<span class="edge-line edge-line-left" aria-hidden="true"></span>
 	<span class="edge-line edge-line-right" aria-hidden="true"></span>
-	<svelte:element bind:this={labelEl} this={as} class="label">
+	<svelte:element this={as} class="label">
 		<span><slot>{text}</slot></span>
 	</svelte:element>
 </div>
@@ -50,7 +19,6 @@
 		--section-pad: 1rem;
 		--content-edge: max(calc((100vw - var(--section-max)) / 2 + var(--section-pad)), var(--section-pad));
 		--label-offset: var(--section-pad);
-		--line-gap: 15px;
 		position: relative;
 		width: 100vw;
 		margin-left: calc(50% - 50vw);
@@ -60,7 +28,7 @@
 		display: flex;
 		padding: 0 var(--section-pad);
 		box-sizing: border-box;
-		overflow-x: clip;
+		overflow-x: hidden;
 	}
 
 	.section-header.side-left {
@@ -80,8 +48,9 @@
 		display: block;
 		position: absolute;
 		left: 0;
+		margin-left: 20px;
 		top: 75%;
-		width: max(0px, calc(var(--line-meet-x, 50%) - var(--line-gap)));
+		width: 1400px;
 		height: 2px;
 		background: var(--grey);
 		box-shadow: 3px 3px 0 var(--yellow-accent);
@@ -96,8 +65,9 @@
 		display: block;
 		position: absolute;
 		right: 0;
+		margin-right: 20px;
 		top: 25%;
-		width: max(0px, calc(100% - var(--line-meet-x, 50%) - var(--line-gap)));
+		width: 1400px;
 		height: 2px;
 		background: var(--grey);
 		box-shadow: 3px 3px 0 var(--yellow-accent);
