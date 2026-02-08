@@ -2,6 +2,7 @@
 	import HomeNews from '$lib/components/HomeNews.svelte';
 	import Hero from '$lib/components/Hero.svelte';
 	import FeaturedCarousel from '$lib/components/FeaturedCarousel.svelte';
+	import SectionHeader from '$lib/components/SectionHeader.svelte';
 	import Container from '$lib/components/elements/Container.svelte';
 	import { isFeaturedProduct } from '$lib/filter-utils';
 
@@ -20,6 +21,7 @@
 	/>
 </svelte:head>
 <Hero {allData} />
+<SectionHeader text="Latest News" side="left" />
 <Container>
 	<section class="home-content-stack">
 		<section class="home-body">
