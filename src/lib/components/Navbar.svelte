@@ -1,15 +1,20 @@
 <script>
 	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
-	import { fade, fly, scale } from 'svelte/transition';
+	import { tweened } from 'svelte/motion';
+	import { cubicOut } from 'svelte/easing';
+	import { fade, fly } from 'svelte/transition';
 	import { page } from '$app/stores';
 
 	let showMobileMenu = false;
 	let pendingMobileHref = '';
 	let mobileNavClickTimer;
 	let suppressMobilePanelExit = false;
-	const NAV_STATE_ANIMATION_MS = 260;
+	const NAV_STATE_ANIMATION_MS = 280;
 	const NAV_CLOSE_DELAY_MS = 420;
+	const MOBILE_ACTIVE = { width: 13.2, height: 44, font: 1.64, padX: 0.75, shadow: 6 };
+	const MOBILE_INACTIVE = { width: 9.9, height: 33, font: 1.48, padX: 0.36, shadow: 4 };
+	const mobileMorph = tweened({}, { duration: NAV_STATE_ANIMATION_MS, easing: cubicOut });
 
 	const navItems = [
 		{ label: 'Home', href: '/' },
@@ -45,11 +50,32 @@
 		return isActive(href);
 	};
 
+	const getCurrentActiveHref = () => navItems.find((item) => isActive(item.href))?.href ?? '';
+
+	const getMorphMap = (activeHref) =>
+		Object.fromEntries(navItems.map((item) => [item.href, item.href === activeHref ? 1 : 0]));
+
+	const lerp = (start, end, t) => start + (end - start) * t;
+
+	const getMobileFactor = (href) => $mobileMorph[href] ?? (isMobileActive(href) ? 1 : 0);
+
+	const getMobileLinkStyle = (href) => {
+		const t = getMobileFactor(href);
+		return [
+			`--mobile-pill-width:${lerp(MOBILE_INACTIVE.width, MOBILE_ACTIVE.width, t)}rem`,
+			`--mobile-pill-height:${lerp(MOBILE_INACTIVE.height, MOBILE_ACTIVE.height, t)}px`,
+			`--mobile-pill-font:${lerp(MOBILE_INACTIVE.font, MOBILE_ACTIVE.font, t)}rem`,
+			`--mobile-pill-pad-x:${lerp(MOBILE_INACTIVE.padX, MOBILE_ACTIVE.padX, t)}rem`,
+			`--mobile-pill-shadow:${lerp(MOBILE_INACTIVE.shadow, MOBILE_ACTIVE.shadow, t)}px`
+		].join(';');
+	};
+
 	const handleMobileNavClick = (event, href) => {
 		event.preventDefault();
 		if (pendingMobileHref) return;
 		pendingMobileHref = href;
 		suppressMobilePanelExit = true;
+		mobileMorph.set(getMorphMap(href), { duration: NAV_STATE_ANIMATION_MS, easing: cubicOut });
 		mobileNavClickTimer = setTimeout(async () => {
 			showMobileMenu = false;
 			if (!isActive(href)) {
@@ -62,6 +88,7 @@
 	};
 
 	onMount(() => {
+		mobileMorph.set(getMorphMap(getCurrentActiveHref()), { duration: 0 });
 		const mediaListener = window.matchMedia('(max-width: 700px)');
 		const handleMediaChange = (event) => {
 			if (!event.matches) showMobileMenu = false;
@@ -81,6 +108,10 @@
 			}
 		};
 	});
+
+	$: if (showMobileMenu && !pendingMobileHref) {
+		mobileMorph.set(getMorphMap(getCurrentActiveHref()), { duration: 0 });
+	}
 </script>
 
 <nav>
@@ -133,23 +164,20 @@
 			aria-label="Site navigation"
 			transition:fly={{ y: -12, duration: suppressMobilePanelExit ? 0 : 180 }}
 		>
-				<ul class="mobile-nav-list">
-					{#each navItems as item}
-						<li>
-							{#key `${item.href}-${isMobileActive(item.href) ? 'active' : 'inactive'}`}
-								<a
-									href={item.href}
-									class:active={isMobileActive(item.href)}
-									on:click={(event) => handleMobileNavClick(event, item.href)}
-									in:scale={{ duration: NAV_STATE_ANIMATION_MS, start: 0.94 }}
-									out:scale={{ duration: NAV_STATE_ANIMATION_MS, start: 0.94 }}
-								>
-									<span>{item.label}</span>
-								</a>
-							{/key}
-						</li>
-					{/each}
-				</ul>
+			<ul class="mobile-nav-list">
+				{#each navItems as item}
+					<li>
+						<a
+							href={item.href}
+							class:active={isMobileActive(item.href)}
+							style={getMobileLinkStyle(item.href)}
+							on:click={(event) => handleMobileNavClick(event, item.href)}
+						>
+							<span>{item.label}</span>
+						</a>
+					</li>
+				{/each}
+			</ul>
 		</div>
 	{/if}
 </nav>
@@ -363,25 +391,16 @@
 	}
 
 	.mobile-nav-list a {
-		height: 44px;
-		width: 13.2rem;
-		font-size: 1.64rem;
-		padding: 0 0.75rem;
+		height: var(--mobile-pill-height);
+		width: var(--mobile-pill-width);
+		font-size: var(--mobile-pill-font);
+		padding: 0 var(--mobile-pill-pad-x);
 		margin: 0;
-		transition:
-			width 0.24s ease,
-			height 0.24s ease,
-			padding 0.24s ease,
-			font-size 0.24s ease,
-			box-shadow 0.24s ease;
+		box-shadow: var(--mobile-pill-shadow) var(--mobile-pill-shadow) 0 var(--nav-shadow);
 	}
 
 	.mobile-nav-list a:not(.active) {
-		height: 33px;
-		font-size: 1.48rem;
-		width: 9.9rem;
-		padding: 0 0.36rem;
-		box-shadow: 4px 4px 0 var(--nav-shadow);
+		box-shadow: var(--mobile-pill-shadow) var(--mobile-pill-shadow) 0 var(--nav-shadow);
 	}
 
 	.mobile-nav-list a:hover,
