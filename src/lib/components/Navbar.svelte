@@ -327,6 +327,7 @@
 	.mobile-nav-list a:not(.active) {
 		height: 33px;
 		font-size: 1.48rem;
+		width: 75%;
 		padding: 0 0.36rem;
 		box-shadow: 4px 4px 0 var(--nav-shadow);
 	}
