@@ -267,6 +267,8 @@
 	.mobile-nav-list a span {
 		display: block;
 		width: 100%;
+		padding: 0 0.45rem;
+		box-sizing: border-box;
 		text-align: left;
 		transform: skew(14deg);
 	}
