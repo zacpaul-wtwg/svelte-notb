@@ -57,10 +57,10 @@
 
 	const lerp = (start, end, t) => start + (end - start) * t;
 
-	const getMobileFactor = (href) => $mobileMorph[href] ?? (isMobileActive(href) ? 1 : 0);
+	const getMobileFactor = (href, morphMap) => morphMap[href] ?? (isMobileActive(href) ? 1 : 0);
 
-	const getMobileLinkStyle = (href) => {
-		const t = getMobileFactor(href);
+	const getMobileLinkStyle = (href, morphMap) => {
+		const t = getMobileFactor(href, morphMap);
 		return [
 			`--mobile-pill-width:${lerp(MOBILE_INACTIVE.width, MOBILE_ACTIVE.width, t)}rem`,
 			`--mobile-pill-height:${lerp(MOBILE_INACTIVE.height, MOBILE_ACTIVE.height, t)}px`,
@@ -170,7 +170,7 @@
 						<a
 							href={item.href}
 							class:active={isMobileActive(item.href)}
-							style={getMobileLinkStyle(item.href)}
+							style={getMobileLinkStyle(item.href, $mobileMorph)}
 							on:click={(event) => handleMobileNavClick(event, item.href)}
 						>
 							<span>{item.label}</span>
