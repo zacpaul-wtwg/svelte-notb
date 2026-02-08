@@ -239,7 +239,8 @@
 
 	.navbar-list a,
 	.mobile-nav-list a {
-		color: var(--grey);
+		--nav-shadow: var(--yellow-accent);
+		color: var(--white);
 		text-decoration: none;
 		display: flex;
 		height: var(--nav-height);
@@ -251,9 +252,9 @@
 		font-family: Langdon, Arial, sans-serif;
 		letter-spacing: 0.05em;
 		text-transform: uppercase;
-		background: var(--yellow);
-		border: 1px solid var(--grey);
-		box-shadow: 3px 3px 0 var(--white);
+		background: var(--grey);
+		border: 1px solid var(--white);
+		box-shadow: 3px 3px 0 var(--nav-shadow);
 		transform: skew(-14deg);
 		transition:
 			transform 0.18s ease,
@@ -269,8 +270,7 @@
 
 	.navbar-list a.active,
 	.mobile-nav-list a.active {
-		background: var(--red);
-		color: var(--white);
+		--nav-shadow: var(--red);
 	}
 
 	.mobile-backdrop {
@@ -323,7 +323,7 @@
 	.mobile-nav-list a:hover,
 	.mobile-nav-list a:focus-visible {
 		transform: translate(-1px, -1px);
-		box-shadow: 4px 4px 0 var(--white);
+		box-shadow: 4px 4px 0 var(--nav-shadow);
 		filter: brightness(1.06);
 		outline: none;
 	}
@@ -350,7 +350,7 @@
 		.navbar-list a:hover,
 		.navbar-list a:focus-visible {
 			transform: translate(-1px, -1px);
-			box-shadow: 4px 4px 0 var(--white);
+			box-shadow: 4px 4px 0 var(--nav-shadow);
 			filter: brightness(1.06);
 			outline: none;
 		}
