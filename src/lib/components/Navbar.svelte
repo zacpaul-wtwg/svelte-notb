@@ -246,8 +246,8 @@
 		display: flex;
 		height: var(--nav-height);
 		align-items: center;
-		justify-content: flex-start;
-		text-align: left;
+		justify-content: center;
+		text-align: center;
 		padding: 3px 10px;
 		font-size: 1.44rem;
 		font-family: Langdon, Arial, sans-serif;
