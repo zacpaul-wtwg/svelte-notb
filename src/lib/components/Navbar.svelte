@@ -13,7 +13,7 @@
 	const NAV_CLOSE_DELAY_MS = 420;
 	const MOBILE_ACTIVE_WIDTH = 13.2;
 	const MOBILE_INACTIVE_WIDTH = 9.9;
-	const mobileWidths = tweened({}, { duration: 280, easing: cubicOut });
+	const mobileWidths = tweened({}, { duration: 168, easing: cubicOut });
 
 	const navItems = [
 		{ label: 'Home', href: '/' },
@@ -67,7 +67,7 @@
 		if (pendingMobileHref) return;
 		pendingMobileHref = href;
 		suppressMobilePanelExit = true;
-		mobileWidths.set(getWidthMap(href), { duration: 280, easing: cubicOut });
+		mobileWidths.set(getWidthMap(href), { duration: 168, easing: cubicOut });
 		mobileNavClickTimer = setTimeout(async () => {
 			showMobileMenu = false;
 			if (!isActive(href)) {
