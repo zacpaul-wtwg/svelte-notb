@@ -7,7 +7,8 @@
 	let showMobileMenu = false;
 	let pendingMobileHref = '';
 	let mobileNavClickTimer;
-	const NAV_STATE_ANIMATION_MS = 240;
+	let suppressMobilePanelExit = false;
+	const NAV_CLOSE_DELAY_MS = 420;
 
 	const navItems = [
 		{ label: 'Home', href: '/' },
@@ -20,6 +21,7 @@
 	const closeMobileMenu = () => {
 		showMobileMenu = false;
 		pendingMobileHref = '';
+		suppressMobilePanelExit = false;
 		if (mobileNavClickTimer) {
 			clearTimeout(mobileNavClickTimer);
 			mobileNavClickTimer = undefined;
@@ -27,6 +29,7 @@
 	};
 
 	const toggleMobileMenu = () => {
+		if (!showMobileMenu) suppressMobilePanelExit = false;
 		showMobileMenu = !showMobileMenu;
 	};
 
@@ -44,17 +47,17 @@
 	const handleMobileNavClick = (event, href) => {
 		event.preventDefault();
 		if (pendingMobileHref) return;
-		if (isActive(href)) {
-			closeMobileMenu();
-			return;
-		}
 		pendingMobileHref = href;
+		suppressMobilePanelExit = true;
 		mobileNavClickTimer = setTimeout(async () => {
 			showMobileMenu = false;
-			await goto(href);
+			if (!isActive(href)) {
+				await goto(href);
+			}
 			pendingMobileHref = '';
+			suppressMobilePanelExit = false;
 			mobileNavClickTimer = undefined;
-		}, NAV_STATE_ANIMATION_MS);
+		}, NAV_CLOSE_DELAY_MS);
 	};
 
 	onMount(() => {
@@ -121,13 +124,13 @@
 			class="mobile-backdrop"
 			aria-label="Close menu"
 			on:click={closeMobileMenu}
-			transition:fade={{ duration: 140 }}
+			transition:fade={{ duration: suppressMobilePanelExit ? 0 : 140 }}
 		></button>
 		<div
 			class="mobile-panel"
 			role="dialog"
 			aria-label="Site navigation"
-			transition:fly={{ y: -12, duration: 180 }}
+			transition:fly={{ y: -12, duration: suppressMobilePanelExit ? 0 : 180 }}
 		>
 			<ul class="mobile-nav-list">
 				{#each navItems as item}
