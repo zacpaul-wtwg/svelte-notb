@@ -2,17 +2,13 @@
 	import Container from '$lib/components/elements/Container.svelte';
 	import SectionHeader from '$lib/components/SectionHeader.svelte';
 	import SkewLabel from '$lib/components/SkewLabel.svelte';
-	import TitleBar from '$lib/components/TitleBar.svelte';
 	import { fallbackAllData } from '$lib/cms/fallback';
 
 	export let data;
 	$: allData = data?.allData ?? fallbackAllData;
 </script>
 
-<TitleBar
-	title={'Pricing'}
-	description={'See our vip loyalty program, high roller rollback program, and camp and military discount information'}
-/>
+<SectionHeader as="h1" text="Pricing" size="large" />
 <Container>
 	<section class="page-stack pricing-page">
 		<section class="pricing-hero">
