@@ -360,9 +360,8 @@
 	}
 
 	@media (max-width: 700px) {
-		.description-wrap :global(.description-card p) {
-			-webkit-line-clamp: 1;
-			line-clamp: 1;
+		.description-wrap :global(.description-card:not(.expanded) p) {
+			display: none;
 		}
 	}
 </style>
