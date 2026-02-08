@@ -5,6 +5,7 @@
 	import { cubicOut } from 'svelte/easing';
 	import { fade, fly } from 'svelte/transition';
 	import { page } from '$app/stores';
+	import { get } from 'svelte/store';
 
 	let showMobileMenu = false;
 	let pendingMobileHref = '';
@@ -13,7 +14,9 @@
 	const NAV_CLOSE_DELAY_MS = 150;
 	const MOBILE_ACTIVE_WIDTH = 13.2;
 	const MOBILE_INACTIVE_WIDTH = 9.9;
+	const DESKTOP_FLOAT_PX = -4;
 	const mobileWidths = tweened({}, { duration: NAV_BUTTON_ANIMATION_MS, easing: cubicOut });
+	const desktopLift = tweened({}, { duration: 130, easing: cubicOut });
 
 	const navItems = [
 		{ label: 'Home', href: '/' },
@@ -63,6 +66,15 @@
 		return `--mobile-pill-width:${width}rem`;
 	};
 
+	const getDesktopLinkStyle = (href, liftMap) => {
+		const lift = liftMap[href] ?? 0;
+		return `--nav-float-y:${lift}px`;
+	};
+
+	const setDesktopLift = (href, lift) => {
+		desktopLift.set({ ...get(desktopLift), [href]: lift }, { duration: 130, easing: cubicOut });
+	};
+
 	const handleMobileNavClick = (event, href) => {
 		event.preventDefault();
 		event.stopPropagation();
@@ -82,6 +94,7 @@
 
 	onMount(() => {
 		mobileWidths.set(getWidthMap(getCurrentActiveHref()), { duration: 0 });
+		desktopLift.set(Object.fromEntries(navItems.map((item) => [item.href, 0])), { duration: 0 });
 		const mediaListener = window.matchMedia('(max-width: 700px)');
 		const handleMediaChange = (event) => {
 			if (!event.matches) showMobileMenu = false;
@@ -137,7 +150,15 @@
 		<ul class="navbar-list desktop-nav">
 			{#each navItems as item}
 				<li>
-					<a href={item.href} class:active={isActive(item.href)}><span>{item.label}</span></a>
+					<a
+						href={item.href}
+						class:active={isActive(item.href)}
+						style={getDesktopLinkStyle(item.href, $desktopLift)}
+						on:mouseenter={() => setDesktopLift(item.href, DESKTOP_FLOAT_PX)}
+						on:mouseleave={() => setDesktopLift(item.href, 0)}
+					>
+						<span>{item.label}</span>
+					</a>
 				</li>
 			{/each}
 		</ul>
@@ -315,7 +336,7 @@
 		background: var(--grey);
 		border: 1px solid var(--white);
 		box-shadow: 6px 6px 0 var(--nav-shadow);
-		transform: skew(-14deg);
+		transform: skew(-14deg) translateY(var(--nav-float-y, 0px));
 		transition:
 			width 0.24s ease,
 			height 0.24s ease,
