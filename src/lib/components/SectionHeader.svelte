@@ -1,14 +1,51 @@
 <script>
+	import { onMount } from 'svelte';
+
 	export let text = '';
 	export let as = 'h2';
 	export let className = '';
-	export let groupX = '0px';
+	export let place = 50; // target center position across header width (0-100)
+	export let nudge = 0; // pixel offset applied after place
+
+	let headerEl;
+	let labelEl;
+	let groupX = '0px';
+
+	const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
+
+	const updatePlacement = () => {
+		if (!headerEl || !labelEl) return;
+		const headerWidth = headerEl.clientWidth;
+		const labelWidth = labelEl.getBoundingClientRect().width;
+		if (!headerWidth || !labelWidth) return;
+
+		const safePad = 10;
+		const desiredCenter = (Number(place) / 100) * headerWidth + Number(nudge);
+		const minCenter = labelWidth / 2 + safePad;
+		const maxCenter = headerWidth - labelWidth / 2 - safePad;
+		const clampedCenter = clamp(desiredCenter, minCenter, maxCenter);
+		groupX = `${clampedCenter - headerWidth / 2}px`;
+	};
+
+	onMount(() => {
+		updatePlacement();
+		const ro = new ResizeObserver(() => updatePlacement());
+		if (headerEl) ro.observe(headerEl);
+		if (labelEl) ro.observe(labelEl);
+		window.addEventListener('resize', updatePlacement);
+		return () => {
+			ro.disconnect();
+			window.removeEventListener('resize', updatePlacement);
+		};
+	});
+
+	$: place, nudge, updatePlacement();
 </script>
 
-<div class={`section-header ${className}`.trim()} style={`--group-x:${groupX}`}>
+<div bind:this={headerEl} class={`section-header ${className}`.trim()} style={`--group-x:${groupX}`}>
 	<div class="header-group">
 		<div class="edge-line edge-line-left" aria-hidden="true"></div>
-		<svelte:element this={as} class="label">
+		<svelte:element bind:this={labelEl} this={as} class="label">
 			<span><slot>{text}</slot></span>
 		</svelte:element>
 		<div class="edge-line edge-line-right" aria-hidden="true"></div>
