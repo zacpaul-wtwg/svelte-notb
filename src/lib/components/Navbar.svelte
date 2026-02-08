@@ -225,11 +225,11 @@
 	}
 
 	.navbar-list {
-		width: 100%;
-		justify-content: space-between;
+		width: auto;
+		justify-content: flex-start;
 		margin: 0;
 		padding: 0;
-		gap: 7px;
+		gap: 10px;
 	}
 
 	.navbar-list li,
@@ -306,7 +306,7 @@
 		padding: 0;
 		display: flex;
 		flex-direction: column;
-		gap: 7px;
+		gap: 10px;
 	}
 
 	.mobile-nav-list li {
