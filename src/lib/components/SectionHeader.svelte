@@ -46,7 +46,7 @@
 		display: block;
 		position: absolute;
 		left: 0;
-		top: 50%;
+		top: 75%;
 		width: var(--label-offset);
 		height: 2px;
 		background: var(--grey);
