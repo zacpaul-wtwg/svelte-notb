@@ -261,7 +261,9 @@
 	nav {
 		background-color: var(--grey);
 		font-family: 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif;
-		height: 100px;
+		height: 120px;
+		padding-bottom: 20px;
+		box-sizing: border-box;
 		position: fixed;
 		width: 100%;
 		top: 0;
