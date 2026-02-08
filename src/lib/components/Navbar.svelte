@@ -464,14 +464,14 @@
 			display: flex;
 		}
 
-		.navbar-list li::after {
+		.navbar-list a::after {
 			content: '';
 			position: absolute;
 			inset: 0;
 			background: var(--yellow-accent);
-			transform: skew(-14deg) translate(2px, 2px);
+			transform: translate(2px, 2px);
 			pointer-events: none;
-			z-index: 0;
+			z-index: -1;
 		}
 
 		.navbar-list a {
