@@ -12,10 +12,19 @@
 
 	let collapsedHeight = 0;
 	let descriptionEl;
+	let paragraphEl;
+	let hasVisualOverflow = false;
 
 	$: resolvedText = text === undefined ? fallbackText : text;
 	$: wordCount = String(resolvedText || '').trim().split(/\s+/).filter(Boolean).length;
-	$: hasHiddenContent = wordCount > truncateWords;
+	$: hasHiddenContent = wordCount > truncateWords || hasVisualOverflow;
+
+	const measureDescription = async () => {
+		await tick();
+		if (!descriptionEl || !paragraphEl) return;
+		collapsedHeight = Math.ceil(descriptionEl.getBoundingClientRect().height);
+		hasVisualOverflow = paragraphEl.scrollHeight > paragraphEl.clientHeight + 1;
+	};
 
 	const toggleExpanded = () => {
 		if (!hasHiddenContent) return;
@@ -30,14 +39,17 @@
 	};
 
 	onMount(async () => {
-		await tick();
-		if (descriptionEl) collapsedHeight = Math.ceil(descriptionEl.getBoundingClientRect().height);
+		await measureDescription();
 		if (browser) document.addEventListener('click', handleDocumentClick);
 	});
 
 	onDestroy(() => {
 		if (browser) document.removeEventListener('click', handleDocumentClick);
 	});
+
+	$: if (!expanded) {
+		measureDescription();
+	}
 </script>
 
 <div class="description-wrap" style={`min-height: ${collapsedHeight || 0}px;`}>
@@ -56,7 +68,7 @@
 			}
 		}}
 	>
-		<p style={`--line-clamp:${lineClamp};`}>
+		<p style={`--line-clamp:${lineClamp};`} bind:this={paragraphEl}>
 			{#if expanded}
 				{resolvedText}
 			{:else}
