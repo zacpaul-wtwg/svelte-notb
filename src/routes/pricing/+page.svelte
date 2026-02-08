@@ -95,7 +95,8 @@
 
 <style>
 	:global(.main .title-container) {
-		display: none;
+		visibility: hidden;
+		pointer-events: none;
 	}
 	:global(.pricing-page-title) {
 		margin-top: -0.9rem;
