@@ -7,6 +7,11 @@ Everything you need to build a Svelte project, powered by [`create-svelte`](http
 - See `TODO-README.md` for current implementation tasks and follow-ups.
 - See `STYLE-ARCHITECTURE-PLAN.md` for the styling refactor roadmap.
 
+## Animation Policy
+
+- All UI animations must use Svelte animation/transition/motion APIs.
+- Do not implement new animations using CSS-only transitions/keyframes or JavaScript-only manual animation loops.
+
 ## Creating a project
 
 If you're seeing this, you've probably already done this step. Congrats!
