@@ -48,7 +48,7 @@
 		position: absolute;
 		left: 0;
 		top: 75%;
-		width: var(--label-offset);
+		width: var(--line-left-width);
 		height: 2px;
 		background: var(--grey);
 		box-shadow: 3px 3px 0 var(--yellow-accent);
@@ -64,11 +64,21 @@
 		position: absolute;
 		right: 0;
 		top: 25%;
-		width: var(--label-offset);
+		width: var(--line-right-width);
 		height: 2px;
 		background: var(--grey);
 		box-shadow: 3px 3px 0 var(--yellow-accent);
 		transform: translateY(-50%);
+	}
+
+	.section-header.side-left {
+		--line-left-width: var(--label-offset);
+		--line-right-width: calc(100% - var(--label-offset));
+	}
+
+	.section-header.side-right {
+		--line-left-width: calc(100% - var(--label-offset));
+		--line-right-width: var(--label-offset);
 	}
 
 	.section-header.side-right .label {
