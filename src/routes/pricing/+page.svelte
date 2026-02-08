@@ -106,6 +106,9 @@
 		z-index: 4;
 		overflow: visible;
 	}
+	:global(.pricing-page-title .label) {
+		box-shadow: 6px 10px 0 var(--yellow-accent);
+	}
 	.subtitle {
 		margin: 0 0 0.8em 0;
 		font-size: 0.98em;
