@@ -432,6 +432,9 @@
 		font-size: 1.64rem;
 		padding: 0 0.75rem;
 		margin: 0;
+		background: var(--white);
+		color: var(--grey);
+		border-color: var(--grey);
 		box-shadow: 6px 6px 0 var(--nav-shadow);
 		transition: none;
 	}
