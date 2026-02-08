@@ -13,7 +13,7 @@
 	title={'Pricing'}
 	description={'See our vip loyalty program, high roller rollback program, and camp and military discount information'}
 />
-<SectionHeader place="-50" as="h1" text="Pricing" size="large" className="pricing-page-title" />
+<SectionHeader variant="page" as="h1" text="Pricing" className="pricing-page-title" />
 <Container>
 	<section class="page-stack pricing-page">
 		<section class="pricing-hero">
@@ -62,8 +62,6 @@
 						text={entry.title}
 						size="mini"
 						place={-35}
-						showLines={true}
-						fullBleed={false}
 						className="pricing-option-label"
 					/>
 					<article class="pricing-card">
@@ -99,15 +97,7 @@
 		pointer-events: none;
 	}
 	:global(.pricing-page-title) {
-		margin-top: -0.9rem;
-		margin-bottom: calc(0.6rem - 34px);
-		position: relative;
-		top: -34px;
-		z-index: 4;
 		overflow: visible;
-	}
-	:global(.pricing-page-title .label) {
-		box-shadow: 6px 10px 0 var(--yellow-accent);
 	}
 	.subtitle {
 		margin: 0 0 0.8em 0;

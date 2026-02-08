@@ -6,6 +6,7 @@
 	export let text = '';
 	export let as = 'h2';
 	export let className = '';
+	export let variant = 'default'; // default | page
 	export let size = 'large'; // mini | small | medium | large
 	export let place = 0; // offset from center in percent of half-width (-100 to 100 typical)
 	export let nudge = 0; // pixel offset applied after place
@@ -24,6 +25,10 @@
 	let enterTimer;
 
 	const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
+	const isPageVariant = () => variant === 'page';
+	const effectivePlace = () => (isPageVariant() && Number(place) === 0 ? -50 : Number(place));
+	const effectiveShowLeftLine = () => (isPageVariant() ? true : showLeftLine);
+	const effectiveShowRightLine = () => (isPageVariant() ? false : showRightLine);
 
 	const updatePlacement = () => {
 		if (!headerEl || !labelEl) return;
@@ -32,7 +37,7 @@
 		if (!headerWidth || !labelWidth) return;
 
 		const safePad = 10;
-		const desiredCenter = headerWidth / 2 + (Number(place) / 100) * (headerWidth / 2) + Number(nudge);
+		const desiredCenter = headerWidth / 2 + (effectivePlace() / 100) * (headerWidth / 2) + Number(nudge);
 		const minCenter = labelWidth / 2 + safePad;
 		const maxCenter = headerWidth - labelWidth / 2 - safePad;
 		const clampedCenter = clamp(desiredCenter, minCenter, maxCenter);
@@ -59,7 +64,7 @@
 	const enter = async () => {
 		if (hasEntered || !headerEl) return;
 		let entryEdge = nearestEdge;
-		if (Math.abs(Number(place)) <= 1) {
+		if (Math.abs(effectivePlace()) <= 1) {
 			entryEdge = Math.random() < 0.5 ? 'left' : 'right';
 		}
 		const startCenter = getOffscreenStartCenter(entryEdge);
@@ -104,19 +109,19 @@
 		};
 	});
 
-	$: place, nudge, updatePlacement();
+	$: variant, place, nudge, showLeftLine, showRightLine, updatePlacement();
 </script>
 
 <div
 	bind:this={headerEl}
-	class={`section-header ${size === 'mini' ? 'is-mini' : ''} ${isVisible ? 'is-visible' : ''} ${className}`.trim()}
+	class={`section-header ${variant === 'page' ? 'is-page' : ''} ${size === 'mini' ? 'is-mini' : ''} ${isVisible ? 'is-visible' : ''} ${className}`.trim()}
 	style={`--label-center:${$animatedLabelCenter}px;--label-half:${labelWidth / 2}px`}
 >
 	<div class="line-layer" aria-hidden="true">
-		{#if showLeftLine}
+		{#if effectiveShowLeftLine()}
 			<div class="edge-line edge-line-left"></div>
 		{/if}
-		{#if showRightLine}
+		{#if effectiveShowRightLine()}
 			<div class="edge-line edge-line-right"></div>
 		{/if}
 	</div>
@@ -137,6 +142,17 @@
 		overflow: visible;
 		position: relative;
 		min-height: 3.6rem;
+	}
+
+	.section-header.is-page {
+		margin-top: -0.9rem;
+		margin-bottom: calc(0.6rem - 34px);
+		top: -34px;
+		z-index: 4;
+	}
+
+	.section-header.is-page .label {
+		box-shadow: 6px 10px 0 var(--yellow-accent);
 	}
 
 	.section-header:not(.is-visible) .line-layer,
