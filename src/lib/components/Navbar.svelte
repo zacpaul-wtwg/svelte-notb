@@ -468,8 +468,8 @@
 			content: '';
 			position: absolute;
 			inset: 0;
-			background: var(--yellow-accent);
-			transform: translate(2px, 2px);
+			background: transparent;
+			box-shadow: 2px 2px 0 var(--yellow-accent);
 			pointer-events: none;
 			z-index: -1;
 		}
@@ -485,6 +485,7 @@
 			box-shadow: none;
 			position: relative;
 			z-index: 1;
+			isolation: isolate;
 			transition:
 				width 0.24s ease,
 				height 0.24s ease,
