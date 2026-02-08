@@ -1,5 +1,6 @@
 <script>
 	import { onMount } from 'svelte';
+	import { fade, fly } from 'svelte/transition';
 
 	let showMobileMenu = false;
 
@@ -58,11 +59,15 @@
 		<button
 			type="button"
 			class="menu-toggle"
-			aria-label="Toggle navigation menu"
+			aria-label={showMobileMenu ? 'Close navigation menu' : 'Open navigation menu'}
 			aria-expanded={showMobileMenu}
 			on:click={toggleMobileMenu}
 		>
-			{showMobileMenu ? 'CLOSE' : 'MENU'}
+			<span class={`menu-icon ${showMobileMenu ? 'open' : ''}`} aria-hidden="true">
+				<span></span>
+				<span></span>
+				<span></span>
+			</span>
 		</button>
 		<ul class="navbar-list desktop-nav">
 			{#each navItems as item}
@@ -79,8 +84,14 @@
 			class="mobile-backdrop"
 			aria-label="Close menu"
 			on:click={closeMobileMenu}
+			transition:fade={{ duration: 140 }}
 		></button>
-		<div class="mobile-panel" role="dialog" aria-label="Site navigation">
+		<div
+			class="mobile-panel"
+			role="dialog"
+			aria-label="Site navigation"
+			transition:fly={{ y: -12, duration: 180 }}
+		>
 			<ul class="mobile-nav-list">
 				{#each navItems as item}
 					<li>
@@ -156,16 +167,44 @@
 		display: inline-flex;
 		align-items: center;
 		justify-content: center;
-		padding: 0.35em 0.8em;
+		width: 42px;
+		height: 34px;
 		border: 1px solid var(--white);
 		background: transparent;
 		color: var(--white);
-		font-family: Langdon, Arial, sans-serif;
-		letter-spacing: 0.06em;
-		font-size: 0.95rem;
-		text-transform: uppercase;
 		box-shadow: 3px 3px 0 var(--yellow-accent);
 		cursor: pointer;
+		padding: 0;
+	}
+
+	.menu-icon {
+		display: inline-flex;
+		flex-direction: column;
+		justify-content: center;
+		gap: 4px;
+		width: 18px;
+		height: 14px;
+	}
+
+	.menu-icon span {
+		display: block;
+		height: 2px;
+		background: var(--white);
+		transition:
+			transform 0.2s ease,
+			opacity 0.2s ease;
+	}
+
+	.menu-icon.open span:nth-child(1) {
+		transform: translateY(6px) rotate(45deg);
+	}
+
+	.menu-icon.open span:nth-child(2) {
+		opacity: 0;
+	}
+
+	.menu-icon.open span:nth-child(3) {
+		transform: translateY(-6px) rotate(-45deg);
 	}
 
 	.desktop-nav {
