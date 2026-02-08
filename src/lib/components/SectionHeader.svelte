@@ -43,6 +43,16 @@
 		}
 	};
 
+	const getOffscreenStartX = (edge) => {
+		const headerWidth = headerEl?.clientWidth || 0;
+		const labelWidth = labelEl?.getBoundingClientRect().width || 300;
+		const offscreenPad = 24;
+		if (edge === 'left') {
+			return -(headerWidth / 2 + labelWidth / 2 + offscreenPad);
+		}
+		return headerWidth / 2 + labelWidth / 2 + offscreenPad;
+	};
+
 	onMount(() => {
 		const ro = new ResizeObserver(() => updatePlacement());
 		if (headerEl) ro.observe(headerEl);
@@ -54,12 +64,11 @@
 			async (entries) => {
 				const entry = entries[0];
 				if (!entry?.isIntersecting || hasEntered) return;
-				const headerWidth = headerEl?.clientWidth || 0;
 				let entryEdge = nearestEdge;
 				if (Math.abs(Number(place)) <= 1) {
 					entryEdge = Math.random() < 0.5 ? 'left' : 'right';
 				}
-				const startX = entryEdge === 'left' ? -headerWidth / 2 : headerWidth / 2;
+				const startX = getOffscreenStartX(entryEdge);
 				animatedGroupX.set(startX, { duration: 0 });
 				isVisible = true;
 				await tick();
@@ -124,7 +133,7 @@
 		display: inline-block;
 		vertical-align: middle;
 		position: relative;
-		width: 1400px;
+		width: 150vw;
 		height: 2px;
 		background: var(--grey);
 		box-shadow: 3px 3px 0 var(--yellow-accent);
