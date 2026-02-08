@@ -163,8 +163,6 @@
 							href={item.href}
 							class:active={isMobileActive(item.href)}
 							style={getMobileLinkStyle(item.href, $mobileWidths)}
-							on:mousedown|preventDefault
-							on:touchstart|preventDefault
 							on:click={(event) => handleMobileNavClick(event, item.href)}
 						>
 							<span>{item.label}</span>
