@@ -1,14 +1,45 @@
 <script>
+	import { onMount } from 'svelte';
+
 	export let text = '';
 	export let side = 'left'; // left | right
 	export let as = 'h2';
 	export let className = '';
+
+	let headerEl;
+	let labelEl;
+	let lineMeetX = 0;
+
+	const recalcLineMeet = () => {
+		if (!headerEl || !labelEl) return;
+		const headerRect = headerEl.getBoundingClientRect();
+		const labelRect = labelEl.getBoundingClientRect();
+		lineMeetX = labelRect.left - headerRect.left + labelRect.width / 2;
+	};
+
+	onMount(() => {
+		recalcLineMeet();
+		const ro = new ResizeObserver(() => recalcLineMeet());
+		if (headerEl) ro.observe(headerEl);
+		if (labelEl) ro.observe(labelEl);
+		window.addEventListener('resize', recalcLineMeet);
+		return () => {
+			ro.disconnect();
+			window.removeEventListener('resize', recalcLineMeet);
+		};
+	});
+
+	$: text, side, recalcLineMeet();
 </script>
 
-<div class={`section-header side-${side} ${className}`.trim()}>
+<div
+	bind:this={headerEl}
+	style={`--line-meet-x:${lineMeetX}px`}
+	class={`section-header side-${side} ${className}`.trim()}
+>
 	<span class="edge-line edge-line-left" aria-hidden="true"></span>
 	<span class="edge-line edge-line-right" aria-hidden="true"></span>
-	<svelte:element this={as} class="label">
+	<svelte:element bind:this={labelEl} this={as} class="label">
 		<span><slot>{text}</slot></span>
 	</svelte:element>
 </div>
@@ -49,7 +80,7 @@
 		position: absolute;
 		left: 0;
 		top: 75%;
-		width: var(--line-left-width);
+		width: var(--line-meet-x, 50%);
 		height: 2px;
 		background: var(--grey);
 		box-shadow: 3px 3px 0 var(--yellow-accent);
@@ -65,21 +96,11 @@
 		position: absolute;
 		right: 0;
 		top: 25%;
-		width: var(--line-right-width);
+		width: calc(100% - var(--line-meet-x, 50%));
 		height: 2px;
 		background: var(--grey);
 		box-shadow: 3px 3px 0 var(--yellow-accent);
 		transform: translateY(-50%);
-	}
-
-	.section-header.side-left {
-		--line-left-width: var(--label-offset);
-		--line-right-width: calc(100% - var(--label-offset));
-	}
-
-	.section-header.side-right {
-		--line-left-width: calc(100% - var(--label-offset));
-		--line-right-width: var(--label-offset);
 	}
 
 	.section-header.side-right .label {
