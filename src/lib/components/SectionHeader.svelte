@@ -70,7 +70,7 @@
 		transform: skew(-14deg);
 		padding: 0.32rem 0.9rem;
 		font-family: Langdon, Arial, sans-serif;
-		font-size: clamp(1.15rem, 2.1vw, 1.75rem);
+		font-size: clamp(1.72rem, 3.15vw, 2.62rem);
 		letter-spacing: 0.04em;
 		text-transform: uppercase;
 		max-width: 100%;
