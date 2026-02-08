@@ -9,11 +9,10 @@
 	let showMobileMenu = false;
 	let pendingMobileHref = '';
 	let mobileNavClickTimer;
-	let suppressMobilePanelExit = false;
 	const NAV_CLOSE_DELAY_MS = 420;
 	const MOBILE_ACTIVE_WIDTH = 13.2;
 	const MOBILE_INACTIVE_WIDTH = 9.9;
-	const mobileWidths = tweened({}, { duration: 98, easing: cubicOut });
+	const mobileWidths = tweened({}, { duration: 69, easing: cubicOut });
 
 	const navItems = [
 		{ label: 'Home', href: '/' },
@@ -26,7 +25,6 @@
 	const closeMobileMenu = () => {
 		showMobileMenu = false;
 		pendingMobileHref = '';
-		suppressMobilePanelExit = false;
 		if (mobileNavClickTimer) {
 			clearTimeout(mobileNavClickTimer);
 			mobileNavClickTimer = undefined;
@@ -34,7 +32,6 @@
 	};
 
 	const toggleMobileMenu = () => {
-		if (!showMobileMenu) suppressMobilePanelExit = false;
 		showMobileMenu = !showMobileMenu;
 	};
 
@@ -66,16 +63,14 @@
 		event.stopPropagation();
 		if (pendingMobileHref) return;
 		pendingMobileHref = href;
-		suppressMobilePanelExit = true;
 		preloadData(href);
-		mobileWidths.set(getWidthMap(href), { duration: 98, easing: cubicOut });
+		mobileWidths.set(getWidthMap(href), { duration: 69, easing: cubicOut });
 		mobileNavClickTimer = setTimeout(async () => {
 			showMobileMenu = false;
 			if (!isActive(href)) {
 				await goto(href);
 			}
 			pendingMobileHref = '';
-			suppressMobilePanelExit = false;
 			mobileNavClickTimer = undefined;
 		}, NAV_CLOSE_DELAY_MS);
 	};
@@ -149,13 +144,13 @@
 			class="mobile-backdrop"
 			aria-label="Close menu"
 			on:click={closeMobileMenu}
-			transition:fade={{ duration: suppressMobilePanelExit ? 0 : 140 }}
+			transition:fade={{ duration: 140 }}
 		></button>
 		<div
 			class="mobile-panel"
 			role="dialog"
 			aria-label="Site navigation"
-			transition:fly={{ y: -12, duration: suppressMobilePanelExit ? 0 : 180 }}
+			transition:fly={{ x: -40, duration: 180 }}
 		>
 			<ul class="mobile-nav-list">
 				{#each navItems as item}
