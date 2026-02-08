@@ -18,12 +18,9 @@
 	const MOBILE_ACTIVE_WIDTH = 13.2;
 	const MOBILE_INACTIVE_WIDTH = 9.9;
 	const DESKTOP_FLOAT_PX = -6;
-	const DESKTOP_BASE_SHADOW_PX = 2;
-	const DESKTOP_HOVER_SHADOW_PX = 6;
 	const DESKTOP_HOVER_ANIMATION_MS = 360;
 	const mobileWidths = tweened({}, { duration: NAV_BUTTON_ANIMATION_MS, easing: cubicOut });
 	const desktopLift = tweened({}, { duration: DESKTOP_HOVER_ANIMATION_MS, easing: elasticOut });
-	const desktopShadow = tweened({}, { duration: DESKTOP_HOVER_ANIMATION_MS, easing: elasticOut });
 
 	const navItems = [
 		{ label: 'Home', href: '/' },
@@ -73,19 +70,14 @@
 		return `--mobile-pill-width:${width}rem`;
 	};
 
-	const getDesktopLinkStyle = (href, liftMap, shadowMap) => {
+	const getDesktopLinkStyle = (href, liftMap) => {
 		const lift = liftMap[href] ?? 0;
-		const shadow = shadowMap[href] ?? DESKTOP_BASE_SHADOW_PX;
-		return `--nav-float-y:${lift}px;--nav-shadow-offset:${shadow}px`;
+		return `--nav-float-y:${lift}px`;
 	};
 
 	const setDesktopHover = (href, hovering) => {
 		desktopLift.set(
 			{ ...get(desktopLift), [href]: hovering ? DESKTOP_FLOAT_PX : 0 },
-			{ duration: DESKTOP_HOVER_ANIMATION_MS, easing: elasticOut }
-		);
-		desktopShadow.set(
-			{ ...get(desktopShadow), [href]: hovering ? DESKTOP_HOVER_SHADOW_PX : DESKTOP_BASE_SHADOW_PX },
 			{ duration: DESKTOP_HOVER_ANIMATION_MS, easing: elasticOut }
 		);
 	};
@@ -123,10 +115,6 @@
 	onMount(() => {
 		mobileWidths.set(getWidthMap(getCurrentActiveHref()), { duration: 0 });
 		desktopLift.set(Object.fromEntries(navItems.map((item) => [item.href, 0])), { duration: 0 });
-		desktopShadow.set(
-			Object.fromEntries(navItems.map((item) => [item.href, DESKTOP_BASE_SHADOW_PX])),
-			{ duration: 0 }
-		);
 		syncNavVars();
 		const navResizeObserver = new ResizeObserver(() => syncNavVars());
 		if (navEl) navResizeObserver.observe(navEl);
@@ -194,7 +182,7 @@
 					<a
 						href={item.href}
 						class:active={isActive(item.href)}
-						style={getDesktopLinkStyle(item.href, $desktopLift, $desktopShadow)}
+						style={getDesktopLinkStyle(item.href, $desktopLift)}
 						on:mouseenter={() => setDesktopHover(item.href, true)}
 						on:mouseleave={() => setDesktopHover(item.href, false)}
 					>
@@ -469,6 +457,16 @@
 			display: flex;
 		}
 
+		.navbar-list li::after {
+			content: '';
+			position: absolute;
+			inset: 0;
+			background: var(--nav-shadow);
+			transform: skew(-14deg) translate(2px, 2px);
+			pointer-events: none;
+			z-index: 0;
+		}
+
 		.navbar-list a {
 			display: inline-flex;
 			height: 30px;
@@ -477,7 +475,9 @@
 			background: var(--white);
 			color: var(--grey);
 			border-color: var(--grey);
-			box-shadow: 2px 2px 0 var(--nav-shadow);
+			box-shadow: none;
+			position: relative;
+			z-index: 1;
 			transition:
 				width 0.24s ease,
 				height 0.24s ease,
@@ -489,11 +489,7 @@
 			height: 24px;
 			font-size: 1.08rem;
 			padding: 1px 0.34rem;
-			box-shadow: var(--nav-shadow-offset, 2px) var(--nav-shadow-offset, 2px) 0 var(--nav-shadow);
-		}
-
-		.navbar-list a.active {
-			box-shadow: var(--nav-shadow-offset, 2px) var(--nav-shadow-offset, 2px) 0 var(--nav-shadow);
+			box-shadow: none;
 		}
 
 		.navbar-list a:hover,
