@@ -17,7 +17,7 @@
 	const NAV_CLOSE_DELAY_MS = 150;
 	const MOBILE_ACTIVE_WIDTH = 13.2;
 	const MOBILE_INACTIVE_WIDTH = 9.9;
-	const DESKTOP_FLOAT_X_PX = -3;
+	const DESKTOP_FLOAT_X_PX = -5;
 	const DESKTOP_FLOAT_Y_PX = -6;
 	const DESKTOP_HOVER_ANIMATION_MS = 150;
 	const mobileWidths = tweened({}, { duration: NAV_BUTTON_ANIMATION_MS, easing: cubicOut });
