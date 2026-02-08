@@ -29,7 +29,9 @@
 		const maxCenter = headerWidth - labelWidth / 2 - safePad;
 		const clampedCenter = clamp(desiredCenter, minCenter, maxCenter);
 		groupX = `${clampedCenter - headerWidth / 2}px`;
-		flyX = clampedCenter <= headerWidth / 2 ? -90 : 90;
+		const distToLeftEdge = clampedCenter;
+		const distToRightEdge = headerWidth - clampedCenter;
+		flyX = distToLeftEdge <= distToRightEdge ? -120 : 120;
 	};
 
 	onMount(() => {
@@ -43,9 +45,9 @@
 				if (!entry?.isIntersecting || showLabel) return;
 				const p = Number(place);
 				if (Math.abs(p) <= 1) {
-					flyX = Math.random() < 0.5 ? -90 : 90;
+					flyX = Math.random() < 0.5 ? -120 : 120;
 				} else {
-					flyX = p < 0 ? -90 : 90;
+					flyX = p < 0 ? -120 : 120;
 				}
 				showLabel = true;
 				await tick();
