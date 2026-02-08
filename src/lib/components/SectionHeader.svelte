@@ -47,7 +47,7 @@
 		display: block;
 		position: absolute;
 		left: 0;
-		top: 50%;
+		top: 75%;
 		width: var(--line-left-width);
 		height: 2px;
 		background: var(--grey);
@@ -63,7 +63,7 @@
 		display: block;
 		position: absolute;
 		right: 0;
-		top: 50%;
+		top: 25%;
 		width: var(--line-right-width);
 		height: 2px;
 		background: var(--grey);
