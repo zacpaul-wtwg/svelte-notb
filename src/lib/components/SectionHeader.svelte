@@ -5,6 +5,7 @@
 	export let text = '';
 	export let as = 'h2';
 	export let className = '';
+	export let size = 'large'; // mini | small | medium | large
 	export let place = 0; // offset from center in percent of half-width (-100 to 100 typical)
 	export let nudge = 0; // pixel offset applied after place
 
@@ -48,7 +49,12 @@
 <div bind:this={headerEl} class={`section-header ${className}`.trim()} style={`--group-x:${groupX}`}>
 	<div class="header-group">
 		<div class="edge-line edge-line-left" aria-hidden="true"></div>
-		<svelte:element bind:this={labelEl} this={as} class="label" in:fly={{ x: flyX, duration: 260 }}>
+		<svelte:element
+			bind:this={labelEl}
+			this={as}
+			class={`label size-${size}`.trim()}
+			in:fly={{ x: flyX, duration: 260 }}
+		>
 			<span><slot>{text}</slot></span>
 		</svelte:element>
 		<div class="edge-line edge-line-right" aria-hidden="true"></div>
@@ -107,11 +113,26 @@
 		transform: skew(-14deg);
 		padding: 0.32rem 0.9rem;
 		font-family: Langdon, Arial, sans-serif;
-		font-size: clamp(1.72rem, 3.15vw, 2.62rem);
 		letter-spacing: 0.04em;
 		text-transform: uppercase;
 		max-width: 100%;
 		box-sizing: border-box;
+	}
+
+	.label.size-mini {
+		font-size: clamp(0.92rem, 1.4vw, 1.3rem);
+	}
+
+	.label.size-small {
+		font-size: clamp(1.15rem, 1.9vw, 1.7rem);
+	}
+
+	.label.size-medium {
+		font-size: clamp(1.38rem, 2.45vw, 2.1rem);
+	}
+
+	.label.size-large {
+		font-size: clamp(1.72rem, 3.15vw, 2.62rem);
 	}
 
 	.label span {
