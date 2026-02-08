@@ -1,6 +1,6 @@
 <script>
 	import { onMount } from 'svelte';
-	import { goto } from '$app/navigation';
+	import { goto, preloadData } from '$app/navigation';
 	import { tweened } from 'svelte/motion';
 	import { cubicOut } from 'svelte/easing';
 	import { fade, fly } from 'svelte/transition';
@@ -67,6 +67,7 @@
 		if (pendingMobileHref) return;
 		pendingMobileHref = href;
 		suppressMobilePanelExit = true;
+		preloadData(href);
 		mobileWidths.set(getWidthMap(href), { duration: 98, easing: cubicOut });
 		mobileNavClickTimer = setTimeout(async () => {
 			showMobileMenu = false;
