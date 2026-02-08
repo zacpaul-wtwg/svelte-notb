@@ -29,7 +29,7 @@
 	.edge-line {
 		display: inline-block;
 		vertical-align: middle;
-		width: 40%;
+		width: 1400px;
 		height: 2px;
 		background: var(--grey);
 		box-shadow: 3px 3px 0 var(--yellow-accent);
