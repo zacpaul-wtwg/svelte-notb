@@ -17,10 +17,11 @@
 	const NAV_CLOSE_DELAY_MS = 150;
 	const MOBILE_ACTIVE_WIDTH = 13.2;
 	const MOBILE_INACTIVE_WIDTH = 9.9;
-	const DESKTOP_FLOAT_PX = -6;
+	const DESKTOP_FLOAT_X_PX = -3;
+	const DESKTOP_FLOAT_Y_PX = -6;
 	const DESKTOP_HOVER_ANIMATION_MS = 150;
 	const mobileWidths = tweened({}, { duration: NAV_BUTTON_ANIMATION_MS, easing: cubicOut });
-	const desktopLift = tweened({}, { duration: DESKTOP_HOVER_ANIMATION_MS, easing: cubicOut });
+	const desktopHoverProgress = tweened({}, { duration: DESKTOP_HOVER_ANIMATION_MS, easing: cubicOut });
 
 	const navItems = [
 		{ label: 'Home', href: '/' },
@@ -70,14 +71,16 @@
 		return `--mobile-pill-width:${width}rem`;
 	};
 
-	const getDesktopLinkStyle = (href, liftMap) => {
-		const lift = liftMap[href] ?? 0;
-		return `--nav-float-y:${lift}px`;
+	const getDesktopLinkStyle = (href, progressMap) => {
+		const progress = progressMap[href] ?? 0;
+		const liftX = DESKTOP_FLOAT_X_PX * progress;
+		const liftY = DESKTOP_FLOAT_Y_PX * progress;
+		return `--nav-float-x:${liftX}px;--nav-float-y:${liftY}px`;
 	};
 
 	const setDesktopHover = (href, hovering) => {
-		desktopLift.set(
-			{ ...get(desktopLift), [href]: hovering ? DESKTOP_FLOAT_PX : 0 },
+		desktopHoverProgress.set(
+			{ ...get(desktopHoverProgress), [href]: hovering ? 1 : 0 },
 			{ duration: DESKTOP_HOVER_ANIMATION_MS, easing: cubicOut }
 		);
 	};
@@ -114,7 +117,9 @@
 
 	onMount(() => {
 		mobileWidths.set(getWidthMap(getCurrentActiveHref()), { duration: 0 });
-		desktopLift.set(Object.fromEntries(navItems.map((item) => [item.href, 0])), { duration: 0 });
+		desktopHoverProgress.set(Object.fromEntries(navItems.map((item) => [item.href, 0])), {
+			duration: 0
+		});
 		syncNavVars();
 		const navResizeObserver = new ResizeObserver(() => syncNavVars());
 		if (navEl) navResizeObserver.observe(navEl);
@@ -182,7 +187,7 @@
 					<a
 						href={item.href}
 						class:active={isActive(item.href)}
-						style={getDesktopLinkStyle(item.href, $desktopLift)}
+						style={getDesktopLinkStyle(item.href, $desktopHoverProgress)}
 						on:mouseenter={() => setDesktopHover(item.href, true)}
 						on:mouseleave={() => setDesktopHover(item.href, false)}
 						on:focus={() => setDesktopHover(item.href, true)}
@@ -369,7 +374,7 @@
 		background: var(--grey);
 		border: 1px solid var(--white);
 		box-shadow: 6px 6px 0 var(--nav-shadow);
-		transform: skew(-14deg) translateY(var(--nav-float-y, 0px));
+		transform: skew(-14deg) translate(var(--nav-float-x, 0px), var(--nav-float-y, 0px));
 		transition:
 			width 0.24s ease,
 			height 0.24s ease,
