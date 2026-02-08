@@ -12,12 +12,13 @@
 
 	let headerEl;
 	let labelEl;
-	let groupX = 0;
+	let labelWidth = 0;
+	let labelCenter = 0;
 	let nearestEdge = 'left';
 	let hasEntered = false;
 	let isVisible = false;
 	const IN_VIEW_DELAY_MS = 140;
-	const animatedGroupX = tweened(0, { duration: 0, easing: cubicOut });
+	const animatedLabelCenter = tweened(0, { duration: 0, easing: cubicOut });
 	let enterTimer;
 
 	const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
@@ -25,7 +26,7 @@
 	const updatePlacement = () => {
 		if (!headerEl || !labelEl) return;
 		const headerWidth = headerEl.clientWidth;
-		const labelWidth = labelEl.getBoundingClientRect().width;
+		labelWidth = labelEl.getBoundingClientRect().width;
 		if (!headerWidth || !labelWidth) return;
 
 		const safePad = 10;
@@ -33,24 +34,24 @@
 		const minCenter = labelWidth / 2 + safePad;
 		const maxCenter = headerWidth - labelWidth / 2 - safePad;
 		const clampedCenter = clamp(desiredCenter, minCenter, maxCenter);
-		groupX = clampedCenter - headerWidth / 2;
+		labelCenter = clampedCenter;
 		const distToLeftEdge = clampedCenter;
 		const distToRightEdge = headerWidth - clampedCenter;
 		nearestEdge = distToLeftEdge <= distToRightEdge ? 'left' : 'right';
 
 		if (hasEntered) {
-			animatedGroupX.set(groupX, { duration: 0 });
+			animatedLabelCenter.set(labelCenter, { duration: 0 });
 		}
 	};
 
-	const getOffscreenStartX = (edge) => {
+	const getOffscreenStartCenter = (edge) => {
 		const headerWidth = headerEl?.clientWidth || 0;
 		const labelWidth = labelEl?.getBoundingClientRect().width || 300;
 		const offscreenPad = 24;
 		if (edge === 'left') {
-			return -(headerWidth / 2 + labelWidth / 2 + offscreenPad);
+			return -(labelWidth / 2 + offscreenPad);
 		}
-		return headerWidth / 2 + labelWidth / 2 + offscreenPad;
+		return headerWidth + labelWidth / 2 + offscreenPad;
 	};
 
 	onMount(() => {
@@ -68,13 +69,13 @@
 				if (Math.abs(Number(place)) <= 1) {
 					entryEdge = Math.random() < 0.5 ? 'left' : 'right';
 				}
-				const startX = getOffscreenStartX(entryEdge);
-				animatedGroupX.set(startX, { duration: 0 });
+				const startCenter = getOffscreenStartCenter(entryEdge);
+				animatedLabelCenter.set(startCenter, { duration: 0 });
 				isVisible = true;
 				await tick();
 				enterTimer = setTimeout(() => {
 					hasEntered = true;
-					animatedGroupX.set(groupX, { duration: 360, easing: cubicOut });
+					animatedLabelCenter.set(labelCenter, { duration: 360, easing: cubicOut });
 				}, IN_VIEW_DELAY_MS);
 				io.disconnect();
 			},
@@ -95,16 +96,14 @@
 
 <div
 	bind:this={headerEl}
-	class={`section-header ${size === 'mini' ? 'is-mini' : ''} ${className}`.trim()}
-	style={`--group-x:${$animatedGroupX}px`}
+	class={`section-header ${size === 'mini' ? 'is-mini' : ''} ${isVisible ? 'is-visible' : ''} ${className}`.trim()}
+	style={`--label-center:${$animatedLabelCenter}px;--label-half:${labelWidth / 2}px`}
 >
-	<div class={`header-group ${isVisible ? 'is-visible' : ''}`.trim()}>
-		<div class="edge-line edge-line-left" aria-hidden="true"></div>
-		<svelte:element bind:this={labelEl} this={as} class={`label size-${size}`.trim()}>
-			<span><slot>{text}</slot></span>
-		</svelte:element>
-		<div class="edge-line edge-line-right" aria-hidden="true"></div>
-	</div>
+	<div class="edge-line edge-line-left" aria-hidden="true"></div>
+	<svelte:element bind:this={labelEl} this={as} class={`label size-${size}`.trim()}>
+		<span><slot>{text}</slot></span>
+	</svelte:element>
+	<div class="edge-line edge-line-right" aria-hidden="true"></div>
 </div>
 
 <style>
@@ -117,57 +116,53 @@
 		padding: 0 1rem;
 		box-sizing: border-box;
 		overflow: hidden;
-		white-space: nowrap;
+		position: relative;
+		min-height: 3.6rem;
 	}
 
-	.header-group {
-		display: inline-block;
-		white-space: nowrap;
-		position: relative;
-		left: 50%;
-		transform: translateX(calc(-50% + var(--group-x)));
+	.section-header:not(.is-visible) .edge-line,
+	.section-header:not(.is-visible) .label {
 		visibility: hidden;
 	}
 
-	.header-group.is-visible {
-		visibility: visible;
-	}
-
 	.edge-line {
-		display: inline-block;
-		vertical-align: middle;
-		position: relative;
+		display: block;
+		position: absolute;
 		width: 150vw;
 		height: 2px;
 		background: var(--grey);
 		box-shadow: 3px 3px 0 var(--yellow-accent);
+		z-index: 0;
 	}
 
 	.edge-line-left {
-		margin-right: 20px;
 		top: 24px;
+		left: calc(var(--label-center) - var(--label-half) - 20px - 150vw);
 	}
 
 	.edge-line-right {
-		margin-left: 20px;
+		left: calc(var(--label-center) + var(--label-half) + 20px);
 		top: -16px;
 	}
 
 	.label {
-		display: inline-block;
-		vertical-align: middle;
-		margin: 0.5rem 0;
+		display: block;
+		position: absolute;
+		left: calc(var(--label-center) - var(--label-half));
+		top: 50%;
+		margin: 0;
 		background: var(--grey);
 		color: var(--white);
 		border: 1px solid var(--white);
 		box-shadow: 6px 6px 0 var(--yellow-accent);
-		transform: skew(-14deg);
+		transform: translateY(-50%) skew(-14deg);
 		padding: 0.32rem 0.9rem;
 		font-family: Langdon, Arial, sans-serif;
 		letter-spacing: 0.04em;
 		text-transform: uppercase;
 		max-width: 100%;
 		box-sizing: border-box;
+		z-index: 1;
 	}
 
 	.label.size-mini {
@@ -181,12 +176,10 @@
 	}
 
 	.section-header.is-mini .edge-line {
-		position: relative;
 		z-index: 0;
 	}
 
 	.section-header.is-mini .label {
-		position: relative;
 		z-index: 2;
 	}
 
