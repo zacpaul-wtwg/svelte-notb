@@ -322,4 +322,38 @@
 	.description-wrap {
 		margin: 0.5em 0.75em 0;
 	}
+
+	.description-wrap :global(.description-card) {
+		position: relative;
+		padding-top: 1.6em;
+	}
+
+	.description-wrap :global(.description-card)::before {
+		content: 'description';
+		position: absolute;
+		left: 0.6em;
+		top: 0.35em;
+		font-size: 0.9em;
+		font-weight: 500;
+		letter-spacing: 0;
+		text-transform: none;
+		color: var(--grey);
+	}
+
+	.description-wrap :global(.description-card)::after {
+		content: '';
+		position: absolute;
+		right: 0.7em;
+		top: 0.5em;
+		width: 7px;
+		height: 7px;
+		border-right: 2px solid var(--grey);
+		border-bottom: 2px solid var(--grey);
+		transform: rotate(45deg);
+		transition: transform 0.2s ease;
+	}
+
+	.description-wrap :global(.description-card.expanded)::after {
+		transform: rotate(-135deg);
+	}
 </style>
