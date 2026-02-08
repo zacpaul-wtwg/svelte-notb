@@ -41,7 +41,7 @@
 	}
 
 	.edge-line-right {
-		top: 8px;
+		top: -16px;
 	}
 
 	.label {
