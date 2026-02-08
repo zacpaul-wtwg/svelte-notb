@@ -1,13 +1,14 @@
 <script>
 	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
-	import { fade, fly } from 'svelte/transition';
+	import { fade, fly, scale } from 'svelte/transition';
 	import { page } from '$app/stores';
 
 	let showMobileMenu = false;
 	let pendingMobileHref = '';
 	let mobileNavClickTimer;
 	let suppressMobilePanelExit = false;
+	const NAV_STATE_ANIMATION_MS = 260;
 	const NAV_CLOSE_DELAY_MS = 420;
 
 	const navItems = [
@@ -132,19 +133,23 @@
 			aria-label="Site navigation"
 			transition:fly={{ y: -12, duration: suppressMobilePanelExit ? 0 : 180 }}
 		>
-			<ul class="mobile-nav-list">
-				{#each navItems as item}
-					<li>
-						<a
-							href={item.href}
-							class:active={isMobileActive(item.href)}
-							on:click={(event) => handleMobileNavClick(event, item.href)}
-						>
-							<span>{item.label}</span>
-						</a>
-					</li>
-				{/each}
-			</ul>
+				<ul class="mobile-nav-list">
+					{#each navItems as item}
+						<li>
+							{#key `${item.href}-${isMobileActive(item.href) ? 'active' : 'inactive'}`}
+								<a
+									href={item.href}
+									class:active={isMobileActive(item.href)}
+									on:click={(event) => handleMobileNavClick(event, item.href)}
+									in:scale={{ duration: NAV_STATE_ANIMATION_MS, start: 0.94 }}
+									out:scale={{ duration: NAV_STATE_ANIMATION_MS, start: 0.94 }}
+								>
+									<span>{item.label}</span>
+								</a>
+							{/key}
+						</li>
+					{/each}
+				</ul>
 		</div>
 	{/if}
 </nav>
