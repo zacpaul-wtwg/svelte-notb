@@ -407,6 +407,7 @@
 			display: inline-flex;
 			height: 34px;
 			padding: 0 0.75rem;
+			border-color: transparent;
 			transition:
 				width 0.24s ease,
 				height 0.24s ease,
@@ -419,7 +420,7 @@
 			height: 26px;
 			font-size: 1.3rem;
 			padding: 2px 0.36rem;
-			box-shadow: 4px 4px 0 var(--nav-shadow);
+			box-shadow: 2px 2px 0 var(--nav-shadow);
 		}
 
 		.navbar-list a:hover,
