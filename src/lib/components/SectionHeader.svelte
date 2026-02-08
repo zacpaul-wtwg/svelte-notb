@@ -8,8 +8,6 @@
 	export let size = 'large'; // mini | small | medium | large
 	export let place = 0; // offset from center in percent of half-width (-100 to 100 typical)
 	export let nudge = 0; // pixel offset applied after place
-	export let fullBleed = true;
-	export let showLines = true;
 
 	let headerEl;
 	let labelEl;
@@ -69,15 +67,9 @@
 	$: place, nudge, updatePlacement();
 </script>
 
-<div
-	bind:this={headerEl}
-	class={`section-header ${fullBleed ? 'full-bleed' : ''} ${className}`.trim()}
-	style={`--group-x:${groupX}`}
->
+<div bind:this={headerEl} class={`section-header ${className}`.trim()} style={`--group-x:${groupX}`}>
 	<div class="header-group">
-		{#if showLines}
-			<div class="edge-line edge-line-left" aria-hidden="true"></div>
-		{/if}
+		<div class="edge-line edge-line-left" aria-hidden="true"></div>
 		{#if showLabel}
 			<svelte:element
 				bind:this={labelEl}
@@ -88,16 +80,14 @@
 				<span><slot>{text}</slot></span>
 			</svelte:element>
 		{/if}
-		{#if showLines}
-			<div class="edge-line edge-line-right" aria-hidden="true"></div>
-		{/if}
+		<div class="edge-line edge-line-right" aria-hidden="true"></div>
 	</div>
 </div>
 
 <style>
 	.section-header {
-		width: 100%;
-		margin-left: 0;
+		width: 100vw;
+		margin-left: calc(50% - 50vw);
 		margin-right: 0;
 		margin-top: 0.75rem;
 		margin-bottom: 0.75rem;
@@ -105,11 +95,6 @@
 		box-sizing: border-box;
 		overflow: hidden;
 		white-space: nowrap;
-	}
-
-	.section-header.full-bleed {
-		width: 100vw;
-		margin-left: calc(50% - 50vw);
 	}
 
 	.header-group {

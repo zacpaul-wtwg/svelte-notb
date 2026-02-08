@@ -1,6 +1,5 @@
 <script>
 	import Container from '$lib/components/elements/Container.svelte';
-	import SectionHeader from '$lib/components/SectionHeader.svelte';
 	import SkewLabel from '$lib/components/SkewLabel.svelte';
 	import TitleBar from '$lib/components/TitleBar.svelte';
 	import { fallbackAllData } from '$lib/cms/fallback';
@@ -63,14 +62,7 @@
 					<div class="card-body">
 						<p class="subtitle">{entry.subtitle}</p>
 						<div class="section">
-							<SectionHeader
-								as="h4"
-								text="Highlights"
-								size="mini"
-								fullBleed={false}
-								showLines={false}
-								className="pricing-mini-head"
-							/>
+							<h4 class="section-head">Highlights</h4>
 							<ul class="highlights">
 								{#each entry.highlights || [] as highlight}
 									<li><SkewLabel as="span" text={highlight} /></li>
@@ -78,25 +70,11 @@
 							</ul>
 						</div>
 						<div class="section">
-							<SectionHeader
-								as="h4"
-								text="How It Works"
-								size="mini"
-								fullBleed={false}
-								showLines={false}
-								className="pricing-mini-head"
-							/>
+							<h4 class="section-head how">How It Works</h4>
 							<p>{entry.howItWorks}</p>
 						</div>
 						<div class="section">
-							<SectionHeader
-								as="h4"
-								text="Best For"
-								size="mini"
-								fullBleed={false}
-								showLines={false}
-								className="pricing-mini-head"
-							/>
+							<h4 class="section-head best">Best For</h4>
 							<p>{entry.bestFor}</p>
 						</div>
 					</div>
@@ -232,9 +210,38 @@
 	.section {
 		margin-top: 0.9em;
 	}
-	:global(.pricing-mini-head) {
-		margin: 0 0 0.5rem 0;
-		padding: 0;
+	.section-head {
+		margin: 0 0 0.4em;
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
+		font-size: 0.9em;
+		color: var(--grey);
+		border-bottom: 1px solid var(--grey);
+		padding-bottom: 0.25em;
+		display: inline-flex;
+		align-items: center;
+		gap: 0.5em;
+	}
+	.section-head::before {
+		content: '';
+		width: 16px;
+		height: 16px;
+		display: inline-block;
+		background-color: var(--yellow-accent);
+		-webkit-mask-size: contain;
+		-webkit-mask-repeat: no-repeat;
+		-webkit-mask-position: center;
+		mask-size: contain;
+		mask-repeat: no-repeat;
+		mask-position: center;
+	}
+	.section-head.how::before {
+		-webkit-mask-image: url('data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22%3E%3Cpath d=%22M7 7h10v2H7V7zm0 4h10v2H7v-2zm0 4h10v2H7v-2z%22 fill=%22black%22/%3E%3C/svg%3E');
+		mask-image: url('data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22%3E%3Cpath d=%22M7 7h10v2H7V7zm0 4h10v2H7v-2zm0 4h10v2H7v-2z%22 fill=%22black%22/%3E%3C/svg%3E');
+	}
+	.section-head.best::before {
+		-webkit-mask-image: url('data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22%3E%3Cpath d=%22M12 3l3 6 6 .9-4.5 4.4 1.1 6.4L12 17.8 6.4 20.7l1.1-6.4L3 9.9 9 9l3-6z%22 fill=%22black%22/%3E%3C/svg%3E');
+		mask-image: url('data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22%3E%3Cpath d=%22M12 3l3 6 6 .9-4.5 4.4 1.1 6.4L12 17.8 6.4 20.7l1.1-6.4L3 9.9 9 9l3-6z%22 fill=%22black%22/%3E%3C/svg%3E');
 	}
 	.card-body p {
 		margin: 0 0 0.6em 0;
