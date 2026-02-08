@@ -328,6 +328,8 @@
 		height: 33px;
 		font-size: 0.93rem;
 		padding: 0 0.56rem;
+		transform: scaleX(0.7) skew(-14deg);
+		transform-origin: center;
 	}
 
 	.mobile-nav-list a:hover,
@@ -361,6 +363,8 @@
 			height: 26px;
 			font-size: 0.82rem;
 			padding: 2px 0.56rem;
+			transform: scaleX(0.7) skew(-14deg);
+			transform-origin: center;
 		}
 
 		.navbar-list a:hover,
