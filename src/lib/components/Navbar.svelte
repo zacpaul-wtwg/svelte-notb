@@ -249,7 +249,7 @@
 		justify-content: center;
 		text-align: center;
 		padding: 3px 10px;
-		font-size: 1.09rem;
+		font-size: 1.44rem;
 		font-family: Langdon, Arial, sans-serif;
 		letter-spacing: 0.05em;
 		text-transform: uppercase;
@@ -315,7 +315,7 @@
 
 	.mobile-nav-list a {
 		height: 44px;
-		font-size: 1.24rem;
+		font-size: 1.64rem;
 		padding: 0 0.75rem;
 		margin: 0;
 		transition:
@@ -326,7 +326,7 @@
 
 	.mobile-nav-list a:not(.active) {
 		height: 33px;
-		font-size: 0.93rem;
+		font-size: 1.48rem;
 		padding: 0 0.56rem;
 		transform: scaleX(0.7) skew(-14deg);
 		transform-origin: center;
@@ -361,7 +361,7 @@
 
 		.navbar-list a:not(.active) {
 			height: 26px;
-			font-size: 0.82rem;
+			font-size: 1.3rem;
 			padding: 2px 0.56rem;
 			transform: scaleX(0.7) skew(-14deg);
 			transform-origin: center;
