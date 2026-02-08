@@ -244,8 +244,10 @@
 		display: flex;
 		height: var(--nav-height);
 		align-items: center;
+		justify-content: center;
+		text-align: center;
 		padding: 0 10px;
-		font-size: 13px;
+		font-size: 0.95rem;
 		font-family: Langdon, Arial, sans-serif;
 		letter-spacing: 0.05em;
 		text-transform: uppercase;
@@ -292,7 +294,7 @@
 		bottom: 0;
 		background: var(--grey);
 		z-index: 99;
-		padding: 0.6rem 0.8rem 1rem;
+		padding: 0.6rem 1.15rem 1rem;
 		box-sizing: border-box;
 		overflow-y: auto;
 		-webkit-overflow-scrolling: touch;
@@ -308,8 +310,8 @@
 	}
 
 	.mobile-nav-list a {
-		height: 50px;
-		font-size: 1rem;
+		height: 44px;
+		font-size: 1.08rem;
 		padding: 0 0.75rem;
 		margin: 0.45rem 0;
 		transition:
@@ -337,7 +339,7 @@
 
 		.navbar-list a {
 			display: inline-flex;
-			height: 38px;
+			height: 34px;
 			padding: 0 0.75rem;
 			transition:
 				transform 0.18s ease,
