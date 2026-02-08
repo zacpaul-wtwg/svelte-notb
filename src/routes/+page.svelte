@@ -22,43 +22,53 @@
 </svelte:head>
 <Hero {allData} />
 <Container>
-	<section class="page-stack home-stack">
-		<section class="home-section">
-			<SkewLabel as="div" text="Latest" classSide="left" />
+	<svelte:fragment slot="section-label">
+		<div class="home-label-layer">
+			<SkewLabel as="div" text="Latest" className="home-edge-pill" classSide="left" showRule />
+		</div>
+	</svelte:fragment>
+	<section class="home-content-stack">
+		<section class="home-body">
 			<HomeNews {allData} />
 		</section>
-		<section class="home-section">
+		<section class="home-body">
 			<FeaturedCarousel products={featuredProducts} intervalMs={5000} />
 		</section>
 	</section>
 </Container>
 
 <style>
-	.home-stack {
+	.home-label-layer {
+		width: 100%;
+		overflow-x: clip;
+		margin-bottom: 0.4rem;
+	}
+
+	.home-content-stack {
+		display: flex;
+		flex-direction: column;
 		gap: 1.75rem;
 	}
 
-	.home-section {
+	.home-body {
 		width: 100%;
 	}
 
-	.home-section :global(.home-edge-pill) {
+	.home-label-layer :global(.home-edge-pill) {
 		font-family: 'Agency FB', 'AgencyFB', 'Arial Narrow', 'Langdon', Arial, sans-serif;
-		font-size: clamp(1.9rem, 4.6vw, 2.7rem);
-		padding: 0.4em 1em;
 		line-height: 0.95;
 		letter-spacing: 0.06em;
 		white-space: nowrap;
 		max-width: none;
 	}
 
-	.home-section :global(.home-edge-pill.from-left) {
+	.home-label-layer :global(.home-edge-pill.from-left) {
 		justify-content: flex-end;
 		text-align: right;
 		animation: slide-in-left 420ms ease-out;
 	}
 
-	.home-section :global(.home-edge-pill.from-right) {
+	.home-label-layer :global(.home-edge-pill.from-right) {
 		justify-content: flex-start;
 		text-align: left;
 		animation: slide-in-right 420ms ease-out;
@@ -83,12 +93,6 @@
 		to {
 			transform: translateX(0);
 			opacity: 1;
-		}
-	}
-
-	@media (max-width: 700px) {
-		.home-section :global(.home-edge-pill) {
-			font-size: clamp(1.5rem, 8vw, 2.15rem);
 		}
 	}
 </style>

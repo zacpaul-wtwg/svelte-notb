@@ -1,5 +1,10 @@
-<div class="container">
-	<div class="container-contents">
-		<slot />
+<section class="section-shell container">
+	<div class="section-label">
+		<slot name="section-label" />
+		<div class="section-content container-contents">
+			<div class="content-body">
+				<slot />
+			</div>
+		</div>
 	</div>
-</div>
+</section>

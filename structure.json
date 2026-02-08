@@ -1,0 +1,64 @@
+{
+	"main": {
+		"width": "full",
+		"section-shell": {
+			"width": "full",
+			"section-label": {
+				"width": "full",
+				"wrapper": true,
+				"height": "auto",
+				"positioning": {
+					"position": "relative",
+					"label-anchor": "absolute children are positioned against section-label"
+				},
+				"overflow": {
+					"x": "clip",
+					"fallback": "hidden",
+					"note": "prevents body side overflow from decorative offsets"
+				},
+				"alignment-variants": ["left", "right", "center"],
+				"edge-clip": {
+					"purpose": "hide skew tip at the screen edge side",
+					"left": "clip/mask left edge of skew wrapper when entering from left",
+					"right": "clip/mask right edge of skew wrapper when entering from right",
+					"result": "no visible skew on viewport edge side"
+				},
+				"rule-line": {
+					"optional": true,
+					"element": "div",
+					"position": "absolute",
+					"width": "auto",
+					"start-gap-from-label": "small fixed gap",
+					"end-gap-from-screen-edge": "small fixed inset",
+					"height": "2px",
+					"background": "black",
+					"box-shadow": "yellow accent shadow"
+				},
+				"label-skew": {
+					"element": "div",
+					"type": "wrapper",
+					"skew": "-14deg",
+					"style": "black bg, yellow box shadow",
+					"sizing": {
+						"width": "auto",
+						"max-width": "responsive clamp",
+						"mobile": "no text overflow"
+					},
+					"label-contents": {
+						"element": "h2",
+						"semantics": "section heading where applicable",
+						"header-text": "font: Agency",
+						"skew": "14deg"
+					}
+				},
+				"section-content": {
+					"width": "constrained",
+					"content-body": {
+						"width": "full",
+						"content": "goes here"
+					}
+				}
+			}
+		}
+	}
+}
