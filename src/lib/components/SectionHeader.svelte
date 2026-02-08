@@ -136,13 +136,13 @@
 	}
 
 	.edge-line-left {
-		top: 24px;
+		top: 53px;
 		left: calc(var(--label-center) - var(--label-half) - 20px - 150vw);
 	}
 
 	.edge-line-right {
 		left: calc(var(--label-center) + var(--label-half) + 20px);
-		top: -16px;
+		top: 27px;
 	}
 
 	.label {
