@@ -13,9 +13,15 @@
 
 <style>
 	.section-header {
-		width: 100%;
+		position: relative;
+		width: 100vw;
+		margin-left: calc(50% - 50vw);
 		display: flex;
-		margin: 0 0 0.9rem;
+		padding: 0 1rem;
+		box-sizing: border-box;
+		overflow-x: clip;
+		margin-top: 0;
+		margin-bottom: 0.9rem;
 	}
 
 	.section-header.side-left {
@@ -48,5 +54,11 @@
 	.label span {
 		display: block;
 		transform: skew(14deg);
+	}
+
+	@media (max-width: 700px) {
+		.section-header {
+			padding: 0 0.75rem;
+		}
 	}
 </style>
