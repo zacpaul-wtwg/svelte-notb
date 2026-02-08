@@ -6,7 +6,8 @@
 </script>
 
 <div class={`section-header side-${side} ${className}`.trim()}>
-	<span class="edge-line" aria-hidden="true"></span>
+	<span class="edge-line edge-line-left" aria-hidden="true"></span>
+	<span class="edge-line edge-line-right" aria-hidden="true"></span>
 	<svelte:element this={as} class="label">
 		<span><slot>{text}</slot></span>
 	</svelte:element>
@@ -42,7 +43,7 @@
 		display: none;
 	}
 
-	.section-header.side-left .edge-line {
+	.section-header.side-left .edge-line-left {
 		display: block;
 		position: absolute;
 		left: 0;
@@ -56,6 +57,22 @@
 
 	.section-header.side-left .label {
 		margin-left: var(--label-offset);
+	}
+
+	.section-header.side-right .edge-line-right {
+		display: block;
+		position: absolute;
+		right: 0;
+		top: 25%;
+		width: var(--label-offset);
+		height: 2px;
+		background: var(--grey);
+		box-shadow: 3px 3px 0 var(--yellow-accent);
+		transform: translateY(-50%);
+	}
+
+	.section-header.side-right .label {
+		margin-right: var(--label-offset);
 	}
 
 	.label {
