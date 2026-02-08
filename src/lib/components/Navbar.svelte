@@ -327,7 +327,8 @@
 	.mobile-nav-list a:not(.active) {
 		height: 33px;
 		font-size: 1.48rem;
-		padding: 0 0.56rem;
+		padding: 0 0.36rem;
+		box-shadow: 4px 4px 0 var(--nav-shadow);
 	}
 
 	.mobile-nav-list a:hover,
@@ -360,7 +361,8 @@
 		.navbar-list a:not(.active) {
 			height: 26px;
 			font-size: 1.3rem;
-			padding: 2px 0.56rem;
+			padding: 2px 0.36rem;
+			box-shadow: 4px 4px 0 var(--nav-shadow);
 		}
 
 		.navbar-list a:hover,
