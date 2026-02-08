@@ -9,10 +9,11 @@
 	let showMobileMenu = false;
 	let pendingMobileHref = '';
 	let mobileNavClickTimer;
-	const NAV_CLOSE_DELAY_MS = 420;
+	const NAV_BUTTON_ANIMATION_MS = 24;
+	const NAV_CLOSE_DELAY_MS = NAV_BUTTON_ANIMATION_MS;
 	const MOBILE_ACTIVE_WIDTH = 13.2;
 	const MOBILE_INACTIVE_WIDTH = 9.9;
-	const mobileWidths = tweened({}, { duration: 24, easing: cubicOut });
+	const mobileWidths = tweened({}, { duration: NAV_BUTTON_ANIMATION_MS, easing: cubicOut });
 
 	const navItems = [
 		{ label: 'Home', href: '/' },
@@ -64,7 +65,7 @@
 		if (pendingMobileHref) return;
 		pendingMobileHref = href;
 		preloadData(href);
-		mobileWidths.set(getWidthMap(href), { duration: 24, easing: cubicOut });
+		mobileWidths.set(getWidthMap(href), { duration: NAV_BUTTON_ANIMATION_MS, easing: cubicOut });
 		mobileNavClickTimer = setTimeout(async () => {
 			showMobileMenu = false;
 			if (!isActive(href)) {
