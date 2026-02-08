@@ -5,30 +5,35 @@
 </script>
 
 <div class={`section-header ${className}`.trim()}>
+	<div class="edge-line" aria-hidden="true"></div>
 	<svelte:element this={as} class="label">
 		<span><slot>{text}</slot></span>
 	</svelte:element>
+	<div class="edge-line" aria-hidden="true"></div>
 </div>
 
 <style>
 	.section-header {
-		position: relative;
 		width: 100vw;
 		margin-left: calc(50% - 50vw);
 		margin-right: 0;
 		margin-top: 0.75rem;
 		margin-bottom: 0.75rem;
-		display: flex;
-		padding: 0 var(--section-pad);
+		padding: 0 1rem;
 		box-sizing: border-box;
 		overflow-x: hidden;
 	}
 
+	.edge-line {
+		width: 100%;
+		height: 2px;
+		background: var(--grey);
+		box-shadow: 3px 3px 0 var(--yellow-accent);
+	}
+
 	.label {
-		margin: 0;
-		display: inline-flex;
-		align-items: center;
-		justify-content: center;
+		display: inline-block;
+		margin: 0.5rem 0;
 		background: var(--grey);
 		color: var(--white);
 		border: 1px solid var(--white);
