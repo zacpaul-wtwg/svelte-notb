@@ -9,6 +9,8 @@
 	export let size = 'large'; // mini | small | medium | large
 	export let place = 0; // offset from center in percent of half-width (-100 to 100 typical)
 	export let nudge = 0; // pixel offset applied after place
+	export let showLeftLine = true;
+	export let showRightLine = false;
 
 	let headerEl;
 	let labelEl;
@@ -111,8 +113,12 @@
 	style={`--label-center:${$animatedLabelCenter}px;--label-half:${labelWidth / 2}px`}
 >
 	<div class="line-layer" aria-hidden="true">
-		<div class="edge-line edge-line-left"></div>
-		<div class="edge-line edge-line-right"></div>
+		{#if showLeftLine}
+			<div class="edge-line edge-line-left"></div>
+		{/if}
+		{#if showRightLine}
+			<div class="edge-line edge-line-right"></div>
+		{/if}
 	</div>
 	<svelte:element bind:this={labelEl} this={as} class={`label size-${size}`.trim()}>
 		<span><slot>{text}</slot></span>
