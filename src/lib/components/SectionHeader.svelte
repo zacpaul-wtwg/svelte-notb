@@ -18,6 +18,8 @@
 	let hasEntered = false;
 	let isVisible = false;
 	const IN_VIEW_DELAY_MS = 140;
+	const TRIGGER_TOP_RATIO = 0.75;
+	const TRIGGER_BOTTOM_RATIO = 0.25;
 	const animatedLabelCenter = tweened(0, { duration: 0, easing: cubicOut });
 	let enterTimer;
 
@@ -65,6 +67,12 @@
 			async (entries) => {
 				const entry = entries[0];
 				if (!entry?.isIntersecting || hasEntered) return;
+				const viewportHeight = window.innerHeight || document.documentElement.clientHeight;
+				const topGate = viewportHeight * TRIGGER_TOP_RATIO;
+				const bottomGate = viewportHeight * TRIGGER_BOTTOM_RATIO;
+				if (entry.boundingClientRect.top > topGate || entry.boundingClientRect.bottom < bottomGate) {
+					return;
+				}
 				let entryEdge = nearestEdge;
 				if (Math.abs(Number(place)) <= 1) {
 					entryEdge = Math.random() < 0.5 ? 'left' : 'right';
@@ -79,7 +87,7 @@
 				}, IN_VIEW_DELAY_MS);
 				io.disconnect();
 			},
-			{ threshold: 0.2 }
+			{ threshold: 0, rootMargin: '0px' }
 		);
 		if (headerEl) io.observe(headerEl);
 
