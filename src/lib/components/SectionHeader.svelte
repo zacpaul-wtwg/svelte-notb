@@ -14,12 +14,11 @@
 
 <style>
 	.section-header {
-		--label-offset: var(--section-inline-pad);
 		position: relative;
 		width: 100vw;
 		margin-left: calc(50% - 50vw);
 		display: flex;
-		padding: 0 var(--section-inline-pad);
+		padding: 0 1rem;
 		box-sizing: border-box;
 		overflow-x: clip;
 		margin-top: 0;
@@ -43,15 +42,11 @@
 		position: absolute;
 		left: 0;
 		top: 50%;
-		width: var(--label-offset);
+		width: var(--section-inline-pad);
 		height: 2px;
 		background: var(--grey);
 		box-shadow: 3px 3px 0 var(--yellow-accent);
 		transform: translateY(-50%);
-	}
-
-	.section-header.side-left .label {
-		margin-left: var(--label-offset);
 	}
 
 	.label {
@@ -80,13 +75,7 @@
 
 	@media (max-width: 700px) {
 		.section-header {
-			padding: 0 var(--section-inline-pad);
-		}
-	}
-
-	@media (min-width: 1025px) {
-		.section-header {
-			--label-offset: calc(var(--section-content-edge) + (var(--section-content-max) * 0.2));
+			padding: 0 0.75rem;
 		}
 	}
 </style>
