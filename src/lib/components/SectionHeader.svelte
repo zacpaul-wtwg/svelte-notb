@@ -177,7 +177,11 @@
 	.section-header.is-mini {
 		margin-bottom: -1rem;
 		position: relative;
-		z-index: 2;
+	}
+
+	.section-header.is-mini .edge-line {
+		position: relative;
+		z-index: -1;
 	}
 
 	.label.size-small {
