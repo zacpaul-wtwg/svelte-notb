@@ -10,6 +10,9 @@
 	let showMobileMenu = false;
 	let pendingMobileHref = '';
 	let mobileNavClickTimer;
+	let navEl;
+	let topRowEl;
+	let bottomRowEl;
 	const NAV_BUTTON_ANIMATION_MS = 100;
 	const NAV_CLOSE_DELAY_MS = 150;
 	const MOBILE_ACTIVE_WIDTH = 13.2;
@@ -92,13 +95,33 @@
 		}, NAV_CLOSE_DELAY_MS);
 	};
 
+	const syncNavVars = () => {
+		if (!navEl || !bottomRowEl) return;
+		const root = document.documentElement;
+		const navTop = topRowEl ? topRowEl.getBoundingClientRect().height : 0;
+		const navHeight = bottomRowEl.getBoundingClientRect().height;
+		const headerHeight = navEl.getBoundingClientRect().height;
+		const navBottom = Math.max(0, headerHeight - navTop);
+		root.style.setProperty('--nav-top', `${Math.round(navTop)}px`);
+		root.style.setProperty('--nav-height', `${Math.round(navHeight)}px`);
+		root.style.setProperty('--nav-bottom', `${Math.round(navBottom)}px`);
+		root.style.setProperty('--header', `${Math.round(headerHeight)}px`);
+	};
+
 	onMount(() => {
 		mobileWidths.set(getWidthMap(getCurrentActiveHref()), { duration: 0 });
 		desktopLift.set(Object.fromEntries(navItems.map((item) => [item.href, 0])), { duration: 0 });
+		syncNavVars();
+		const navResizeObserver = new ResizeObserver(() => syncNavVars());
+		if (navEl) navResizeObserver.observe(navEl);
+		if (topRowEl) navResizeObserver.observe(topRowEl);
+		if (bottomRowEl) navResizeObserver.observe(bottomRowEl);
 		const mediaListener = window.matchMedia('(max-width: 700px)');
 		const handleMediaChange = (event) => {
 			if (!event.matches) showMobileMenu = false;
+			syncNavVars();
 		};
+		window.addEventListener('resize', syncNavVars);
 
 		if (mediaListener.addEventListener) {
 			mediaListener.addEventListener('change', handleMediaChange);
@@ -107,6 +130,8 @@
 		}
 
 		return () => {
+			navResizeObserver.disconnect();
+			window.removeEventListener('resize', syncNavVars);
 			if (mediaListener.removeEventListener) {
 				mediaListener.removeEventListener('change', handleMediaChange);
 			} else {
@@ -120,8 +145,8 @@
 	}
 </script>
 
-<nav>
-	<div class="top inner">
+<nav bind:this={navEl}>
+	<div class="top inner" bind:this={topRowEl}>
 		<div class="top-item"><a href="/product/pricelist">Pricelist</a></div>
 		<div class="top-item">
 			<a href="/product/wishlist"
@@ -130,7 +155,7 @@
 		</div>
 	</div>
 	<div class="hr"></div>
-	<div class="bottom inner">
+	<div class="bottom inner" bind:this={bottomRowEl}>
 		<a class="logo-link" href="/" aria-label="North of the Border Home">
 			<img src="/logo_large.png" alt="North of the Border Logo" />
 		</a>
@@ -364,7 +389,7 @@
 		position: fixed;
 		left: 0;
 		right: 0;
-		top: 100px;
+		top: var(--header);
 		bottom: 0;
 		background: rgba(0, 0, 0, 0.35);
 		border: 0;
@@ -375,7 +400,7 @@
 
 	.mobile-panel {
 		position: fixed;
-		top: 100px;
+		top: var(--header);
 		left: 0;
 		right: 0;
 		bottom: 0;
