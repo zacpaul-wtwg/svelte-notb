@@ -5,11 +5,11 @@
 </script>
 
 <div class={`section-header ${className}`.trim()}>
-	<div class="edge-line" aria-hidden="true"></div>
+	<div class="edge-line edge-line-left" aria-hidden="true"></div>
 	<svelte:element this={as} class="label">
 		<span><slot>{text}</slot></span>
 	</svelte:element>
-	<div class="edge-line" aria-hidden="true"></div>
+	<div class="edge-line edge-line-right" aria-hidden="true"></div>
 </div>
 
 <style>
@@ -28,11 +28,20 @@
 
 	.edge-line {
 		display: inline-block;
+		position: relative;
 		vertical-align: middle;
 		width: 1400px;
 		height: 2px;
 		background: var(--grey);
 		box-shadow: 3px 3px 0 var(--yellow-accent);
+	}
+
+	.edge-line-left {
+		top: 75%;
+	}
+
+	.edge-line-right {
+		top: 25%;
 	}
 
 	.label {
