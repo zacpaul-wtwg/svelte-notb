@@ -41,6 +41,7 @@
 
 	.edge-line {
 		display: none;
+		z-index: 0;
 	}
 
 	.section-header .edge-line-left {
@@ -86,6 +87,8 @@
 	}
 
 	.label {
+		position: relative;
+		z-index: 1;
 		margin: 0;
 		display: inline-flex;
 		align-items: center;
