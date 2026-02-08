@@ -1,5 +1,5 @@
 <script>
-	import { onMount } from 'svelte';
+	import { onMount, tick } from 'svelte';
 	import { fly } from 'svelte/transition';
 
 	export let text = '';
@@ -13,6 +13,7 @@
 	let labelEl;
 	let groupX = '0px';
 	let flyX = Number(place) <= 0 ? -90 : 90;
+	let showLabel = false;
 
 	const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
 
@@ -32,13 +33,33 @@
 	};
 
 	onMount(() => {
-		updatePlacement();
 		const ro = new ResizeObserver(() => updatePlacement());
 		if (headerEl) ro.observe(headerEl);
-		if (labelEl) ro.observe(labelEl);
 		window.addEventListener('resize', updatePlacement);
+
+		const io = new IntersectionObserver(
+			async (entries) => {
+				const entry = entries[0];
+				if (!entry?.isIntersecting || showLabel) return;
+				const p = Number(place);
+				if (Math.abs(p) <= 1) {
+					flyX = Math.random() < 0.5 ? -90 : 90;
+				} else {
+					flyX = p < 0 ? -90 : 90;
+				}
+				showLabel = true;
+				await tick();
+				if (labelEl) ro.observe(labelEl);
+				updatePlacement();
+				io.disconnect();
+			},
+			{ threshold: 0.2 }
+		);
+		if (headerEl) io.observe(headerEl);
+
 		return () => {
 			ro.disconnect();
+			io.disconnect();
 			window.removeEventListener('resize', updatePlacement);
 		};
 	});
@@ -49,14 +70,16 @@
 <div bind:this={headerEl} class={`section-header ${className}`.trim()} style={`--group-x:${groupX}`}>
 	<div class="header-group">
 		<div class="edge-line edge-line-left" aria-hidden="true"></div>
-		<svelte:element
-			bind:this={labelEl}
-			this={as}
-			class={`label size-${size}`.trim()}
-			in:fly={{ x: flyX, duration: 260 }}
-		>
-			<span><slot>{text}</slot></span>
-		</svelte:element>
+		{#if showLabel}
+			<svelte:element
+				bind:this={labelEl}
+				this={as}
+				class={`label size-${size}`.trim()}
+				in:fly={{ x: flyX, duration: 260 }}
+			>
+				<span><slot>{text}</slot></span>
+			</svelte:element>
+		{/if}
 		<div class="edge-line edge-line-right" aria-hidden="true"></div>
 	</div>
 </div>
