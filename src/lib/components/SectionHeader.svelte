@@ -6,6 +6,7 @@
 </script>
 
 <div class={`section-header side-${side} ${className}`.trim()}>
+	<span class="edge-line" aria-hidden="true"></span>
 	<svelte:element this={as} class="label">
 		<span><slot>{text}</slot></span>
 	</svelte:element>
@@ -30,6 +31,22 @@
 
 	.section-header.side-right {
 		justify-content: flex-end;
+	}
+
+	.edge-line {
+		display: none;
+	}
+
+	.section-header.side-left .edge-line {
+		display: block;
+		position: absolute;
+		left: 0;
+		top: 50%;
+		width: var(--section-inline-pad);
+		height: 2px;
+		background: var(--grey);
+		box-shadow: 3px 3px 0 var(--yellow-accent);
+		transform: translateY(-50%);
 	}
 
 	.label {
