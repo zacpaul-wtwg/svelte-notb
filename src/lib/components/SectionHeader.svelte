@@ -177,21 +177,17 @@
 	.section-header.is-mini {
 		margin-bottom: -1rem;
 		position: relative;
+		overflow: visible;
 	}
 
 	.section-header.is-mini .edge-line {
 		position: relative;
-		z-index: 0;
+		z-index: -2;
 	}
 
 	.section-header.is-mini .label {
 		position: relative;
-		z-index: 2;
-	}
-
-	:global(.section-header.is-mini) + :global(*) {
-		position: relative;
-		z-index: 1;
+		z-index: 3;
 	}
 
 	.label.size-small {
