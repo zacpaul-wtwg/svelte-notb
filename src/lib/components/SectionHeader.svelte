@@ -37,11 +37,11 @@
 	}
 
 	.edge-line-left {
-		top: 75%;
+		top: 24px;
 	}
 
 	.edge-line-right {
-		top: 25%;
+		top: 8px;
 	}
 
 	.label {
