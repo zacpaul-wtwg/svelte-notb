@@ -330,7 +330,7 @@
 		text-align: center;
 		padding: 3px 10px;
 		font-size: 1.44rem;
-		font-family: Langdon, Arial, sans-serif;
+		font-family: 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif;
 		letter-spacing: 0.05em;
 		text-transform: uppercase;
 		background: var(--grey);
