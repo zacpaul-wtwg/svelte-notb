@@ -358,4 +358,11 @@
 	.description-wrap :global(.description-card.expanded)::after {
 		transform: rotate(-135deg);
 	}
+
+	@media (max-width: 700px) {
+		.description-wrap :global(.description-card p) {
+			-webkit-line-clamp: 1;
+			line-clamp: 1;
+		}
+	}
 </style>
