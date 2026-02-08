@@ -3,7 +3,7 @@
 	import Clickers from '$lib/components/Clickers.svelte';
 	import ExpandableDescription from '$lib/components/ExpandableDescription.svelte';
 	import { getThumb } from '$lib/utility/imageThumb';
-	import { sentenceify } from '$lib/utility/slugify';
+	import { sentenceify, slugify } from '$lib/utility/slugify';
 
 	export let products = [];
 	export let intervalMs = 5000;
@@ -156,7 +156,12 @@
 						/>
 					</div>
 					<div class="actions">
-						<Clickers product={activeProduct} inline={true} />
+						<div class="clickers-wrap">
+							<Clickers product={activeProduct} inline={true} />
+						</div>
+						<a class="mobile-details-button" href={`/product/${activeProduct.id}/${slugify(activeProduct.title)}`}>
+							DETAILS
+						</a>
 					</div>
 				</div>
 			</article>
@@ -433,6 +438,10 @@
 		padding-bottom: 0.1rem;
 	}
 
+	.mobile-details-button {
+		display: none;
+	}
+
 	.dots {
 		display: flex;
 		flex-wrap: wrap;
@@ -460,7 +469,7 @@
 		color: var(--grey);
 	}
 
-	@media (max-width: 980px) {
+	@media (max-width: 1024px) {
 		.heading-row {
 			grid-template-columns: 1fr;
 			align-items: flex-start;
@@ -489,20 +498,88 @@
 		}
 	}
 
-	@media (max-width: 680px) {
+	@media (max-width: 700px) {
 		.featured-carousel-wrap {
-			padding: 0.55rem 0.55rem 3rem;
+			padding: 0.55rem 0.55rem 0.8rem;
 			margin: 0;
+		}
+
+		.heading-row {
+			padding-bottom: 0.8rem;
+			margin-bottom: 0.5rem;
 		}
 
 		.heading-row h2 {
 			white-space: normal;
 			overflow: visible;
 			text-overflow: clip;
+			padding-right: 0.2rem;
+		}
+
+		.price-tag {
+			right: 0.55rem;
+			bottom: -28px;
+			transform: skew(-14deg);
+		}
+
+		.price-text {
+			font-size: 1.3em;
 		}
 
 		.viewport {
 			padding: 0.4rem;
+		}
+
+		.media {
+			height: min(58vw, 240px);
+		}
+
+		.description-wrap,
+		.dots {
+			display: none;
+		}
+
+		.slide {
+			overflow: visible;
+		}
+
+		.content {
+			overflow: visible;
+			padding: 0.55rem 0.7rem 0.85rem;
+		}
+
+		.actions {
+			padding-right: 0;
+			padding-bottom: 0;
+			margin-top: 0.2rem;
+		}
+
+		.controls {
+			position: static;
+			justify-content: flex-end;
+			margin-top: 0.5rem;
+			padding-top: 0.2rem;
+		}
+
+		.clickers-wrap {
+			display: none;
+		}
+
+		.mobile-details-button {
+			display: inline-flex;
+			align-items: center;
+			justify-content: center;
+			letter-spacing: 0.04em;
+			font-family: Langdon, Arial, sans-serif;
+			font-size: 1.1rem;
+			color: var(--white);
+			background: var(--grey);
+			border: 1px solid var(--grey);
+			box-shadow: 2px 2px 0 var(--yellow-accent);
+			padding: 0.45rem 0.8rem;
+			text-decoration: none;
+			width: 80%;
+			margin: 0 auto;
 		}
 	}
 </style>

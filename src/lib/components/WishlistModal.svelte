@@ -355,7 +355,7 @@
 			overflow: visible;
 		}
 	}
-	@media (max-width: 820px) {
+	@media (max-width: 1024px) {
 		.card-body {
 			grid-template-columns: 1fr;
 			gap: 0.45em;

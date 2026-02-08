@@ -61,10 +61,13 @@
 		justify-content: center;
 		align-items: center;
 		flex-direction: column;
+		overflow-x: clip;
 	}
 	.message {
 		color: white;
 		display: flex;
+		max-width: 100%;
+		box-sizing: border-box;
 	}
 	.deals {
 		font-size: 2.5em;
@@ -102,7 +105,42 @@
 		left: 0px;
 	}
 
-	@media only screen and (max-width: 768px) {
+	@media only screen and (max-width: 700px) {
+		.message {
+			width: 100%;
+			padding: 0 0.75rem;
+			justify-content: center;
+		}
+		.message > div {
+			max-width: 100%;
+		}
+		.title {
+			font-size: clamp(1.7rem, 9vw, 2.35rem);
+			line-height: 1.02;
+			text-align: center;
+		}
+		.fireworks {
+			font-size: clamp(1.6rem, 10vw, 2.4rem);
+		}
+		.deals {
+			font-size: clamp(1.5rem, 8vw, 2rem);
+			text-align: center;
+		}
+		.rotate {
+			transform: none;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			flex-wrap: wrap;
+			gap: 0.35rem;
+		}
+		.everything {
+			transform: none;
+		}
+		.or {
+			transform: none;
+			margin: 0;
+		}
 		img {
 			display: none;
 		}

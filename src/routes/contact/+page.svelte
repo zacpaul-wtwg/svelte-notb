@@ -124,7 +124,7 @@
 		border: 2px solid var(--grey);
 		box-shadow: 6px 6px 0 var(--yellow-accent);
 	}
-	@media (max-width: 900px) {
+	@media (max-width: 1024px) {
 		.display {
 			grid-template-columns: 1fr;
 		}

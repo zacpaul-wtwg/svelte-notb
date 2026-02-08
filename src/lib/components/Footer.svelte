@@ -190,7 +190,7 @@
 		text-underline-offset: 2px;
 	}
 
-	@media (max-width: 1100px) {
+	@media (max-width: 1024px) {
 		.footer-inner {
 			grid-template-columns: 1fr;
 		}
@@ -202,7 +202,7 @@
 		}
 	}
 
-	@media (max-width: 680px) {
+	@media (max-width: 700px) {
 		.site-footer {
 			padding: 1.8rem 0.7rem 1.6rem;
 		}
@@ -230,7 +230,7 @@
 		text-transform: uppercase;
 	}
 
-	@media (max-width: 680px) {
+	@media (max-width: 700px) {
 		.copyright-bar {
 			margin: 1.2rem -0.7rem -1.6rem;
 			padding: 0.65rem 0.7rem;

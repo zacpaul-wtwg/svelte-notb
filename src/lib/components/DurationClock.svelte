@@ -120,7 +120,7 @@
 		border: 1px solid var(--red);
 		border-radius: 999px;
 	}
-	@media (max-width: 640px) {
+	@media (max-width: 700px) {
 		.clock {
 			gap: 0.6em;
 		}

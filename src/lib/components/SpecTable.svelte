@@ -80,7 +80,7 @@
 		display: flex;
 		align-items: center;
 	}
-	@media (max-width: 640px) {
+	@media (max-width: 700px) {
 		.spec-card {
 			padding: 2.2em 0.65em 0.8em;
 		}

@@ -3,7 +3,6 @@
 	import Hero from '$lib/components/Hero.svelte';
 	import FeaturedCarousel from '$lib/components/FeaturedCarousel.svelte';
 	import Container from '$lib/components/elements/Container.svelte';
-	import SkewLabel from '$lib/components/SkewLabel.svelte';
 	import { isFeaturedProduct } from '$lib/filter-utils';
 
 	export let data;
@@ -22,11 +21,6 @@
 </svelte:head>
 <Hero {allData} />
 <Container>
-	<svelte:fragment slot="section-label">
-		<div class="home-label-layer">
-			<SkewLabel as="div" text="Latest" className="home-edge-pill" classSide="left" showRule />
-		</div>
-	</svelte:fragment>
 	<section class="home-content-stack">
 		<section class="home-body">
 			<HomeNews {allData} />
@@ -38,12 +32,6 @@
 </Container>
 
 <style>
-	.home-label-layer {
-		width: 100%;
-		overflow-x: clip;
-		margin-bottom: 0.4rem;
-	}
-
 	.home-content-stack {
 		display: flex;
 		flex-direction: column;
@@ -52,47 +40,5 @@
 
 	.home-body {
 		width: 100%;
-	}
-
-	.home-label-layer :global(.home-edge-pill) {
-		font-family: 'Agency FB', 'AgencyFB', 'Arial Narrow', 'Langdon', Arial, sans-serif;
-		line-height: 0.95;
-		letter-spacing: 0.06em;
-		white-space: nowrap;
-		max-width: none;
-	}
-
-	.home-label-layer :global(.home-edge-pill.from-left) {
-		justify-content: flex-end;
-		text-align: right;
-		animation: slide-in-left 420ms ease-out;
-	}
-
-	.home-label-layer :global(.home-edge-pill.from-right) {
-		justify-content: flex-start;
-		text-align: left;
-		animation: slide-in-right 420ms ease-out;
-	}
-
-	@keyframes slide-in-left {
-		from {
-			transform: translateX(-22px);
-			opacity: 0;
-		}
-		to {
-			transform: translateX(0);
-			opacity: 1;
-		}
-	}
-
-	@keyframes slide-in-right {
-		from {
-			transform: translateX(22px);
-			opacity: 0;
-		}
-		to {
-			transform: translateX(0);
-			opacity: 1;
-		}
 	}
 </style>

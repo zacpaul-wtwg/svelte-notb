@@ -103,7 +103,7 @@
 		letter-spacing: 0.04em;
 		white-space: nowrap;
 	}
-	@media (max-width: 640px) {
+	@media (max-width: 700px) {
 		.scale {
 			gap: 1em;
 		}

@@ -9,8 +9,8 @@
 	let showMobileMenu = false;
 	let pendingMobileHref = '';
 	let mobileNavClickTimer;
-	const NAV_BUTTON_ANIMATION_MS = 0;
-	const NAV_CLOSE_DELAY_MS = 500;
+	const NAV_BUTTON_ANIMATION_MS = 100;
+	const NAV_CLOSE_DELAY_MS = 150;
 	const MOBILE_ACTIVE_WIDTH = 13.2;
 	const MOBILE_INACTIVE_WIDTH = 9.9;
 	const mobileWidths = tweened({}, { duration: NAV_BUTTON_ANIMATION_MS, easing: cubicOut });

@@ -105,7 +105,7 @@
 		margin: 0.4em 0 0.8em;
 		padding-left: 1.3em;
 	}
-	@media (max-width: 640px) {
+	@media (max-width: 700px) {
 		.summary {
 			padding: 0.6em 0.8em;
 		}

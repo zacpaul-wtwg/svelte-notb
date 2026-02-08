@@ -17,3 +17,6 @@
 ## QA
 - [ ] Verify homepage carousel rendering and controls on mobile and desktop.
 - [ ] Regression-check `/product` filtering for `FEATURED` and standard departments.
+
+## Hero
+- [ ] Revisit mobile hero visual design after overflow fix (ribbon/title layout and typography).

@@ -119,7 +119,7 @@
 		font-size: 1em;
 	}
 
-	@media (max-width: 900px) {
+	@media (max-width: 1024px) {
 		.submit-layout {
 			grid-template-columns: 1fr;
 		}

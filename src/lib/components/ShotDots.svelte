@@ -144,7 +144,7 @@
 		color: var(--grey);
 		font-weight: 700;
 	}
-	@media (max-width: 640px) {
+	@media (max-width: 700px) {
 		.dot-grid {
 			grid-template-columns: repeat(10, 1fr);
 			gap: 3px;

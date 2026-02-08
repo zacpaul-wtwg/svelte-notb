@@ -259,7 +259,7 @@
 		left: -2.7em;
 		width: max-content;
 	}
-	@media (max-width: 640px) {
+	@media (max-width: 700px) {
 		.card-body :global(li) {
 			width: auto;
 			max-width: 100%;
@@ -268,12 +268,12 @@
 	.highlights li :global(.skew-label) {
 		padding-left: 3.2em;
 	}
-	@media (max-width: 980px) {
+	@media (max-width: 1024px) {
 		.hero-strip {
 			grid-template-columns: repeat(2, minmax(0, 1fr));
 		}
 	}
-	@media (max-width: 640px) {
+	@media (max-width: 700px) {
 		.pricing-hero {
 			grid-template-columns: 1fr;
 		}
