@@ -1,6 +1,7 @@
 <script>
 	import { onMount, tick } from 'svelte';
-	import { fly } from 'svelte/transition';
+	import { tweened } from 'svelte/motion';
+	import { cubicOut } from 'svelte/easing';
 
 	export let text = '';
 	export let as = 'h2';
@@ -11,9 +12,13 @@
 
 	let headerEl;
 	let labelEl;
-	let groupX = '0px';
-	let flyX = Number(place) <= 0 ? -90 : 90;
-	let showLabel = false;
+	let groupX = 0;
+	let nearestEdge = 'left';
+	let hasEntered = false;
+	let isVisible = false;
+	const IN_VIEW_DELAY_MS = 140;
+	const animatedGroupX = tweened(0, { duration: 0, easing: cubicOut });
+	let enterTimer;
 
 	const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
 
@@ -28,31 +33,40 @@
 		const minCenter = labelWidth / 2 + safePad;
 		const maxCenter = headerWidth - labelWidth / 2 - safePad;
 		const clampedCenter = clamp(desiredCenter, minCenter, maxCenter);
-		groupX = `${clampedCenter - headerWidth / 2}px`;
+		groupX = clampedCenter - headerWidth / 2;
 		const distToLeftEdge = clampedCenter;
 		const distToRightEdge = headerWidth - clampedCenter;
-		flyX = distToLeftEdge <= distToRightEdge ? -120 : 120;
+		nearestEdge = distToLeftEdge <= distToRightEdge ? 'left' : 'right';
+
+		if (hasEntered) {
+			animatedGroupX.set(groupX, { duration: 0 });
+		}
 	};
 
 	onMount(() => {
 		const ro = new ResizeObserver(() => updatePlacement());
 		if (headerEl) ro.observe(headerEl);
+		if (labelEl) ro.observe(labelEl);
 		window.addEventListener('resize', updatePlacement);
+		updatePlacement();
 
 		const io = new IntersectionObserver(
 			async (entries) => {
 				const entry = entries[0];
-				if (!entry?.isIntersecting || showLabel) return;
-				const p = Number(place);
-				if (Math.abs(p) <= 1) {
-					flyX = Math.random() < 0.5 ? -120 : 120;
-				} else {
-					flyX = p < 0 ? -120 : 120;
+				if (!entry?.isIntersecting || hasEntered) return;
+				const headerWidth = headerEl?.clientWidth || 0;
+				let entryEdge = nearestEdge;
+				if (Math.abs(Number(place)) <= 1) {
+					entryEdge = Math.random() < 0.5 ? 'left' : 'right';
 				}
-				showLabel = true;
+				const startX = entryEdge === 'left' ? -headerWidth / 2 : headerWidth / 2;
+				animatedGroupX.set(startX, { duration: 0 });
+				isVisible = true;
 				await tick();
-				if (labelEl) ro.observe(labelEl);
-				updatePlacement();
+				enterTimer = setTimeout(() => {
+					hasEntered = true;
+					animatedGroupX.set(groupX, { duration: 360, easing: cubicOut });
+				}, IN_VIEW_DELAY_MS);
 				io.disconnect();
 			},
 			{ threshold: 0.2 }
@@ -62,6 +76,7 @@
 		return () => {
 			ro.disconnect();
 			io.disconnect();
+			if (enterTimer) clearTimeout(enterTimer);
 			window.removeEventListener('resize', updatePlacement);
 		};
 	});
@@ -69,19 +84,12 @@
 	$: place, nudge, updatePlacement();
 </script>
 
-<div bind:this={headerEl} class={`section-header ${className}`.trim()} style={`--group-x:${groupX}`}>
-	<div class="header-group">
+<div bind:this={headerEl} class={`section-header ${className}`.trim()} style={`--group-x:${$animatedGroupX}px`}>
+	<div class={`header-group ${isVisible ? 'is-visible' : ''}`.trim()}>
 		<div class="edge-line edge-line-left" aria-hidden="true"></div>
-		{#if showLabel}
-			<svelte:element
-				bind:this={labelEl}
-				this={as}
-				class={`label size-${size}`.trim()}
-				in:fly={{ x: flyX, duration: 260 }}
-			>
-				<span><slot>{text}</slot></span>
-			</svelte:element>
-		{/if}
+		<svelte:element bind:this={labelEl} this={as} class={`label size-${size}`.trim()}>
+			<span><slot>{text}</slot></span>
+		</svelte:element>
 		<div class="edge-line edge-line-right" aria-hidden="true"></div>
 	</div>
 </div>
@@ -105,6 +113,11 @@
 		position: relative;
 		left: 50%;
 		transform: translateX(calc(-50% + var(--group-x)));
+		visibility: hidden;
+	}
+
+	.header-group.is-visible {
+		visibility: visible;
 	}
 
 	.edge-line {
