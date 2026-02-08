@@ -464,14 +464,23 @@
 			display: flex;
 		}
 
-		.navbar-list a::after {
+		.navbar-list {
+			align-items: flex-start;
+		}
+
+		.navbar-list li {
+			align-self: flex-start;
+		}
+
+		.navbar-list li::after {
 			content: '';
 			position: absolute;
 			inset: 0;
 			background: transparent;
 			box-shadow: 2px 2px 0 var(--yellow-accent);
+			transform: skew(-14deg);
 			pointer-events: none;
-			z-index: -1;
+			z-index: 0;
 		}
 
 		.navbar-list a {
@@ -485,7 +494,6 @@
 			box-shadow: none;
 			position: relative;
 			z-index: 1;
-			isolation: isolate;
 			transition:
 				width 0.24s ease,
 				height 0.24s ease,
