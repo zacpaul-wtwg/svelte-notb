@@ -2,7 +2,7 @@
 	import { onMount } from 'svelte';
 	import { goto, preloadData } from '$app/navigation';
 	import { tweened } from 'svelte/motion';
-	import { cubicOut, elasticOut } from 'svelte/easing';
+	import { cubicOut } from 'svelte/easing';
 	import { fade, fly } from 'svelte/transition';
 	import { page } from '$app/stores';
 	import { get } from 'svelte/store';
@@ -18,9 +18,9 @@
 	const MOBILE_ACTIVE_WIDTH = 13.2;
 	const MOBILE_INACTIVE_WIDTH = 9.9;
 	const DESKTOP_FLOAT_PX = -6;
-	const DESKTOP_HOVER_ANIMATION_MS = 360;
+	const DESKTOP_HOVER_ANIMATION_MS = 150;
 	const mobileWidths = tweened({}, { duration: NAV_BUTTON_ANIMATION_MS, easing: cubicOut });
-	const desktopLift = tweened({}, { duration: DESKTOP_HOVER_ANIMATION_MS, easing: elasticOut });
+	const desktopLift = tweened({}, { duration: DESKTOP_HOVER_ANIMATION_MS, easing: cubicOut });
 
 	const navItems = [
 		{ label: 'Home', href: '/' },
@@ -78,7 +78,7 @@
 	const setDesktopHover = (href, hovering) => {
 		desktopLift.set(
 			{ ...get(desktopLift), [href]: hovering ? DESKTOP_FLOAT_PX : 0 },
-			{ duration: DESKTOP_HOVER_ANIMATION_MS, easing: elasticOut }
+			{ duration: DESKTOP_HOVER_ANIMATION_MS, easing: cubicOut }
 		);
 	};
 
@@ -461,7 +461,7 @@
 			content: '';
 			position: absolute;
 			inset: 0;
-			background: var(--nav-shadow);
+			background: var(--yellow-accent);
 			transform: skew(-14deg) translate(2px, 2px);
 			pointer-events: none;
 			z-index: 0;
