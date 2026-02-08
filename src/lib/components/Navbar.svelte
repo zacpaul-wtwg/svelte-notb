@@ -315,8 +315,7 @@
 
 	.mobile-nav-list a {
 		height: 44px;
-		width: fit-content;
-		max-width: 100%;
+		width: 13.2rem;
 		font-size: 1.64rem;
 		padding: 0 0.75rem;
 		margin: 0;
@@ -329,6 +328,7 @@
 	.mobile-nav-list a:not(.active) {
 		height: 33px;
 		font-size: 1.48rem;
+		width: 9.9rem;
 		padding: 0 0.36rem;
 		box-shadow: 4px 4px 0 var(--nav-shadow);
 	}
