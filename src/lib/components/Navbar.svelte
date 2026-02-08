@@ -476,7 +476,8 @@
 			content: '';
 			position: absolute;
 			inset: 0;
-			background: transparent;
+			background: var(--white);
+			border: 1px solid var(--grey);
 			box-shadow: 2px 2px 0 var(--yellow-accent);
 			transform: skew(-14deg);
 			pointer-events: none;
