@@ -150,7 +150,7 @@
 			class="mobile-panel"
 			role="dialog"
 			aria-label="Site navigation"
-			transition:fly={{ x: -120, duration: 220 }}
+			transition:fly={{ x: -280, duration: 280 }}
 		>
 			<ul class="mobile-nav-list">
 				{#each navItems as item}
