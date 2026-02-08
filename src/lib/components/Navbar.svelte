@@ -453,9 +453,13 @@
 
 		.navbar-list a {
 			display: inline-flex;
-			height: 34px;
-			padding: 0 0.75rem;
-			border-color: transparent;
+			height: 30px;
+			padding: 0 0.62rem;
+			font-size: 1.2rem;
+			background: var(--white);
+			color: var(--grey);
+			border-color: var(--grey);
+			box-shadow: 2px 2px 0 var(--nav-shadow);
 			transition:
 				width 0.24s ease,
 				height 0.24s ease,
@@ -465,9 +469,9 @@
 		}
 
 		.navbar-list a:not(.active) {
-			height: 26px;
-			font-size: 1.3rem;
-			padding: 2px 0.36rem;
+			height: 24px;
+			font-size: 1.08rem;
+			padding: 1px 0.34rem;
 			box-shadow: 2px 2px 0 var(--nav-shadow);
 		}
 
