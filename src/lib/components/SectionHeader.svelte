@@ -63,13 +63,14 @@
 		box-sizing: border-box;
 		overflow: hidden;
 		white-space: nowrap;
-		text-align: center;
 	}
 
 	.header-group {
 		display: inline-block;
 		white-space: nowrap;
-		transform: translateX(var(--group-x));
+		position: relative;
+		left: 50%;
+		transform: translateX(calc(-50% + var(--group-x)));
 	}
 
 	.edge-line {
