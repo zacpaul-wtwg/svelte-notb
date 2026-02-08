@@ -363,5 +363,13 @@
 		.description-wrap :global(.description-card:not(.expanded) p) {
 			display: none;
 		}
+
+		.description-wrap {
+			margin-bottom: 0.15em;
+		}
+
+		.card :global(.clicker-container) {
+			margin-top: 4px;
+		}
 	}
 </style>
