@@ -246,8 +246,8 @@
 		align-items: center;
 		justify-content: center;
 		text-align: center;
-		padding: 0 10px;
-		font-size: 0.95rem;
+		padding: 3px 10px;
+		font-size: 1.09rem;
 		font-family: Langdon, Arial, sans-serif;
 		letter-spacing: 0.05em;
 		text-transform: uppercase;
@@ -311,7 +311,7 @@
 
 	.mobile-nav-list a {
 		height: 44px;
-		font-size: 1.08rem;
+		font-size: 1.24rem;
 		padding: 0 0.75rem;
 		margin: 0.45rem 0;
 		transition:
