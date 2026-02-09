@@ -2,6 +2,10 @@
   command = "npm run build"
   publish = "build"
 
+[build.environment]
+  NPM_CONFIG_ENGINE_STRICT = "false"
+  PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD = "1"
+
 [functions]
   node_bundler = "esbuild"
   directory = "netlify/functions"
