@@ -11,6 +11,7 @@
 	export let size = 'large'; // mini | small | medium | large
 	export let place = 0; // offset from center in percent of half-width (-100 to 100 typical)
 	export let nudge = 0; // pixel offset applied after place
+	export let entryFrom = 'auto'; // auto | left | right
 	export let showLeftLine = true;
 	export let showRightLine = false;
 
@@ -65,7 +66,9 @@
 	const enter = async () => {
 		if (hasEntered || !headerEl) return;
 		let entryEdge = nearestEdge;
-		if (Math.abs(effectivePlace()) <= 1) {
+		if (entryFrom === 'left' || entryFrom === 'right') {
+			entryEdge = entryFrom;
+		} else if (Math.abs(effectivePlace()) <= 1) {
 			entryEdge = Math.random() < 0.5 ? 'left' : 'right';
 		}
 		const startCenter = getOffscreenStartCenter(entryEdge);

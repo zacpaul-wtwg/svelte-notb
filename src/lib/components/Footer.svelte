@@ -125,12 +125,30 @@
 	}
 
 	.message :global(.footer-logo-pill) {
+		display: block;
+		width: fit-content;
+		margin: 0 auto;
 		padding: 0.35rem 0.65rem;
 	}
 
-	.message :global(.footer-logo-pill > span) {
+	.message :global(.footer-logo-pill .internal) {
+		background: #000;
+		border: 1px solid var(--white);
+		border-radius: 0;
+		box-shadow: 4px 4px 0 var(--yellow-accent);
+		display: flex;
+		justify-content: center;
+	}
+
+	.message :global(.footer-logo-pill .deskew) {
 		display: flex;
 		align-items: center;
+		justify-content: center;
+		width: 100%;
+	}
+
+	.message.poster-card {
+		background: var(--off-white);
 	}
 
 	.message img {

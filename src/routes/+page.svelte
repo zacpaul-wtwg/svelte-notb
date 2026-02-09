@@ -21,12 +21,20 @@
 	/>
 </svelte:head>
 <Hero {allData} />
-<SectionHeader id="home-latest-news-label" text="Latest News" place={0} />
+<SectionHeader id="home-latest-news-label" text="Latest News" place={-35} entryFrom="left" />
 <Container>
 	<section class="home-content-stack">
 		<section class="home-body">
 			<HomeNews {allData} />
 		</section>
+		<SectionHeader
+			id="home-featured-label"
+			text="Featured"
+			place={35}
+			entryFrom="right"
+			showLeftLine={false}
+			showRightLine={true}
+		/>
 		<section class="home-body">
 			<FeaturedCarousel products={featuredProducts} intervalMs={5000} />
 		</section>
