@@ -2,6 +2,7 @@
 	import { onMount, tick } from 'svelte';
 	import Accordion from '$lib/components/accordion.svelte';
 	import Container from '$lib/components/elements/Container.svelte';
+	import SectionHeader from '$lib/components/SectionHeader.svelte';
 	import TitleBar from '$lib/components/TitleBar.svelte';
 	import { fallbackAllData } from '$lib/cms/fallback';
 
@@ -80,6 +81,14 @@
 	title={'Frequently Asked Questions'}
 	description={'Frequently asked questions about the PA state laws, the safe use of fireworks, our pricing options, and more.'}
 />
+<SectionHeader
+	id="faq-page-title-label"
+	place="-50"
+	as="h1"
+	text="FAQ"
+	size="large"
+	className="faq-page-title"
+/>
 
 <Container>
 	<section class="page-stack faq-stack">
@@ -97,6 +106,21 @@
 </Container>
 
 <style>
+	:global(.main .title-container) {
+		visibility: hidden;
+		pointer-events: none;
+	}
+	:global(.faq-page-title) {
+		margin-top: -0.9rem;
+		margin-bottom: calc(0.6rem - 34px);
+		position: relative;
+		top: -34px;
+		z-index: 4;
+		overflow: visible;
+	}
+	:global(.faq-page-title .label) {
+		box-shadow: 6px 10px 0 var(--yellow-accent);
+	}
 	.faq-card {
 		display: block;
 	}

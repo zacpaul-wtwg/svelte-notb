@@ -2,6 +2,7 @@
 	import { fly, fade, slide } from 'svelte/transition';
 	import MatchGroup from '$lib/matchGroup.svelte';
 	import { filterProducts, isFeaturedProduct, sortProducts } from '$lib/filter-utils';
+	import SectionHeader from '$lib/components/SectionHeader.svelte';
 	import TitleBar from '$lib/components/TitleBar.svelte';
 	import ProductCard from '$lib/components/ProductCard.svelte';
 
@@ -306,6 +307,14 @@
 >
 	<div>
 		<TitleBar title="Products: {department}" subtitle="Pricing: {pricing}" />
+		<SectionHeader
+			id="products-page-title-label"
+			place="-50"
+			as="h1"
+			text="Products"
+			size="large"
+			className="products-page-title"
+		/>
 	</div>
 
 	<div class="card-container {filter ? 'no-scroll' : 'scroll'}">
@@ -336,6 +345,21 @@
 </div>
 
 <style lang="scss">
+	:global(.main .title-container) {
+		visibility: hidden;
+		pointer-events: none;
+	}
+	:global(.products-page-title) {
+		margin-top: -0.9rem;
+		margin-bottom: calc(0.6rem - 34px);
+		position: relative;
+		top: -34px;
+		z-index: 4;
+		overflow: visible;
+	}
+	:global(.products-page-title .label) {
+		box-shadow: 6px 10px 0 var(--yellow-accent);
+	}
 	button {
 		color: var(--white);
 		text-decoration: none;

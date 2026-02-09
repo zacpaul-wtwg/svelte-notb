@@ -21,7 +21,7 @@
 	/>
 </svelte:head>
 <Hero {allData} />
-<SectionHeader text="Latest News" side="left" />
+<SectionHeader id="home-latest-news-label" text="Latest News" place={0} />
 <Container>
 	<section class="home-content-stack">
 		<section class="home-body">

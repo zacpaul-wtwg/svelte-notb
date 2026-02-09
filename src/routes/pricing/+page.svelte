@@ -13,7 +13,14 @@
 	title={'Pricing'}
 	description={'See our vip loyalty program, high roller rollback program, and camp and military discount information'}
 />
-<SectionHeader place="-50" as="h1" text="Pricing" size="large" className="pricing-page-title" />
+<SectionHeader
+	id="pricing-page-title-label"
+	place="-50"
+	as="h1"
+	text="Pricing"
+	size="large"
+	className="pricing-page-title"
+/>
 <Container>
 	<section class="page-stack pricing-page">
 		<section class="pricing-hero">
@@ -55,9 +62,10 @@
 		</section>
 
 		<section class="pricing-stack">
-			{#each allData.pricing as entry}
+			{#each allData.pricing as entry, idx}
 				<section class="pricing-option">
 					<SectionHeader
+						id={`pricing-option-label-${idx}`}
 						as="h3"
 						text={entry.title}
 						size="mini"

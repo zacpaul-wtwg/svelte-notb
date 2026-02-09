@@ -13,6 +13,7 @@
 	let navEl;
 	let topRowEl;
 	let bottomRowEl;
+	let keyboardMode = false;
 	const NAV_BUTTON_ANIMATION_MS = 100;
 	const NAV_CLOSE_DELAY_MS = 150;
 	const MOBILE_ACTIVE_WIDTH = 13.2;
@@ -72,17 +73,38 @@
 	};
 
 	const getDesktopLinkStyle = (href, progressMap) => {
-		const progress = progressMap[href] ?? 0;
+		const hoverProgress = progressMap[href] ?? 0;
+		const activeProgress = isActive(href) ? 1 : 0;
+		const progress = Math.max(hoverProgress, activeProgress);
 		const liftX = DESKTOP_FLOAT_X_PX * progress;
 		const liftY = DESKTOP_FLOAT_Y_PX * progress;
 		return `--nav-float-x:${liftX}px;--nav-float-y:${liftY}px`;
 	};
 
+	const getClearedDesktopHoverMap = () =>
+		Object.fromEntries(navItems.map((item) => [item.href, 0]));
+
 	const setDesktopHover = (href, hovering) => {
+		const current = get(desktopHoverProgress);
+		const next = hovering
+			? { ...getClearedDesktopHoverMap(), [href]: 1 }
+			: { ...current, [href]: 0 };
 		desktopHoverProgress.set(
-			{ ...get(desktopHoverProgress), [href]: hovering ? 1 : 0 },
+			next,
 			{ duration: DESKTOP_HOVER_ANIMATION_MS, easing: cubicOut }
 		);
+	};
+
+	const clearDesktopHover = () => {
+		desktopHoverProgress.set(getClearedDesktopHoverMap(), {
+			duration: DESKTOP_HOVER_ANIMATION_MS,
+			easing: cubicOut
+		});
+	};
+
+	const handleDesktopFocus = (href) => {
+		if (!keyboardMode) return;
+		setDesktopHover(href, true);
 	};
 
 	const handleMobileNavClick = (event, href) => {
@@ -126,11 +148,19 @@
 		if (topRowEl) navResizeObserver.observe(topRowEl);
 		if (bottomRowEl) navResizeObserver.observe(bottomRowEl);
 		const mediaListener = window.matchMedia('(max-width: 700px)');
+		const handleKeydown = (event) => {
+			if (event.key === 'Tab') keyboardMode = true;
+		};
+		const handlePointerDown = () => {
+			keyboardMode = false;
+		};
 		const handleMediaChange = (event) => {
 			if (!event.matches) showMobileMenu = false;
 			syncNavVars();
 		};
 		window.addEventListener('resize', syncNavVars);
+		window.addEventListener('keydown', handleKeydown);
+		window.addEventListener('pointerdown', handlePointerDown);
 
 		if (mediaListener.addEventListener) {
 			mediaListener.addEventListener('change', handleMediaChange);
@@ -141,6 +171,8 @@
 		return () => {
 			navResizeObserver.disconnect();
 			window.removeEventListener('resize', syncNavVars);
+			window.removeEventListener('keydown', handleKeydown);
+			window.removeEventListener('pointerdown', handlePointerDown);
 			if (mediaListener.removeEventListener) {
 				mediaListener.removeEventListener('change', handleMediaChange);
 			} else {
@@ -181,7 +213,7 @@
 				<span></span>
 			</span>
 		</button>
-		<ul class="navbar-list desktop-nav">
+		<ul class="navbar-list desktop-nav" on:mouseleave={clearDesktopHover} on:focusout={clearDesktopHover}>
 			{#each navItems as item}
 				<li>
 					<a
@@ -190,7 +222,7 @@
 						style={getDesktopLinkStyle(item.href, $desktopHoverProgress)}
 						on:mouseenter={() => setDesktopHover(item.href, true)}
 						on:mouseleave={() => setDesktopHover(item.href, false)}
-						on:focus={() => setDesktopHover(item.href, true)}
+						on:focus={() => handleDesktopFocus(item.href)}
 						on:blur={() => setDesktopHover(item.href, false)}
 					>
 						<span>{item.label}</span>
@@ -476,8 +508,8 @@
 			content: '';
 			position: absolute;
 			inset: 0;
-			background: var(--white);
-			border: 1px solid var(--grey);
+			background: var(--yellow-accent);
+			border: 0;
 			box-shadow: 2px 2px 0 var(--yellow-accent);
 			transform: skew(-14deg);
 			pointer-events: none;

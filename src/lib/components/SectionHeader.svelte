@@ -4,6 +4,7 @@
 	import { cubicOut } from 'svelte/easing';
 
 	export let text = '';
+	export let id = '';
 	export let as = 'h2';
 	export let className = '';
 	export let variant = 'default'; // default | page
@@ -114,6 +115,7 @@
 
 <div
 	bind:this={headerEl}
+	id={id || undefined}
 	class={`section-header ${variant === 'page' ? 'is-page' : ''} ${size === 'mini' ? 'is-mini' : ''} ${isVisible ? 'is-visible' : ''} ${className}`.trim()}
 	style={`--label-center:${$animatedLabelCenter}px;--label-half:${labelWidth / 2}px`}
 >
@@ -139,7 +141,8 @@
 		margin-bottom: 0.75rem;
 		padding: 0 1rem;
 		box-sizing: border-box;
-		overflow: visible;
+		overflow-x: clip;
+		overflow-y: visible;
 		position: relative;
 		min-height: 3.6rem;
 	}
@@ -180,18 +183,18 @@
 
 	.edge-line-left {
 		top: 53px;
-		left: calc(var(--label-center) - var(--label-half) - 20px - 150vw);
+		left: calc(var(--label-center) + var(--label-shift, 0px) - var(--label-half) - 20px - 150vw);
 	}
 
 	.edge-line-right {
-		left: calc(var(--label-center) + var(--label-half) + 20px);
+		left: calc(var(--label-center) + var(--label-shift, 0px) + var(--label-half) + 20px);
 		top: 27px;
 	}
 
 	.label {
 		display: block;
 		position: absolute;
-		left: calc(var(--label-center) - var(--label-half));
+		left: calc(var(--label-center) + var(--label-shift, 0px) - var(--label-half));
 		top: 50%;
 		margin: 0;
 		background: var(--grey);
@@ -215,7 +218,8 @@
 	.section-header.is-mini {
 		margin-bottom: -1rem;
 		position: relative;
-		overflow: visible;
+		overflow-x: clip;
+		overflow-y: visible;
 	}
 
 	.section-header.is-mini .edge-line {

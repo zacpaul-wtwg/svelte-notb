@@ -1,9 +1,18 @@
 <script>
 	import Container from '$lib/components/elements/Container.svelte';
+	import SectionHeader from '$lib/components/SectionHeader.svelte';
 	import TitleBar from '$lib/components/TitleBar.svelte';
 </script>
 
 <TitleBar title={'Form Submitted Successfully'} />
+<SectionHeader
+	id="submit-page-title-label"
+	place="-50"
+	as="h1"
+	text="Submitted"
+	size="large"
+	className="submit-page-title"
+/>
 <svelte:head>
 	<meta name="robots" content="noindex" />
 </svelte:head>
@@ -61,6 +70,21 @@
 </Container>
 
 <style lang="scss">
+	:global(.main .title-container) {
+		visibility: hidden;
+		pointer-events: none;
+	}
+	:global(.submit-page-title) {
+		margin-top: -0.9rem;
+		margin-bottom: calc(0.6rem - 34px);
+		position: relative;
+		top: -34px;
+		z-index: 4;
+		overflow: visible;
+	}
+	:global(.submit-page-title .label) {
+		box-shadow: 6px 10px 0 var(--yellow-accent);
+	}
 	.submit-page {
 		margin-bottom: 1.4rem;
 	}

@@ -2,6 +2,7 @@
 	import ColumnButton from '$lib/components/ColumnButton.svelte';
 	import Button from '$lib/components/elements/Button.svelte';
 	import Container from '$lib/components/elements/Container.svelte';
+	import SectionHeader from '$lib/components/SectionHeader.svelte';
 	import TitleBar from '$lib/components/TitleBar.svelte';
 
 	export const verticalize = function (array) {
@@ -29,6 +30,14 @@
 </script>
 
 <TitleBar title={'Price List'} description="North of the Border Printable Price List. " />
+<SectionHeader
+	id="pricelist-page-title-label"
+	place="-50"
+	as="h1"
+	text="Price List"
+	size="large"
+	className="pricelist-page-title"
+/>
 <Container>
 	<section class="page-stack pricelist-page">
 		<div>
@@ -133,6 +142,21 @@
 </Container>
 
 <style lang="scss">
+	:global(.main .title-container) {
+		visibility: hidden;
+		pointer-events: none;
+	}
+	:global(.pricelist-page-title) {
+		margin-top: -0.9rem;
+		margin-bottom: calc(0.6rem - 34px);
+		position: relative;
+		top: -34px;
+		z-index: 4;
+		overflow: visible;
+	}
+	:global(.pricelist-page-title .label) {
+		box-shadow: 6px 10px 0 var(--yellow-accent);
+	}
 	.tg {
 		border-collapse: collapse;
 		border-spacing: 0;
