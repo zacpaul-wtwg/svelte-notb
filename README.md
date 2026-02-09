@@ -7,6 +7,35 @@ Everything you need to build a Svelte project, powered by [`create-svelte`](http
 - See `TODO-README.md` for current implementation tasks and follow-ups.
 - See `STYLE-ARCHITECTURE-PLAN.md` for the styling refactor roadmap.
 
+## Branch Workflow
+
+- Permanent branches:
+  - `main`: production-ready code
+  - `develop`: integration branch for ongoing work
+- Feature/fix work:
+  - branch from `develop` (for example `feat/...`, `fix/...`)
+  - merge back into `develop` when complete
+- Release flow:
+  - merge `develop` into `main` when ready to ship
+- Hotfix flow:
+  - branch from `main` (`hotfix/...`)
+  - merge hotfix into `main`
+  - then merge `main` back into `develop` so both stay aligned
+
+## Local Git Safety Hooks
+
+This repo includes hooks in `.githooks/` to enforce safer flow:
+
+- block direct pushes from `main` (`pre-push`)
+- block merge commits while checked out on `main` (`pre-merge-commit`)
+
+Enable them in your local clone:
+
+```bash
+git config core.hooksPath .githooks
+chmod +x .githooks/pre-push .githooks/pre-merge-commit
+```
+
 ## Animation Policy
 
 - All UI animations must use Svelte animation/transition/motion APIs.
