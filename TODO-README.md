@@ -20,3 +20,5 @@
 
 ## Hero
 - [ ] Revisit mobile hero visual design after overflow fix (ribbon/title layout and typography).
+
+.
