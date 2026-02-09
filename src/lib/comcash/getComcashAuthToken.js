@@ -1,11 +1,21 @@
 let token;
+
+const decodeBase64Value = (value) => {
+	if (!value || typeof value !== 'string') return '';
+	try {
+		return Buffer.from(value, 'base64').toString('utf8').trim();
+	} catch {
+		return '';
+	}
+};
+
 export const getToken = async function () {
 	const openApiKey = process.env.CC_OPEN_API_KEY;
-	const pin = process.env.CC_PIN;
+	const pin = decodeBase64Value(process.env.CC_PIN_B64);
 	const password = process.env.CC_PASSWORD;
 
 	if (!openApiKey || !pin || !password) {
-		throw new Error('Missing Comcash credentials (CC_OPEN_API_KEY, CC_PIN, CC_PASSWORD)');
+		throw new Error('Missing Comcash credentials (CC_OPEN_API_KEY, CC_PIN_B64, CC_PASSWORD)');
 	}
 
 	const myHeaders = new Headers();

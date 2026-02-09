@@ -6,7 +6,7 @@
 // Required env vars (set in Netlify):
 // - CMS_ADMIN_PASSWORD
 // - GITHUB_TOKEN
-// - GITHUB_REPO: "owner/repo"
+// - CMS_REPO_B64: base64("owner/repo")
 //
 // Optional:
 // - GITHUB_BRANCH (default: "main")
@@ -32,6 +32,15 @@ function safeEqual(a, b) {
   return out === 0;
 }
 
+function decodeBase64Value(value) {
+  if (!value || typeof value !== 'string') return '';
+  try {
+    return Buffer.from(value, 'base64').toString('utf8').trim();
+  } catch {
+    return '';
+  }
+}
+
 exports.handler = async (event) => {
   if (event.httpMethod !== 'POST') {
     return json(405, { error: 'Method not allowed' });
@@ -39,7 +48,7 @@ exports.handler = async (event) => {
 
   const adminPassword = process.env.CMS_ADMIN_PASSWORD;
   const githubToken = process.env.GITHUB_TOKEN;
-  const githubRepo = process.env.GITHUB_REPO;
+  const githubRepo = decodeBase64Value(process.env.CMS_REPO_B64);
   const githubBranch = process.env.GITHUB_BRANCH || 'main';
 
   if (!adminPassword || !githubToken || !githubRepo) {
@@ -48,7 +57,7 @@ exports.handler = async (event) => {
       missing: {
         CMS_ADMIN_PASSWORD: !adminPassword,
         GITHUB_TOKEN: !githubToken,
-        GITHUB_REPO: !githubRepo,
+        CMS_REPO_B64: !githubRepo,
       },
     });
   }
@@ -92,4 +101,3 @@ exports.handler = async (event) => {
     return json(502, { error: 'Network error reading GitHub', details: String(e?.message || e) });
   }
 };
-
