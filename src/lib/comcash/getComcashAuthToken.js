@@ -1,12 +1,20 @@
 let token;
 export const getToken = async function () {
+	const openApiKey = process.env.CC_OPEN_API_KEY;
+	const pin = process.env.CC_PIN;
+	const password = process.env.CC_PASSWORD;
+
+	if (!openApiKey || !pin || !password) {
+		throw new Error('Missing Comcash credentials (CC_OPEN_API_KEY, CC_PIN, CC_PASSWORD)');
+	}
+
 	const myHeaders = new Headers();
 	myHeaders.append('Content-Type', 'application/json');
 
 	const raw = JSON.stringify({
-		openApiKey: import.meta.env.VITE_CC_OPEN_API_KEY,
-		pin: import.meta.env.VITE_CC_PIN,
-		password: import.meta.env.VITE_CC_PASSWORD
+		openApiKey,
+		pin,
+		password
 	});
 
 	const requestOptions = {
