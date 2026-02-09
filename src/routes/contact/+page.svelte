@@ -1,7 +1,8 @@
 <script>
 	import Address from '$lib/components/Address.svelte';
-	import Button from '$lib/components/elements/Button.svelte';
 	import Container from '$lib/components/elements/Container.svelte';
+	import NavPillButton from '$lib/components/elements/NavPillButton.svelte';
+	import SectionHeader from '$lib/components/SectionHeader.svelte';
 	import TitleBar from '$lib/components/TitleBar.svelte';
 	import { fallbackAllData } from '$lib/cms/fallback';
 
@@ -13,43 +14,49 @@
 	title={'Contact Us'}
 	description={'Contact us for any questions you may have, inventory queries, or state and federal laws regarding consumer fireworks.'}
 />
+<SectionHeader
+	id="contact-page-title-label"
+	place="-50"
+	as="h1"
+	text="Contact"
+	size="large"
+	className="contact-page-title"
+/>
 
 <Container>
 	<section class="page-stack contact-page">
-		<div class="display">
-			<div class="contact-card">
-				<div class="card-header">
-					<h2>Store Info</h2>
-				</div>
+		<section class="contact-option">
+			<SectionHeader
+				id="contact-card-mini-label"
+				as="h2"
+				text="Store Info & Message"
+				size="mini"
+				place={-35}
+				className="contact-option-label"
+			/>
+			<article class="contact-card">
 				<div class="card-body">
-					<Address showHours hours={allData.hours} />
+					<section class="section section-info">
+						<Address showHours hours={allData.hours} />
+					</section>
+					<section class="section section-message">
+						<form class="contact-form" name="contact" method="POST" action="/submit" data-netlify="true">
+							<input type="hidden" name="form-name" value="contact" />
+							<input type="hidden" name="subject" value="General Inquiry from NOTBFireworks.com" />
+							<label for="name">Name</label>
+							<input id="name" type="text" name="name" />
+							<label for="email">Email</label>
+							<input id="email" type="email" name="email" />
+							<label for="message">Message</label>
+							<textarea id="message" name="message" rows="6"></textarea>
+							<div class="form-actions">
+								<NavPillButton type="submit" size="large">Send</NavPillButton>
+							</div>
+						</form>
+					</section>
 				</div>
-			</div>
-			<form
-				class="contact-card form-card"
-				name="contact"
-				method="POST"
-				action="/submit"
-				data-netlify="true"
-			>
-				<input type="hidden" name="form-name" value="contact" />
-				<input type="hidden" name="subject" value="General Inquiry from NOTBFireworks.com" />
-				<div class="card-header">
-					<h2>Send A Message</h2>
-				</div>
-				<div class="card-body form-body">
-					<label for="name">Name</label>
-					<input id="name" type="text" name="name" />
-					<label for="email">Email</label>
-					<input id="email" type="email" name="email" />
-					<label for="message">Message</label>
-					<textarea id="message" name="message" rows="6"></textarea>
-					<div class="form-actions">
-						<Button>Send</Button>
-					</div>
-				</div>
-			</form>
-		</div>
+			</article>
+		</section>
 
 		<iframe
 			title="Google Map location of NOTB Fireworks"
@@ -64,14 +71,31 @@
 </Container>
 
 <style lang="scss">
+	:global(.main .title-container) {
+		visibility: hidden;
+		pointer-events: none;
+	}
+	:global(.contact-page-title) {
+		margin-top: -0.9rem;
+		margin-bottom: calc(0.6rem - 34px);
+		position: relative;
+		top: -34px;
+		z-index: 4;
+		overflow: visible;
+	}
+	:global(.contact-page-title .label) {
+		box-shadow: 6px 10px 0 var(--yellow-accent);
+	}
 	.contact-page {
 		margin-bottom: 1.4rem;
 	}
-	.display {
-		display: grid;
-		grid-template-columns: minmax(260px, 1fr) minmax(320px, 2fr);
-		gap: 2em;
-		align-items: start;
+	.contact-option {
+		display: flex;
+		flex-direction: column;
+	}
+	:global(.contact-option-label) {
+		margin-top: 0;
+		margin-bottom: 0.45rem;
 	}
 	.contact-card {
 		border: 2px solid var(--grey);
@@ -79,20 +103,22 @@
 		box-shadow: 6px 6px 0 var(--yellow-accent);
 		min-width: 0;
 	}
-	.card-header {
-		background: var(--grey);
-		color: var(--white);
-		padding: 0.5em 0.9em;
-	}
-	.card-header h2 {
-		margin: 0;
-		font-size: 1.1em;
-		letter-spacing: 0.04em;
-	}
 	.card-body {
 		padding: 1.1em 1.2em 1.4em;
 	}
-	.form-body {
+	.section {
+		margin-top: 0.9em;
+	}
+	.section:first-child {
+		margin-top: 0;
+	}
+	.section-info {
+		order: 1;
+	}
+	.section-message {
+		order: 2;
+	}
+	.contact-form {
 		display: grid;
 		gap: 0.75em;
 	}
@@ -124,9 +150,26 @@
 		border: 2px solid var(--grey);
 		box-shadow: 6px 6px 0 var(--yellow-accent);
 	}
+	@media (min-width: 701px) {
+		.card-body {
+			display: grid;
+			grid-template-columns: minmax(420px, 7fr) minmax(220px, 3fr);
+			gap: 1.25rem;
+			align-items: start;
+		}
+		.section {
+			margin-top: 0;
+		}
+		.section-info {
+			order: 2;
+		}
+		.section-message {
+			order: 1;
+		}
+	}
 	@media (max-width: 1024px) {
-		.display {
-			grid-template-columns: 1fr;
+		.card-body {
+			padding: 0.95em 0.9em 1.1em;
 		}
 	}
 </style>
