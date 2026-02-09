@@ -3,6 +3,7 @@
   publish = "build"
 
 [build.environment]
+  NODE_VERSION = "18"
   NPM_CONFIG_ENGINE_STRICT = "false"
   PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD = "1"
 
