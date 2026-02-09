@@ -1,4 +1,5 @@
 let token;
+import { env } from '$env/dynamic/private';
 
 const decodeBase64Value = (value) => {
 	if (!value || typeof value !== 'string') return '';
@@ -10,9 +11,9 @@ const decodeBase64Value = (value) => {
 };
 
 export const getToken = async function () {
-	const openApiKey = process.env.CC_OPEN_API_KEY;
-	const pin = decodeBase64Value(process.env.CC_PIN_B64);
-	const password = process.env.CC_PASSWORD;
+	const openApiKey = env.CC_OPEN_API_KEY;
+	const pin = decodeBase64Value(env.CC_PIN_B64);
+	const password = env.CC_PASSWORD;
 
 	if (!openApiKey || !pin || !password) {
 		throw new Error('Missing Comcash credentials (CC_OPEN_API_KEY, CC_PIN_B64, CC_PASSWORD)');
