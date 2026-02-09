@@ -16,7 +16,15 @@
 		{ key: 'saturday', label: 'Saturday' }
 	];
 	const currentYear = new Date().getFullYear();
-	$: footerBody = allData?.footerDescription?.body ?? '';
+	const resolveFooterDescription = (source) => {
+		const footer = source?.footerDescription;
+		if (typeof footer === 'string') return footer;
+		if (footer && typeof footer === 'object') {
+			return footer.body ?? footer.description ?? footer.text ?? '';
+		}
+		return source?.footerBody ?? source?.footerText ?? '';
+	};
+	$: footerBody = resolveFooterDescription(allData);
 	$: specialHours = Array.isArray(allData?.specialHours) ? allData.specialHours : [];
 	$: regularHours = allData?.hours ?? {};
 </script>
