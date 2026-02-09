@@ -3,7 +3,7 @@ import path from 'node:path';
 import { json } from '@sveltejs/kit';
 import { dev } from '$app/environment';
 
-export const prerender = false;
+export const prerender = true;
 
 const readStaticCms = async () => {
 	const cmsPath = path.resolve('static', 'cms.json');
