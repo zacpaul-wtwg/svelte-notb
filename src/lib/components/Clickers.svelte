@@ -2,7 +2,11 @@
 	//cart incrementing and decrementing
 	import { cart } from '$lib/stores.js';
 	import { compare } from '$lib/stores.js';
-	import { openGlobalProductModal, openGlobalWishlistModal } from '$lib/modal-store';
+	import {
+		openGlobalCompareModal,
+		openGlobalProductModal,
+		openGlobalWishlistModal
+	} from '$lib/modal-store';
 	import { onMount } from 'svelte';
 	export let product;
 	export let inline = false;
@@ -31,6 +35,10 @@
 			return;
 		}
 		openGlobalWishlistModal();
+	};
+
+	const openCompare = () => {
+		openGlobalCompareModal();
 	};
 
 	const readStoredList = (key) => {
@@ -121,8 +129,8 @@
 				Details
 			</div>
 			<div class="compare-row">
-				<button class="compare-pill" type="button" id="compare-link">
-					<a href="/compare">compare</a>
+				<button class="compare-pill compare-link-pill" type="button" on:click={openCompare}>
+					Compare
 				</button>
 				<button
 					type="button"
@@ -272,7 +280,7 @@
 			box-shadow 0.2s ease;
 		box-shadow: 3px 3px 0 var(--yellow-accent);
 	}
-	#compare-link {
+	.compare-link-pill {
 		width: 103px;
 		position: relative;
 		left: 1px;

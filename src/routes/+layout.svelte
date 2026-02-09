@@ -4,10 +4,12 @@
 	import Footer from '$lib/components/Footer.svelte';
 	import ProductModal from '$lib/components/ProductModal.svelte';
 	import WishlistModal from '$lib/components/WishlistModal.svelte';
+	import CompareModal from '$lib/components/CompareModal.svelte';
 	import { fallbackAllData } from '$lib/cms/fallback';
 	import { page } from '$app/stores';
 	import {
 		closeAllGlobalModals,
+		closeGlobalCompareModal,
 		closeGlobalProductModal,
 		closeGlobalWishlistModal,
 		modalState
@@ -45,6 +47,10 @@
 
 {#if $modalState.wishlistOpen}
 	<WishlistModal onClose={closeGlobalWishlistModal} />
+{/if}
+
+{#if $modalState.compareOpen && $page.url.pathname !== '/compare'}
+	<CompareModal onClose={closeGlobalCompareModal} />
 {/if}
 
 {#if !isCmsAdmin}

@@ -6,6 +6,7 @@
 	import { fade, fly } from 'svelte/transition';
 	import { page } from '$app/stores';
 	import { get } from 'svelte/store';
+	import { openGlobalCompareModal } from '$lib/modal-store';
 
 	let showMobileMenu = false;
 	let pendingMobileHref = '';
@@ -124,6 +125,11 @@
 		}, NAV_CLOSE_DELAY_MS);
 	};
 
+	const handleCompareNavClick = (event) => {
+		event.preventDefault();
+		openGlobalCompareModal();
+	};
+
 	const syncNavVars = () => {
 		if (!navEl || !bottomRowEl) return;
 		const root = document.documentElement;
@@ -189,7 +195,9 @@
 <nav bind:this={navEl}>
 	<div class="top inner" bind:this={topRowEl}>
 		<div class="top-item"><a href="/product/pricelist">Pricelist</a></div>
-		<div class="top-item"><a href="/compare">Compare</a></div>
+		<div class="top-item">
+			<button type="button" class="super-nav-button" on:click={handleCompareNavClick}>Compare</button>
+		</div>
 		<div class="top-item">
 			<a href="/product/wishlist"
 				><img src="/cart.svg" alt="wishlist cart icon" class="svg-filter-white cart" /></a
@@ -288,8 +296,19 @@
 		color: white;
 	}
 
-	.top-item a {
+	.top-item a,
+	.top-item .super-nav-button {
 		color: white;
+	}
+	.top-item .super-nav-button {
+		background: none;
+		border: 0;
+		padding: 0;
+		cursor: pointer;
+		font-family: inherit;
+		font-size: inherit;
+		line-height: inherit;
+		text-decoration: none;
 	}
 
 	.hr {
