@@ -189,6 +189,7 @@
 <nav bind:this={navEl}>
 	<div class="top inner" bind:this={topRowEl}>
 		<div class="top-item"><a href="/product/pricelist">Pricelist</a></div>
+		<div class="top-item"><a href="/compare">Compare</a></div>
 		<div class="top-item">
 			<a href="/product/wishlist"
 				><img src="/cart.svg" alt="wishlist cart icon" class="svg-filter-white cart" /></a

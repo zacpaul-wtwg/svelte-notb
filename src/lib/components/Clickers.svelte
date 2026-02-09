@@ -1,7 +1,9 @@
 <script>
 	//cart incrementing and decrementing
 	import { cart } from '$lib/stores.js';
+	import { compare } from '$lib/stores.js';
 	import { openGlobalProductModal, openGlobalWishlistModal } from '$lib/modal-store';
+	import { onMount } from 'svelte';
 	export let product;
 	export let inline = false;
 	export let onDetails = null;
@@ -31,26 +33,59 @@
 		openGlobalWishlistModal();
 	};
 
+	const readStoredList = (key) => {
+		if (typeof window === 'undefined') return [];
+		try {
+			const parsed = JSON.parse(localStorage.getItem(key) ?? '[]');
+			return Array.isArray(parsed) ? parsed : [];
+		} catch {
+			return [];
+		}
+	};
+
+	const writeStoredList = (key, list) => {
+		if (typeof window === 'undefined') return;
+		localStorage.setItem(key, JSON.stringify(list));
+	};
+
+	onMount(() => {
+		$cart = readStoredList('cart');
+		$compare = readStoredList('compare');
+	});
+
 	const changeQuantity = function (obj, operator) {
-		if (!$cart?.some((x) => x.id === obj.id) && operator !== 'sub') {
-			$cart = [...$cart, obj];
+		const safeCart = Array.isArray($cart) ? $cart : [];
+		if (!safeCart.some((x) => x.id === obj.id) && operator !== 'sub') {
+			$cart = [...safeCart, obj];
 		} else {
-			$cart.map((x, index) => {
+			safeCart.map((x, index) => {
 				if (x.id === obj.id) {
 					if (operator === 'add') {
-						$cart[index].quantity += 1;
+						safeCart[index].quantity += 1;
 					} else if (operator === 'sub' && x.quantity > 1) {
-						$cart[index].quantity -= 1;
+						safeCart[index].quantity -= 1;
 					} else if (operator === 'sub' && x.quantity === 1) {
-						$cart.splice(index, 1);
+						safeCart.splice(index, 1);
 					}
 				}
 			});
+			$cart = [...safeCart];
 		}
-		localStorage.setItem('cart', JSON.stringify($cart));
-		if (typeof window !== 'undefined') {
-			$cart = JSON.parse(localStorage.getItem('cart'));
-		}
+		writeStoredList('cart', $cart);
+	};
+
+	const toggleCompare = function (obj) {
+		const safeCompare = Array.isArray($compare) ? $compare : [];
+		const isSelected = safeCompare.some((item) => item.id === obj.id);
+		$compare = isSelected
+			? safeCompare.filter((item) => item.id !== obj.id)
+			: [...safeCompare, obj];
+		writeStoredList('compare', $compare);
+	};
+
+	$: isCompared = (id) => {
+		const safeCompare = Array.isArray($compare) ? $compare : [];
+		return safeCompare.some((item) => item.id === id);
 	};
 	$: getQuantity = function (id) {
 		let newArray = $cart?.filter((x) => x.id === id) ?? [];
@@ -63,19 +98,41 @@
 		deal: product.deal === '2 FOR' ? 2 : 3,
 		price: product.price.toFixed(2)
 	};
+
+	$: compareObject = {
+		id: product.id,
+		title: product.title,
+		price: product.price,
+		imageThumb: product.imageThumb
+	};
 </script>
 
 <div class="clicker-container" class:inline>
 	<div class="assembly-shell">
-		<div
-			class="details-pill"
-			role="button"
-			tabindex="0"
-			aria-label={`View details for ${product.title}`}
-			on:click={openDetails}
-			on:keydown={handleDetailsKeydown}
-		>
-			Details
+		<div>
+			<div
+				class="details-pill"
+				role="button"
+				tabindex="0"
+				aria-label={`View details for ${product.title}`}
+				on:click={openDetails}
+				on:keydown={handleDetailsKeydown}
+			>
+				Details
+			</div>
+			<div class="compare-row">
+				<button class="compare-pill" type="button" id="compare-link">
+					<a href="/compare">compare</a>
+				</button>
+				<button
+					type="button"
+					class="compare-pill {isCompared(product.id) ? 'active' : ''}"
+					aria-pressed={isCompared(product.id)}
+					on:click={() => toggleCompare(compareObject)}
+				>
+					{isCompared(product.id) ? '-' : '+'}
+				</button>
+			</div>
 		</div>
 		<div class="assembly-divider" aria-hidden="true"></div>
 		<div class="right-side">
@@ -104,6 +161,7 @@
 			{/if}
 		</div>
 	</div>
+	{#if showWishlist}{/if}
 </div>
 
 <style>
@@ -111,6 +169,9 @@
 		position: static;
 		width: fit-content;
 		margin: 10px 16px 10px 17px;
+		display: flex;
+		flex-direction: column;
+		gap: 6px;
 	}
 	.clicker-container.inline {
 		position: static;
@@ -132,13 +193,8 @@
 		height: 67px;
 		background: #000;
 		transform: skew(-14deg);
-		margin-right: -7px;
-	}
-
-	.right-side {
-		display: flex;
-		flex-direction: column;
-		align-items: flex-end;
+		position: relative;
+		left: -8px;
 	}
 
 	.clicker-message {
@@ -174,12 +230,57 @@
 	.clicker:active {
 		transform: scale(110%) skew(-14deg);
 	}
-	.clicker-sub {
-		border-radius: 0px 0px 0px 0px;
+	.right-side {
+		position: relative;
+		left: -14px;
+		display: flex;
+		flex-direction: column;
+		align-items: flex-end;
 	}
-	.clicker-add {
-		border-radius: 0px 5px 0px 0px;
+	.compare-row {
+		display: flex;
+		justify-content: flex-end;
+		padding-right: 9px;
+		position: relative;
+		left: -9px;
 	}
+	.compare-pill {
+		position: relative;
+		left: 5px;
+		top: 2px;
+		display: block;
+		width: 33px;
+		height: 30px;
+		text-align: center;
+		padding: 0.3em 0.6em;
+		border: 1px solid var(--grey);
+		text-transform: uppercase;
+		letter-spacing: 0.04em;
+		font-weight: 700;
+		background: var(--white);
+		color: var(--grey);
+		box-shadow: none;
+		text-decoration: none;
+		transform: skew(-14deg);
+		cursor: pointer;
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		box-sizing: border-box;
+		transition:
+			transform 0.2s ease,
+			box-shadow 0.2s ease;
+		box-shadow: 3px 3px 0 var(--yellow-accent);
+	}
+	#compare-link {
+		width: 103px;
+		position: relative;
+		left: 1px;
+	}
+	.compare-pill.active {
+		background: var(--yellow-accent);
+	}
+
 	.wishlist-pill {
 		display: block;
 		width: 116px;
@@ -187,7 +288,6 @@
 		text-align: center;
 		padding: 0.3em 0.6em;
 		border: 1px solid var(--grey);
-		border-radius: 0px 0px 6px 0px;
 		text-transform: uppercase;
 		letter-spacing: 0.04em;
 		font-weight: 700;
@@ -207,12 +307,11 @@
 		box-shadow: 3px 3px 0 var(--yellow-accent);
 	}
 	.details-pill {
-		height: 66px;
+		height: 34px;
 		display: block;
 		width: 138px;
 		text-align: center;
 		border: 1px solid var(--grey);
-		border-radius: 6px 0px 0px 6px;
 		text-transform: uppercase;
 		letter-spacing: 0.04em;
 		font-weight: 700;
@@ -243,6 +342,11 @@
 	.wishlist-pill:hover {
 		background: var(--grey);
 		color: var(--white);
+		transform: skew(-14deg) scale(1.03);
+		filter: brightness(1.08);
+		box-shadow: 5px 5px 0 var(--yellow-accent);
+	}
+	.compare-pill:hover {
 		transform: skew(-14deg) scale(1.03);
 		filter: brightness(1.08);
 		box-shadow: 5px 5px 0 var(--yellow-accent);
