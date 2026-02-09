@@ -40,8 +40,19 @@
 						<Address showHours hours={allData.hours} />
 					</section>
 					<section class="section section-message">
-						<form class="contact-form" name="contact" method="POST" action="/submit" data-netlify="true">
+						<form
+							class="contact-form"
+							name="contact"
+							method="POST"
+							action="/submit"
+							data-netlify="true"
+							netlify-honeypot="bot-field"
+						>
 							<input type="hidden" name="form-name" value="contact" />
+							<p class="sr-only">
+								<label for="bot-field">Do not fill this out if you're human:</label>
+								<input id="bot-field" name="bot-field" />
+							</p>
 							<input type="hidden" name="subject" value="General Inquiry from NOTBFireworks.com" />
 							<label for="name">Name</label>
 							<input id="name" type="text" name="name" />
