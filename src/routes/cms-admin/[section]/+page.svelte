@@ -30,6 +30,19 @@
 
 	const BRANCH_STORAGE_KEY = 'cms_target_branch';
 
+	function inferBranchFromHost() {
+		if (typeof window === 'undefined') return '';
+		const params = new URLSearchParams(window.location.search);
+		const fromQuery = (params.get('branch') || params.get('targetBranch') || '').trim();
+		if (fromQuery) return fromQuery;
+		const host = window.location.hostname;
+		if (!host.endsWith('.netlify.app')) return '';
+		if (!host.includes('--')) return '';
+		const prefix = host.split('--')[0] || '';
+		if (/^[a-f0-9]{20,}$/i.test(prefix)) return '';
+		return prefix;
+	}
+
 	$: sectionKey = $page.params.section;
 	$: schema = cmsSectionByKey[sectionKey];
 	$: sectionData = allData?.[sectionKey];
@@ -368,6 +381,7 @@
 				body: JSON.stringify({
 					password,
 					message,
+					targetBranch: inferBranchFromHost() || undefined,
 					content: JSON.stringify(allData, null, 2)
 				})
 			});

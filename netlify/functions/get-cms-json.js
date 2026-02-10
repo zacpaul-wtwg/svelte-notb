@@ -54,6 +54,15 @@ function getTargetBranch() {
   );
 }
 
+function sanitizeBranch(value) {
+  if (typeof value !== 'string') return '';
+  const branch = value.trim();
+  if (!branch) return '';
+  if (branch.startsWith('/') || branch.includes('..')) return '';
+  if (!/^[A-Za-z0-9._/-]{1,120}$/.test(branch)) return '';
+  return branch;
+}
+
 function runtimeBranchInfo(targetBranch) {
   return {
     targetBranch,
@@ -71,13 +80,10 @@ exports.handler = async (event) => {
   const adminPassword = process.env.CMS_ADMIN_PASSWORD;
   const githubToken = process.env.GITHUB_TOKEN;
   const githubRepo = decodeBase64Value(process.env.CMS_REPO_B64);
-  const githubBranch = getTargetBranch();
-  const branchInfo = runtimeBranchInfo(githubBranch);
 
   if (!adminPassword || !githubToken || !githubRepo) {
     return json(500, {
       error: 'Server not configured',
-      branchInfo,
       missing: {
         CMS_ADMIN_PASSWORD: !adminPassword,
         GITHUB_TOKEN: !githubToken,
@@ -94,6 +100,12 @@ exports.handler = async (event) => {
   }
 
   const password = payload.password;
+  const requestedBranch = sanitizeBranch(payload.targetBranch);
+  const githubBranch = requestedBranch || getTargetBranch();
+  const branchInfo = {
+    ...runtimeBranchInfo(githubBranch),
+    requestedBranch: requestedBranch || null,
+  };
   if (!safeEqual(String(password || ''), adminPassword)) {
     return json(401, { error: 'Unauthorized' });
   }

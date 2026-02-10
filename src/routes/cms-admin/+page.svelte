@@ -19,6 +19,20 @@
 
 	const BRANCH_STORAGE_KEY = 'cms_target_branch';
 
+	function inferBranchFromHost() {
+		if (typeof window === 'undefined') return '';
+		const params = new URLSearchParams(window.location.search);
+		const fromQuery = (params.get('branch') || params.get('targetBranch') || '').trim();
+		if (fromQuery) return fromQuery;
+		const host = window.location.hostname;
+		if (!host.endsWith('.netlify.app')) return '';
+		if (!host.includes('--')) return '';
+		const prefix = host.split('--')[0] || '';
+		// Deploy-id subdomains are long hex strings, not branch names.
+		if (/^[a-f0-9]{20,}$/i.test(prefix)) return '';
+		return prefix;
+	}
+
 	const isLocalDev =
 		typeof window !== 'undefined' &&
 		(window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
@@ -80,7 +94,7 @@
 			const res = await fetch('/.netlify/functions/get-cms-json', {
 				method: 'POST',
 				headers: { 'content-type': 'application/json' },
-				body: JSON.stringify({ password })
+				body: JSON.stringify({ password, targetBranch: inferBranchFromHost() || undefined })
 			});
 			const data = await res.json().catch(() => ({}));
 			if (!res.ok) {
@@ -117,6 +131,7 @@
 				body: JSON.stringify({
 					password,
 					message,
+					targetBranch: inferBranchFromHost() || undefined,
 					content: JSON.stringify(allData, null, 2)
 				})
 			});
