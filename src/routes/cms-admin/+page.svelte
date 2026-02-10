@@ -209,6 +209,22 @@
 		}
 	}
 
+	async function openFreshPreview() {
+		if (typeof window === 'undefined') return;
+		try {
+			if ('caches' in window) {
+				const keys = await window.caches.keys();
+				await Promise.all(keys.map((key) => window.caches.delete(key)));
+			}
+		} catch {
+			// Ignore cache API failures; URL busting below still forces a fresh request.
+		}
+
+		const url = new URL('/', window.location.origin);
+		url.searchParams.set('preview', Date.now().toString());
+		window.open(url.toString(), '_blank', 'noopener,noreferrer');
+	}
+
 	function resetDraft() {
 		clearDraftStorage();
 		allData = null;
@@ -619,6 +635,9 @@
 				<button class="btn" type="button" on:click={closeReviewDialog} disabled={busy || publishing}>Cancel</button>
 				<button class="btn primary" type="button" on:click={() => saveDraft({ publish: false })} disabled={!allData || busy || publishing}>
 					{busy ? 'Saving…' : 'Save to Dev Preview'}
+				</button>
+				<button class="btn" type="button" on:click={openFreshPreview} disabled={busy || publishing}>
+					Preview (Fresh)
 				</button>
 				{#if !isLocalDev}
 					<button class="btn publishAction" type="button" on:click={() => saveDraft({ publish: true })} disabled={!allData || busy || publishing}>
