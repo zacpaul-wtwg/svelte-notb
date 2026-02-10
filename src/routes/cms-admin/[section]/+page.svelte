@@ -70,8 +70,15 @@
 	onMount(async () => {
 		password = loadPasswordFromSession();
 		message = `Update cms.json (${new Date().toISOString().slice(0, 10)})`;
+		const inferredBranch = inferBranchFromHost();
+		if (inferredBranch) {
+			targetBranch = inferredBranch;
+			if (typeof window !== 'undefined') {
+				window.sessionStorage.setItem(BRANCH_STORAGE_KEY, inferredBranch);
+			}
+		}
 		targetBranch =
-			typeof window !== 'undefined' ? window.sessionStorage.getItem(BRANCH_STORAGE_KEY) || '' : '';
+			typeof window !== 'undefined' ? window.sessionStorage.getItem(BRANCH_STORAGE_KEY) || targetBranch : targetBranch;
 		const draft = loadDraftFromStorage();
 		if (draft) {
 			allData = normalizePricing(draft);
