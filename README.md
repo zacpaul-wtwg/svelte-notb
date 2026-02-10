@@ -77,3 +77,14 @@ npm run build
 You can preview the production build with `npm run preview`.
 
 > To deploy your app, you may need to install an [adapter](https://kit.svelte.dev/docs/adapters) for your target environment.
+
+## Netlify Environment Variables (Comcash)
+
+Comcash data is loaded on the server from these private vars:
+
+- `CC_OPEN_API_KEY`
+- `CC_PIN_B64`
+- `CC_PASSWORD`
+
+If `main` works but `develop` branch deploys do not, check Netlify variable scopes.
+These values must be available to the branch deploy context (or set to all contexts), not only production.

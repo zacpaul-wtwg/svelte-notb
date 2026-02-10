@@ -9,6 +9,7 @@ const config = {
 	kit: {
 		adapter: adapter(),
 		prerender: {
+			entries: ['*', '/data/getAllProducts'],
 			crawl: true,
 			handleHttpError: 'ignore'
 		}

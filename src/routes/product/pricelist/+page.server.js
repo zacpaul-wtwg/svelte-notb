@@ -1,4 +1,15 @@
+export const prerender = true;
+
 export async function load({ fetch }) {
-	const { things } = await fetch('/data/getAllProducts').then((results) => results.json());
-	return { things };
+	try {
+		const res = await fetch('/data/getAllProducts');
+		if (!res.ok) {
+			return { things: { products: [], availableFilters: {}, departments: [] } };
+		}
+
+		const payload = await res.json();
+		return { things: payload?.things ?? { products: [], availableFilters: {}, departments: [] } };
+	} catch {
+		return { things: { products: [], availableFilters: {}, departments: [] } };
+	}
 }
