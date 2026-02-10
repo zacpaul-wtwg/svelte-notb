@@ -108,6 +108,10 @@
 		}
 	}
 
+	function getRequestedTargetBranch() {
+		return targetBranch || inferBranchFromHost() || undefined;
+	}
+
 	async function reloadFromDisk() {
 		status = '';
 		busy = true;
@@ -136,7 +140,7 @@
 			const res = await fetch('/.netlify/functions/get-cms-json', {
 				method: 'POST',
 				headers: { 'content-type': 'application/json' },
-				body: JSON.stringify({ password, targetBranch: inferBranchFromHost() || undefined })
+				body: JSON.stringify({ password, targetBranch: getRequestedTargetBranch() })
 			});
 			const data = await res.json().catch(() => ({}));
 			if (!res.ok) {
@@ -181,7 +185,7 @@
 				body: JSON.stringify({
 					password,
 					message: publish ? `Publish cms.json to main (${new Date().toISOString().slice(0, 10)})` : message,
-					targetBranch: inferBranchFromHost() || undefined,
+					targetBranch: getRequestedTargetBranch(),
 					publish,
 					content: JSON.stringify(allData, null, 2)
 				})

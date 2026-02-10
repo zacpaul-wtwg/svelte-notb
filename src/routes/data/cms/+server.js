@@ -31,30 +31,55 @@ const readStaticCms = async () => {
 const detectBranch = () =>
 	env.CMS_TARGET_BRANCH || env.GITHUB_BRANCH || env.BRANCH || env.HEAD || 'dev';
 
-const readRuntimeCms = async () => {
-	const store = getStore(STORE_NAME);
-	const branch = detectBranch();
-	const previewKey = previewKeyForBranch(branch);
-
-	let allData = await store.get(previewKey, { type: 'json' });
-	let source = previewKey;
-
-	if (!allData) {
-		allData = await store.get(LIVE_KEY, { type: 'json' });
-		source = LIVE_KEY;
-	}
-
-	return { allData, source, previewKey, branch };
+const branchAliases = (branch) => {
+	const safe = sanitizeBranch(branch);
+	if (!safe) return [];
+	if (safe === 'dev') return ['dev', 'develop'];
+	if (safe === 'develop') return ['develop', 'dev'];
+	return [safe];
 };
 
-export async function GET({ fetch }) {
+const detectBranchFromHost = (request) => {
+	const host = request?.headers?.get('x-forwarded-host') || request?.headers?.get('host') || '';
+	if (!host.includes('.netlify.app') || !host.includes('--')) return '';
+	const prefix = host.split('--')[0] || '';
+	// Deploy-id subdomains are long hex strings, not branch names.
+	if (/^[a-f0-9]{20,}$/i.test(prefix)) return '';
+	return sanitizeBranch(prefix);
+};
+
+const readRuntimeCms = async (request) => {
+	const store = getStore(STORE_NAME);
+	const hostBranch = detectBranchFromHost(request);
+	const envBranch = sanitizeBranch(detectBranch());
+	const candidates = [hostBranch, envBranch, 'dev', 'develop', 'main']
+		.flatMap((branch) => branchAliases(branch))
+		.filter((value, idx, arr) => arr.indexOf(value) === idx)
+		.map((branch) => previewKeyForBranch(branch));
+
+	for (const key of candidates) {
+		const allData = await store.get(key, { type: 'json' });
+		if (allData) {
+			return { allData, source: key, branch: key.replace(/^preview\/|\.json$/g, '') };
+		}
+	}
+
+	const liveData = await store.get(LIVE_KEY, { type: 'json' });
+	if (liveData) {
+		return { allData: liveData, source: LIVE_KEY, branch: 'live' };
+	}
+
+	return { allData: null, source: null, branch: hostBranch || envBranch || 'unknown' };
+};
+
+export async function GET({ fetch, request }) {
 	try {
 		if (dev) {
 			const allData = await readStaticCms();
 			return json({ allData, source: 'static/cms.json' });
 		}
 
-		const runtime = await readRuntimeCms();
+		const runtime = await readRuntimeCms(request);
 		if (runtime.allData) {
 			return json(
 				{
