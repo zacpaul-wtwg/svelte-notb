@@ -23,9 +23,9 @@
       "9": " ",
       "10": "p",
       "11": "m",
-      "closed": true,
-      "open": "",
-      "close": ""
+      "closed": false,
+      "open": "09:00",
+      "close": "17:00"
     },
     "monday": {
       "0": "C",
