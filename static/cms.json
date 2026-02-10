@@ -1,47 +1,47 @@
 {
   "newsPosts": {
-    "title": "Fireworks, Not Fire Alarms",
-    "body": "<h2>thing</h2><p><strong><em>thingy in bold. </em>just bold.</strong><em> just italics. </em></p><ol><li data-list=\"ordered\"><span class=\"ql-ui\" contenteditable=\"false\"></span>list item</li><li data-list=\"ordered\"><span class=\"ql-ui\" contenteditable=\"false\"></span>list item</li><li data-list=\"bullet\"><span class=\"ql-ui\" contenteditable=\"false\"></span>bullet item</li><li data-list=\"bullet\"><span class=\"ql-ui\" contenteditable=\"false\"></span>another. </li><li data-list=\"bullet\"><span class=\"ql-ui\" contenteditable=\"false\"></span><a href=\"google.com\" rel=\"noopener noreferrer\" target=\"_blank\">here is a link</a> </li></ol><p><span class=\"ql-cursor\">﻿﻿﻿</span></p>",
+    "title": "The Most Important thing goes here",
+    "body": "<h2>Something important goes here</h2><p>and something explaining the important thing goes here. </p><p><br></p><p><strong>You can create lists if you want. Here is a numbered one:</strong></p><ol><li data-list=\"ordered\"><span class=\"ql-ui\" contenteditable=\"false\"></span>first item</li><li data-list=\"ordered\"><span class=\"ql-ui\" contenteditable=\"false\"></span>second item</li><li data-list=\"ordered\"><span class=\"ql-ui\" contenteditable=\"false\"></span>third item</li></ol><p><br></p><p><strong>Here is a bulleted one:</strong></p><ol><li data-list=\"bullet\"><span class=\"ql-ui\" contenteditable=\"false\"></span>first item</li><li data-list=\"bullet\"><span class=\"ql-ui\" contenteditable=\"false\"></span>second item</li></ol><p><br></p><p><a href=\"notbfireworks.com\" rel=\"noopener noreferrer\" target=\"_blank\">You can create a link by typing out what the site visitor will see, then highlighting it and clicking the link button, and pasting the link in the field provided. </a></p><p><span class=\"ql-cursor\">﻿﻿﻿﻿﻿﻿﻿﻿﻿</span></p>",
     "date": "2026-02-07T12:37:00.163Z"
   },
   "footerDescription": {
-    "body": "Nestled at the northern tip of Lake Wallenpaupack in the scenic Pocono Mountains, North of the Border fireworks is in the best spot to meet the fireworks demands of the Pocono Mountain area. We carry a large selection of fireworks: from sparklers to mortars, and Roman Candles to 500g cakes."
+    "body": "Nestled at the northern tip of Lake Wallenpaupack in the scenic Pocono Mountains, North of the Border fireworks is in the best spot to meet the fireworks demand of the Pocono Mountain area. We carry a large selection of fireworks: from sparklers to mortars, and Roman Candles to 500g cakes."
   },
   "hours": {
     "sunday": {
-      "closed": true,
-      "open": "",
-      "close": ""
+      "closed": false,
+      "open": "10:00",
+      "close": "17:00"
     },
     "monday": {
-      "closed": true,
-      "open": "",
-      "close": ""
+      "closed": false,
+      "open": "09:00",
+      "close": "17:00"
     },
     "tuesday": {
-      "closed": true,
-      "open": "",
-      "close": ""
+      "closed": false,
+      "open": "09:00",
+      "close": "17:00"
     },
     "wednesday": {
-      "closed": true,
-      "open": "",
-      "close": ""
+      "closed": false,
+      "open": "09:00",
+      "close": "17:00"
     },
     "thursday": {
-      "closed": true,
-      "open": "",
-      "close": ""
+      "closed": false,
+      "open": "09:00",
+      "close": "18:00"
     },
     "friday": {
-      "closed": true,
-      "open": "",
-      "close": ""
+      "closed": false,
+      "open": "09:00",
+      "close": "17:00"
     },
     "saturday": {
-      "closed": true,
-      "open": "",
-      "close": ""
+      "closed": false,
+      "open": "09:00",
+      "close": "17:00"
     }
   },
   "faq": [
@@ -70,8 +70,8 @@
       "id": "faq_1770466124033_3"
     },
     {
-      "title": "Where are the really big ones?",
-      "answer": "The Federal Government has put a limit on the size of shells and amount of powder in each shell. There is nowhere that you can legally buy shells that are over 3\" in diameter or have more than 60 grams of powder inside. Large cakes can have a total of 500 grams of powder in the entire configuration, but the shells are still limited to 3\" and 60 grams each.",
+      "title": "Where are the really, really big ones?",
+      "answer": "<p>The Federal Government has put a limit on the size of shells and amount of powder in each shell. There is nowhere that you can legally buy shells that are over 3\" in diameter or have more than 60 grams of powder inside. Large cakes can have a total of 500 grams of powder in the entire configuration, but the shells are still limited to 3\" and 60 grams each.</p>",
       "order": 7,
       "id": "faq_1770466124033_4"
     },
@@ -102,8 +102,8 @@
   ],
   "pricing": [
     {
-      "title": "High Roller Rollback",
-      "subtitle": "High‑volume buyers get a simple, permanent upgrade: 3‑for‑1 pricing on every visit.",
+      "title": "High-Roller Rollback",
+      "subtitle": "High‑volume buyers get a simple, permanent upgrade: 3‑for‑1 pricing on every visit",
       "highlights": [
         "Unlock at $750 spend (single visit or cumulative within 12 months).",
         "3‑for‑1 pricing for life once you qualify.",
@@ -149,7 +149,19 @@
       "order": 4
     }
   ],
-  "specialHours": [],
+  "specialHours": [
+    {
+      "title": "New event",
+      "days": [
+        {
+          "date": "2026-02-11",
+          "open": "06:15",
+          "close": "11:15",
+          "closed": false
+        }
+      ]
+    }
+  ],
   "closedRange": [
     {
       "title": "Fall Break",
