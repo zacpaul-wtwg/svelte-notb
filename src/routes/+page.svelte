@@ -1,16 +1,25 @@
 <script>
+	import { onMount } from 'svelte';
 	import HomeNews from '$lib/components/HomeNews.svelte';
 	import Hero from '$lib/components/Hero.svelte';
 	import FeaturedCarousel from '$lib/components/FeaturedCarousel.svelte';
 	import SectionHeader from '$lib/components/SectionHeader.svelte';
 	import Container from '$lib/components/elements/Container.svelte';
 	import { isFeaturedProduct } from '$lib/filter-utils';
+	import { fallbackAllData } from '$lib/cms/fallback';
+	import { fetchRuntimeCms } from '$lib/cms/runtime-client';
 
 	export let data;
-	$: allData = data?.allData;
+	let runtimeAllData = null;
+	$: allData = runtimeAllData ?? data?.allData ?? fallbackAllData;
 	$: productsData = data?.productsData?.things ?? { products: [] };
 	$: allProducts = productsData?.products ?? [];
 	$: featuredProducts = allProducts.filter((product) => isFeaturedProduct(product));
+
+	onMount(async () => {
+		const latest = await fetchRuntimeCms();
+		if (latest) runtimeAllData = latest;
+	});
 </script>
 
 <svelte:head>

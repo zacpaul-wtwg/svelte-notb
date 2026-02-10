@@ -1,12 +1,20 @@
 <script>
+	import { onMount } from 'svelte';
 	import Container from '$lib/components/elements/Container.svelte';
 	import SectionHeader from '$lib/components/SectionHeader.svelte';
 	import SkewLabel from '$lib/components/SkewLabel.svelte';
 	import TitleBar from '$lib/components/TitleBar.svelte';
 	import { fallbackAllData } from '$lib/cms/fallback';
+	import { fetchRuntimeCms } from '$lib/cms/runtime-client';
 
 	export let data;
-	$: allData = data?.allData ?? fallbackAllData;
+	let runtimeAllData = null;
+	$: allData = runtimeAllData ?? data?.allData ?? fallbackAllData;
+
+	onMount(async () => {
+		const latest = await fetchRuntimeCms();
+		if (latest) runtimeAllData = latest;
+	});
 </script>
 
 <TitleBar

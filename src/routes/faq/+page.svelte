@@ -5,9 +5,11 @@
 	import SectionHeader from '$lib/components/SectionHeader.svelte';
 	import TitleBar from '$lib/components/TitleBar.svelte';
 	import { fallbackAllData } from '$lib/cms/fallback';
+	import { fetchRuntimeCms } from '$lib/cms/runtime-client';
 
 	export let data;
-	$: allData = data?.allData ?? fallbackAllData;
+	let runtimeAllData = null;
+	$: allData = runtimeAllData ?? data?.allData ?? fallbackAllData;
 	let openIndex = 0;
 	let cardEls = [];
 	const getNavOffset = () => {
@@ -38,7 +40,10 @@
 		}, 260);
 	};
 
-	onMount(() => {
+	onMount(async () => {
+		const latest = await fetchRuntimeCms();
+		if (latest) runtimeAllData = latest;
+
 		const scriptEl = document.createElement('script');
 		scriptEl.setAttribute('type', 'application/ld+json');
 		scriptEl.setAttribute('id', 'structured-content');

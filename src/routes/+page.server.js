@@ -1,4 +1,4 @@
-export const prerender = false;
+export const prerender = true;
 
 export async function load({ fetch }) {
 	let productsData = { things: { products: [], availableFilters: {}, departments: [] } };
