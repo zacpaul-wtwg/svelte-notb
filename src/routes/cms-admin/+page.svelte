@@ -216,12 +216,19 @@
 	const isRecord = (value) => value && typeof value === 'object' && !Array.isArray(value);
 
 	const formatValue = (value) => {
-		if (value === undefined) return 'undefined';
-		if (value === null) return 'null';
-		if (typeof value === 'string') return value;
-		if (typeof value === 'number' || typeof value === 'boolean') return String(value);
-		if (Array.isArray(value)) return `[array length ${value.length}]`;
-		if (isRecord(value)) return '{object}';
+		if (value === undefined) return '(empty)';
+		if (value === null) return '(empty)';
+		if (typeof value === 'string') return value.trim() ? value : '(empty)';
+		if (typeof value === 'number') return String(value);
+		if (typeof value === 'boolean') return value ? 'Yes' : 'No';
+		if (Array.isArray(value)) {
+			if (value.length === 0) return '(empty)';
+			if (value.every((item) => ['string', 'number', 'boolean'].includes(typeof item))) {
+				return value.map((item) => formatValue(item)).join(', ');
+			}
+			return `${value.length} item${value.length === 1 ? '' : 's'}`;
+		}
+		if (isRecord(value)) return JSON.stringify(value);
 		return String(value);
 	};
 
@@ -254,6 +261,94 @@
 			before: faqTitleFor(diffBaselineData, idx),
 			after: faqTitleFor(diffCurrentData, idx)
 		};
+	};
+
+	const titleCase = (value) =>
+		String(value || '')
+			.replace(/([A-Z])/g, ' $1')
+			.replace(/[_-]+/g, ' ')
+			.trim()
+			.replace(/\b\w/g, (c) => c.toUpperCase());
+
+	const dayLabel = (value) => titleCase(value);
+
+	const hoursText = (hours) => {
+		if (!hours || hours.closed) return 'Closed';
+		const open = hours.open || '(unset)';
+		const close = hours.close || '(unset)';
+		return `${open} to ${close}`;
+	};
+
+	const pricingTitleFor = (source, index) => {
+		const item = Array.isArray(source?.pricing) ? source.pricing[index] : null;
+		return typeof item?.title === 'string' ? item.title : '';
+	};
+
+	const friendlyLabelForPath = (path) => {
+		const faqMatch = String(path).match(/^faq\[(\d+)\]\.(.+)$/);
+		if (faqMatch) {
+			const idx = Number(faqMatch[1]);
+			const field = faqMatch[2];
+			const title = faqTitleFor(diffCurrentData, idx) || faqTitleFor(diffBaselineData, idx) || `FAQ ${idx + 1}`;
+			return `FAQ: ${title} - ${titleCase(field)}`;
+		}
+		const pricingMatch = String(path).match(/^pricing\[(\d+)\]\.(.+)$/);
+		if (pricingMatch) {
+			const idx = Number(pricingMatch[1]);
+			const field = pricingMatch[2];
+			const title =
+				pricingTitleFor(diffCurrentData, idx) || pricingTitleFor(diffBaselineData, idx) || `Pricing ${idx + 1}`;
+			return `Pricing: ${title} - ${titleCase(field)}`;
+		}
+		if (String(path).startsWith('newsPosts.')) {
+			return `News Post - ${titleCase(String(path).replace('newsPosts.', ''))}`;
+		}
+		if (String(path).startsWith('footerDescription.')) {
+			return `Footer Description - ${titleCase(String(path).replace('footerDescription.', ''))}`;
+		}
+		if (String(path).startsWith('hours.')) {
+			return `Hours - ${titleCase(String(path).replace('hours.', ''))}`;
+		}
+		if (String(path).startsWith('specialHours[')) {
+			return `Special Hours - ${titleCase(String(path).replace(/^specialHours\[\d+\]\.?/, ''))}`;
+		}
+		if (String(path).startsWith('closedRange[')) {
+			return `Closed Range - ${titleCase(String(path).replace(/^closedRange\[\d+\]\.?/, ''))}`;
+		}
+		return titleCase(String(path).replace(/\[(\d+)\]/g, ' $1 ').replace(/\./g, ' - '));
+	};
+
+	const buildFriendlyRows = (rows) => {
+		const changedHourDays = new Set();
+		const out = [];
+
+		for (const row of rows) {
+			const hourMatch = String(row.path).match(/^hours\.([a-z]+)\.(open|close|closed)$/i);
+			if (hourMatch) {
+				changedHourDays.add(hourMatch[1].toLowerCase());
+				continue;
+			}
+			out.push({
+				...row,
+				label: friendlyLabelForPath(row.path)
+			});
+		}
+
+		for (const day of [...changedHourDays].sort()) {
+			const before = diffBaselineData?.hours?.[day];
+			const after = diffCurrentData?.hours?.[day];
+			out.push({
+				type: 'changed',
+				path: `hours.${day}`,
+				label: `${dayLabel(day)} Hours`,
+				before,
+				after,
+				renderBefore: hoursText(before),
+				renderAfter: hoursText(after)
+			});
+		}
+
+		return out;
 	};
 
 	const collectDiffs = (before, after, path = '') => {
@@ -317,8 +412,9 @@
 			summary[row.type] += 1;
 		});
 		diffSummary = summary;
-		diffRows = allRows.slice(0, MAX_DIFF_ROWS);
-		diffOverflowCount = Math.max(0, allRows.length - MAX_DIFF_ROWS);
+		const friendlyRows = buildFriendlyRows(allRows);
+		diffRows = friendlyRows.slice(0, MAX_DIFF_ROWS);
+		diffOverflowCount = Math.max(0, friendlyRows.length - MAX_DIFF_ROWS);
 	}
 
 	function openReviewDialog() {
@@ -473,7 +569,7 @@
 				{:else}
 					{#each diffRows as row}
 						<div class="diffRow">
-							<div class="diffPath">{row.path}</div>
+							<div class="diffPath">{row.label || row.path}</div>
 							<div class="diffType">{row.type}</div>
 							{#if isRichTextDiffRow(row)}
 								{#if faqTitleDiffForPath(row.path)}
@@ -505,8 +601,8 @@
 										<code>{titleDiff.after || '(untitled)'}</code>
 									</p>
 								{/if}
-								<div class="diffBefore"><span>before</span> {formatValue(row.before)}</div>
-								<div class="diffAfter"><span>after</span> {formatValue(row.after)}</div>
+								<div class="diffBefore"><span>before</span> {row.renderBefore || formatValue(row.before)}</div>
+								<div class="diffAfter"><span>after</span> {row.renderAfter || formatValue(row.after)}</div>
 							{/if}
 						</div>
 					{/each}
