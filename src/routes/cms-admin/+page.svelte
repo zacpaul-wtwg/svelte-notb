@@ -247,6 +247,15 @@
 		return typeof item?.title === 'string' ? item.title : '';
 	};
 
+	const faqTitleDiffForPath = (path) => {
+		const idx = faqIndexFromPath(path);
+		if (idx === null) return null;
+		return {
+			before: faqTitleFor(diffBaselineData, idx),
+			after: faqTitleFor(diffCurrentData, idx)
+		};
+	};
+
 	const collectDiffs = (before, after, path = '') => {
 		if (Object.is(before, after)) return [];
 
@@ -467,14 +476,13 @@
 							<div class="diffPath">{row.path}</div>
 							<div class="diffType">{row.type}</div>
 							{#if isRichTextDiffRow(row)}
-								{#if faqIndexFromPath(row.path) !== null}
+								{#if faqTitleDiffForPath(row.path)}
+									{@const titleDiff = faqTitleDiffForPath(row.path)}
 									<p class="faqTitleLine">
-										FAQ title:
-										<strong>
-											{faqTitleFor(diffCurrentData, faqIndexFromPath(row.path)) ||
-												faqTitleFor(diffBaselineData, faqIndexFromPath(row.path)) ||
-												'(untitled)'}
-										</strong>
+										FAQ title diff:
+										<code>{titleDiff.before || '(untitled)'}</code>
+										<span class="arrow">→</span>
+										<code>{titleDiff.after || '(untitled)'}</code>
 									</p>
 								{/if}
 								<div class="rtfPreviewGrid">
@@ -488,6 +496,15 @@
 									</div>
 								</div>
 							{:else}
+								{#if faqTitleDiffForPath(row.path) && !row.path.endsWith('.title')}
+									{@const titleDiff = faqTitleDiffForPath(row.path)}
+									<p class="faqTitleLine">
+										FAQ title diff:
+										<code>{titleDiff.before || '(untitled)'}</code>
+										<span class="arrow">→</span>
+										<code>{titleDiff.after || '(untitled)'}</code>
+									</p>
+								{/if}
 								<div class="diffBefore"><span>before</span> {formatValue(row.before)}</div>
 								<div class="diffAfter"><span>after</span> {formatValue(row.after)}</div>
 							{/if}
@@ -834,6 +851,15 @@
 		margin: 0;
 		font-size: 12px;
 		opacity: 0.92;
+	}
+	.faqTitleLine code {
+		padding: 1px 4px;
+		border-radius: 4px;
+		background: rgba(255, 255, 255, 0.1);
+	}
+	.faqTitleLine .arrow {
+		margin: 0 6px;
+		opacity: 0.7;
 	}
 	.publishAction {
 		border-color: rgba(255, 199, 0, 0.6);
