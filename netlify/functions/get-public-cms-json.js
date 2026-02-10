@@ -38,14 +38,6 @@ function previewKeyForBranch(branch) {
   return `preview/${normalizeBranchForKey(branch)}.json`;
 }
 
-function branchAliases(branch) {
-  const safe = sanitizeBranch(branch);
-  if (!safe) return [];
-  if (safe === 'dev') return ['dev', 'develop'];
-  if (safe === 'develop') return ['develop', 'dev'];
-  return [safe];
-}
-
 function detectBranchFromHost(event) {
   const host = event?.headers?.['x-forwarded-host'] || event?.headers?.host || '';
   if (!host.includes('.netlify.app') || !host.includes('--')) return '';
@@ -76,22 +68,31 @@ exports.handler = async (event) => {
   try {
     connectLambda(event);
     const store = getStore(getStoreName());
+    const host = event?.headers?.['x-forwarded-host'] || event?.headers?.host || '';
     const hostBranch = detectBranchFromHost(event);
-    const envBranch = sanitizeBranch(detectEnvBranch());
-    const candidateKeys = [hostBranch, envBranch, 'dev', 'develop', 'main']
-      .flatMap((branch) => branchAliases(branch))
-      .filter((value, index, arr) => value && arr.indexOf(value) === index)
-      .map((branch) => previewKeyForBranch(branch));
+    const envBranch = sanitizeBranch(detectEnvBranch()) || 'dev';
+    const isBranchDeployHost = host.includes('.netlify.app') && host.includes('--');
+    const requestedBranch = hostBranch || envBranch;
 
-    for (const key of candidateKeys) {
+    // Branch deploys must read from exactly one preview key.
+    if (isBranchDeployHost || (process.env.CONTEXT || '').toLowerCase() === 'branch-deploy') {
+      const key = previewKeyForBranch(requestedBranch);
       const allData = await store.get(key, { type: 'json' });
-      if (allData) return json(200, { allData, source: key });
+      if (!allData) {
+        return json(404, {
+          error: 'No CMS preview content found for branch',
+          branch: requestedBranch,
+          expectedKey: key,
+        });
+      }
+      return json(200, { allData, source: key });
     }
 
+    // Production/custom-domain traffic reads from a single live key.
     const liveData = await store.get('live.json', { type: 'json' });
     if (liveData) return json(200, { allData: liveData, source: 'live.json' });
 
-    return json(404, { error: 'No CMS content found in Blobs' });
+    return json(404, { error: 'No live CMS content found in Blobs', expectedKey: 'live.json' });
   } catch (e) {
     return json(502, {
       error: 'Failed to read CMS content from Netlify Blobs',

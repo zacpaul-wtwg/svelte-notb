@@ -8,9 +8,8 @@
 	import { fallbackAllData } from '$lib/cms/fallback';
 	import { fetchRuntimeCms } from '$lib/cms/runtime-client';
 
-	export let data;
 	let runtimeAllData = null;
-	$: allData = runtimeAllData ?? data?.allData ?? fallbackAllData;
+	$: allData = runtimeAllData ?? fallbackAllData;
 
 	onMount(async () => {
 		const latest = await fetchRuntimeCms();

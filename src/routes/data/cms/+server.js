@@ -29,15 +29,15 @@ export async function GET({ fetch }) {
 				}
 			});
 		}
-
-		// Final fallback for first-time migration: serve the built static copy if present.
-		const res = await fetch('/cms.json', { cache: 'no-store' });
-		if (res.ok) {
-			const parsed = await res.json();
-			return json({ allData: parsed, source: 'fallback:/cms.json' });
-		}
-
-		return json({ error: 'CMS content not found in Blobs or static fallback' }, { status: 503 });
+		const details = await runtimeRes.json().catch(() => ({}));
+		return json(
+			{
+				error: 'Failed to load CMS content from public Blob endpoint',
+				upstreamStatus: runtimeRes.status,
+				details
+			},
+			{ status: runtimeRes.status || 503 }
+		);
 	} catch (e) {
 		return json(
 			{ error: 'cms content missing or unreadable', details: String(e?.message || e) },

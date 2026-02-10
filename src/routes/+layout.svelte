@@ -17,9 +17,8 @@
 	} from '$lib/modal-store';
 	import { fetchRuntimeCms } from '$lib/cms/runtime-client';
 
-	export let data;
 	let runtimeAllData = null;
-	$: allData = runtimeAllData ?? data?.allData ?? fallbackAllData;
+	$: allData = runtimeAllData ?? fallbackAllData;
 	$: isCmsAdmin = $page.url.pathname.startsWith('/cms-admin');
 
 	onMount(async () => {

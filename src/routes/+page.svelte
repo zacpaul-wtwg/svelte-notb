@@ -11,7 +11,7 @@
 
 	export let data;
 	let runtimeAllData = null;
-	$: allData = runtimeAllData ?? data?.allData ?? fallbackAllData;
+	$: allData = runtimeAllData ?? fallbackAllData;
 	$: productsData = data?.productsData?.things ?? { products: [] };
 	$: allProducts = productsData?.products ?? [];
 	$: featuredProducts = allProducts.filter((product) => isFeaturedProduct(product));
