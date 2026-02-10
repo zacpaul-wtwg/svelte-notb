@@ -1,17 +1,36 @@
 <script>
 	import { browser } from '$app/environment';
-	import { onDestroy } from 'svelte';
+	import { afterUpdate, onDestroy, onMount } from 'svelte';
 
 	export let colors = [];
-export let maxDots = 6;
-export let dotSize = 20;
-export let burstCount = 8;
-export let burstDistance = 34;
-export let burstSpread = 14;
-export let burstInterval = 200;
-export let showLabels = false;
+	export let maxDots = 6;
+	export let dotSize = 20;
+	export let burstCount = 8;
+	export let burstDistance = 34;
+	export let burstSpread = 14;
+	export let burstInterval = 200;
+	export let showLabels = false;
+	export let adaptiveRadiusOnWrap = false;
+	export let wrappedRadius = 10;
 
 	const burstIntervals = new Map();
+	let colorDotsEl;
+	let isWrapped = false;
+	let resizeObserver;
+
+	const measureWrap = () => {
+		if (!browser || !adaptiveRadiusOnWrap || !colorDotsEl) {
+			isWrapped = false;
+			return;
+		}
+		const items = [...colorDotsEl.querySelectorAll('.color-item')];
+		if (items.length < 2) {
+			isWrapped = false;
+			return;
+		}
+		const firstTop = items[0]?.offsetTop ?? 0;
+		isWrapped = items.some((item) => item.offsetTop !== firstTop);
+	};
 
 	const burst = (event) => {
 		if (!browser) return;
@@ -51,8 +70,20 @@ export let showLabels = false;
 		}
 	};
 
+	onMount(() => {
+		if (!browser || !adaptiveRadiusOnWrap || !colorDotsEl) return;
+		resizeObserver = new ResizeObserver(measureWrap);
+		resizeObserver.observe(colorDotsEl);
+		measureWrap();
+	});
+
+	afterUpdate(() => {
+		if (browser && adaptiveRadiusOnWrap) measureWrap();
+	});
+
 	onDestroy(() => {
 		if (!browser) return;
+		resizeObserver?.disconnect();
 		for (const [target, id] of burstIntervals.entries()) {
 			window.clearInterval(id);
 			burstIntervals.delete(target);
@@ -60,7 +91,12 @@ export let showLabels = false;
 	});
 </script>
 
-<div class="color-dots" style="--dot-size: {dotSize}px;">
+<div
+	class="color-dots"
+	class:wrapped={isWrapped}
+	style="--dot-size: {dotSize}px; --wrapped-radius: {wrappedRadius}px;"
+	bind:this={colorDotsEl}
+>
 	{#each colors.slice(0, maxDots) as color}
 		<span class="color-item">
 			<button
@@ -88,6 +124,9 @@ export let showLabels = false;
 	background: var(--grey);
 	padding: 0.5em 0.7em;
 	border-radius: 18px;
+}
+.color-dots.wrapped {
+	border-radius: var(--wrapped-radius);
 }
 .color-item {
 	display: inline-flex;

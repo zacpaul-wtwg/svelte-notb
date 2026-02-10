@@ -7,6 +7,7 @@
 		openGlobalProductModal,
 		openGlobalWishlistModal
 	} from '$lib/modal-store';
+	import { normalizeCompareItem, sanitizeCompareList } from '$lib/compare/compareItem';
 	import { onMount } from 'svelte';
 	export let product;
 	export let inline = false;
@@ -45,7 +46,8 @@
 		if (typeof window === 'undefined') return [];
 		try {
 			const parsed = JSON.parse(localStorage.getItem(key) ?? '[]');
-			return Array.isArray(parsed) ? parsed : [];
+			if (!Array.isArray(parsed)) return [];
+			return key === 'compare' ? sanitizeCompareList(parsed) : parsed;
 		} catch {
 			return [];
 		}
@@ -59,6 +61,7 @@
 	onMount(() => {
 		$cart = readStoredList('cart');
 		$compare = readStoredList('compare');
+		writeStoredList('compare', $compare);
 	});
 
 	const changeQuantity = function (obj, operator) {
@@ -84,10 +87,12 @@
 
 	const toggleCompare = function (obj) {
 		const safeCompare = Array.isArray($compare) ? $compare : [];
-		const isSelected = safeCompare.some((item) => item.id === obj.id);
+		const normalized = normalizeCompareItem(obj);
+		if (!normalized) return;
+		const isSelected = safeCompare.some((item) => item.id === normalized.id);
 		$compare = isSelected
-			? safeCompare.filter((item) => item.id !== obj.id)
-			: [...safeCompare, obj];
+			? safeCompare.filter((item) => item.id !== normalized.id)
+			: [...safeCompare, normalized];
 		writeStoredList('compare', $compare);
 	};
 
@@ -112,7 +117,13 @@
 		title: product.title,
 		price: product.price,
 		imageThumb: product.imageThumb,
-		category: product.category
+		category: product.category,
+		deal: product.deal,
+		colors: product.colors,
+		effects: product.effects,
+		shotCount: product.shotCount,
+		duration: product.duration,
+		height: product.height
 	};
 </script>
 
