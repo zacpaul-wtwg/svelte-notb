@@ -22,6 +22,8 @@
 	let diffRows = [];
 	let diffOverflowCount = 0;
 	let diffSummary = { changed: 0, added: 0, removed: 0 };
+	let diffBaselineData = {};
+	let diffCurrentData = {};
 
 	const BRANCH_STORAGE_KEY = 'cms_target_branch';
 	const BASELINE_STORAGE_KEY = 'cms_baseline_data';
@@ -233,6 +235,18 @@
 
 	const htmlValue = (value) => (typeof value === 'string' ? value : '');
 
+	const faqIndexFromPath = (path) => {
+		if (typeof path !== 'string') return null;
+		const match = path.match(/^faq\[(\d+)\]\./);
+		return match ? Number(match[1]) : null;
+	};
+
+	const faqTitleFor = (source, index) => {
+		if (index === null || Number.isNaN(index)) return '';
+		const item = Array.isArray(source?.faq) ? source.faq[index] : null;
+		return typeof item?.title === 'string' ? item.title : '';
+	};
+
 	const collectDiffs = (before, after, path = '') => {
 		if (Object.is(before, after)) return [];
 
@@ -279,11 +293,15 @@
 		const baseline = loadBaselineFromSession();
 		if (!baseline) {
 			saveBaselineToSession(current);
+			diffBaselineData = cloneData(current);
+			diffCurrentData = cloneData(current);
 			diffSummary = { changed: 0, added: 0, removed: 0 };
 			diffRows = [];
 			diffOverflowCount = 0;
 			return;
 		}
+		diffBaselineData = cloneData(baseline);
+		diffCurrentData = cloneData(current);
 		const allRows = collectDiffs(cloneData(baseline), cloneData(current));
 		const summary = { changed: 0, added: 0, removed: 0 };
 		allRows.forEach((row) => {
@@ -448,9 +466,17 @@
 						<div class="diffRow">
 							<div class="diffPath">{row.path}</div>
 							<div class="diffType">{row.type}</div>
-							<div class="diffBefore"><span>before</span> {formatValue(row.before)}</div>
-							<div class="diffAfter"><span>after</span> {formatValue(row.after)}</div>
 							{#if isRichTextDiffRow(row)}
+								{#if faqIndexFromPath(row.path) !== null}
+									<p class="faqTitleLine">
+										FAQ title:
+										<strong>
+											{faqTitleFor(diffCurrentData, faqIndexFromPath(row.path)) ||
+												faqTitleFor(diffBaselineData, faqIndexFromPath(row.path)) ||
+												'(untitled)'}
+										</strong>
+									</p>
+								{/if}
 								<div class="rtfPreviewGrid">
 									<div class="rtfPreviewCell">
 										<div class="rtfLabel">before rendered</div>
@@ -461,6 +487,9 @@
 										<div class="rtfSurface">{@html htmlValue(row.after)}</div>
 									</div>
 								</div>
+							{:else}
+								<div class="diffBefore"><span>before</span> {formatValue(row.before)}</div>
+								<div class="diffAfter"><span>after</span> {formatValue(row.after)}</div>
 							{/if}
 						</div>
 					{/each}
@@ -792,6 +821,19 @@
 	.rtfSurface :global(h3),
 	.rtfSurface :global(h4) {
 		margin: 0 0 0.45em;
+	}
+	.rtfSurface :global(ul),
+	.rtfSurface :global(ol) {
+		margin: 0.2em 0 0.7em;
+		padding-left: 1.25em;
+	}
+	.rtfSurface :global(li) {
+		margin: 0.18em 0;
+	}
+	.faqTitleLine {
+		margin: 0;
+		font-size: 12px;
+		opacity: 0.92;
 	}
 	.publishAction {
 		border-color: rgba(255, 199, 0, 0.6);
