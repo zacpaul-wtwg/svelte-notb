@@ -15,7 +15,7 @@ function json(statusCode, body) {
     statusCode,
     headers: {
       'content-type': 'application/json; charset=utf-8',
-      'cache-control': 'public, max-age=30, s-maxage=60, stale-while-revalidate=300',
+      'cache-control': 'no-store',
     },
     body: JSON.stringify(body),
   };

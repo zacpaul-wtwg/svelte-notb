@@ -25,7 +25,7 @@ export async function GET({ fetch }) {
 			const parsed = await runtimeRes.json();
 			return json(parsed, {
 				headers: {
-					'cache-control': 'public, max-age=30, s-maxage=60, stale-while-revalidate=300'
+					'cache-control': 'no-store'
 				}
 			});
 		}
