@@ -1,5 +1,6 @@
 <script>
 	import { onMount } from 'svelte';
+	import { fade, scale } from 'svelte/transition';
 	import Container from '$lib/components/elements/Container.svelte';
 	import { compare } from '$lib/stores.js';
 	import { getThumb } from '$lib/utility/imageThumb';
@@ -11,6 +12,8 @@
 	$: selectedIds = new Set(compareItems.map((item) => item?.id));
 	$: selectedFromRouteData = (products ?? []).filter((product) => selectedIds.has(product.id));
 	$: selectedProducts = selectedFromRouteData.length > 0 ? selectedFromRouteData : compareItems;
+	let hoverPreviewId = null;
+	let pinnedPreviewId = null;
 
 	const usd = new Intl.NumberFormat('en-US', {
 		style: 'currency',
@@ -27,6 +30,21 @@
 			$compare = [];
 		}
 	});
+
+	const openHoverPreview = (id) => {
+		if (pinnedPreviewId) return;
+		hoverPreviewId = id;
+	};
+
+	const closeHoverPreview = (id) => {
+		if (hoverPreviewId === id) hoverPreviewId = null;
+	};
+
+	const togglePinnedPreview = (id) => {
+		pinnedPreviewId = pinnedPreviewId === id ? null : id;
+	};
+
+	const isPreviewOpen = (id) => hoverPreviewId === id || pinnedPreviewId === id;
 </script>
 
 <div class="modal-page">
@@ -48,23 +66,48 @@
 							<table class="compare-table">
 								<thead>
 									<tr>
-										<th scope="col">Thumbnail</th>
-										<th scope="col">Item Name</th>
+										<th scope="col">Item</th>
 										<th scope="col">Item Price</th>
 									</tr>
 								</thead>
 								<tbody>
 									{#each selectedProducts as product}
 										<tr>
-											<td class="thumb-cell">
-												<img
-													class="item-thumb"
-													loading="lazy"
-													src={getThumb(product.imageThumb)}
-													alt={product.title ? `${product.title} thumbnail` : 'Item thumbnail'}
-												/>
+											<td class="item-cell">
+												<div class="item-stage">
+													<button
+														type="button"
+														class="item-card"
+														aria-label={`Preview ${product.title || 'item'}`}
+														on:mouseenter={() => openHoverPreview(product.id)}
+														on:mouseleave={() => closeHoverPreview(product.id)}
+														on:focus={() => openHoverPreview(product.id)}
+														on:blur={() => closeHoverPreview(product.id)}
+														on:click={() => togglePinnedPreview(product.id)}
+													>
+														<img
+															class="item-thumb"
+															loading="lazy"
+															src={getThumb(product.imageThumb)}
+															alt={product.title ? `${product.title} thumbnail` : 'Item thumbnail'}
+														/>
+														<div class="item-overlay">
+															<div class="name-cell">{product.title || 'Unnamed item'}</div>
+															<div class="category-cell">{product.category || 'Uncategorized'}</div>
+														</div>
+													</button>
+													{#if isPreviewOpen(product.id)}
+														<div class="preview-pop" transition:scale={{ duration: 120, start: 0.96 }}>
+															<img
+																class="preview-image"
+																loading="lazy"
+																src={getThumb(product.imageThumb)}
+																alt={product.title ? `${product.title} enlarged preview` : 'Item enlarged preview'}
+															/>
+														</div>
+													{/if}
+												</div>
 											</td>
-											<td class="name-cell">{product.title || 'Unnamed item'}</td>
 											<td class="price-cell">{usd.format(product.price || 0)}</td>
 										</tr>
 									{/each}
@@ -172,19 +215,79 @@
 	.compare-table tbody tr:last-child td {
 		border-bottom: 0;
 	}
-	.thumb-cell {
-		width: 110px;
+	.item-cell {
+		min-width: 220px;
+	}
+	.item-stage {
+		position: relative;
+		width: 180px;
+		height: 96px;
+	}
+	.item-card {
+		position: relative;
+		width: 180px;
+		height: 96px;
+		border: 1px solid var(--grey);
+		padding: 0;
+		background: var(--off-white);
+		overflow: hidden;
+		cursor: pointer;
 	}
 	.item-thumb {
-		width: 88px;
-		height: 88px;
+		width: 100%;
+		height: 100%;
 		object-fit: cover;
 		display: block;
-		border: 1px solid var(--grey-light);
 		background: var(--off-white);
+	}
+	.item-overlay {
+		position: absolute;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		padding: 0.35rem 0.45rem;
+		background: linear-gradient(to top, rgba(0, 0, 0, 0.78), rgba(0, 0, 0, 0.15));
+		color: #fff;
 	}
 	.name-cell {
 		font-weight: 700;
+		font-size: 0.76rem;
+		line-height: 1.15;
+		display: -webkit-box;
+		-webkit-line-clamp: 1;
+		-webkit-box-orient: vertical;
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
+	.category-cell {
+		color: rgba(255, 255, 255, 0.9);
+		font-size: 0.66rem;
+		text-transform: uppercase;
+		letter-spacing: 0.04em;
+		display: -webkit-box;
+		-webkit-line-clamp: 1;
+		-webkit-box-orient: vertical;
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
+	.preview-pop {
+		position: absolute;
+		left: 100%;
+		top: 50%;
+		transform: translate(0.4rem, -50%);
+		z-index: 8;
+		width: 240px;
+		height: 160px;
+		background: var(--white);
+		border: 2px solid var(--grey);
+		box-shadow: 8px 8px 0 var(--yellow-accent);
+		padding: 0.2rem;
+	}
+	.preview-image {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+		display: block;
 	}
 	.price-cell {
 		white-space: nowrap;
@@ -199,9 +302,18 @@
 		.compare-table td {
 			padding: 0.55rem;
 		}
-		.item-thumb {
-			width: 72px;
-			height: 72px;
+		.item-stage,
+		.item-card {
+			width: 156px;
+			height: 88px;
+		}
+		.preview-pop {
+			position: fixed;
+			left: 50%;
+			top: 50%;
+			transform: translate(-50%, -50%);
+			width: min(86vw, 260px);
+			height: min(56vw, 180px);
 		}
 	}
 </style>

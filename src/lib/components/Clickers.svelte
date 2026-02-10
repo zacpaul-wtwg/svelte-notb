@@ -111,7 +111,8 @@
 		id: product.id,
 		title: product.title,
 		price: product.price,
-		imageThumb: product.imageThumb
+		imageThumb: product.imageThumb,
+		category: product.category
 	};
 </script>
 
