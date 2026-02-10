@@ -21,7 +21,6 @@
 	let allData = null;
 	let status = '';
 	let busy = false;
-	let publishing = false;
 	let password = '';
 	let message = '';
 	let errorKeys = [];
@@ -353,72 +352,6 @@
 		}
 	}
 
-	async function saveDraft({ publish = false } = {}) {
-		if (!allData) return;
-		status = '';
-		if (publish) {
-			publishing = true;
-		} else {
-			busy = true;
-		}
-		try {
-			const errors = validateHoursPayload();
-			if (errors.length) {
-				status = `Fix time errors before saving:\n${errors.join('\n')}`;
-				return;
-			}
-			errorKeys = [];
-			if (sectionKey === 'newsPosts') stampNewsDate();
-			if (isLocalDev) {
-				saveDraftToStorage(allData);
-				try {
-					const res = await fetch('/data/cms', {
-						method: 'POST',
-						headers: { 'content-type': 'application/json' },
-						body: JSON.stringify({ allData })
-					});
-					if (!res.ok) {
-						const info = await res.json().catch(() => ({}));
-						status = `Saved draft, but failed to write cms.json: ${info?.error || res.status}`;
-						return;
-					}
-					status = 'Saved to local draft and cms.json.';
-				} catch (e) {
-					status = `Saved draft, but failed to write cms.json: ${e?.message || e}`;
-				}
-				return;
-			}
-			if (publish && !confirm('Commit current cms.json to main and trigger live deploy?')) {
-				return;
-			}
-			const res = await fetch('/.netlify/functions/update-cms-json', {
-				method: 'POST',
-				headers: { 'content-type': 'application/json' },
-				body: JSON.stringify({
-					password,
-					message: publish ? `Publish cms.json to main (${new Date().toISOString().slice(0, 10)})` : message,
-					targetBranch: inferBranchFromHost() || undefined,
-					publish,
-					content: JSON.stringify(allData, null, 2)
-				})
-			});
-			const data = await res.json().catch(() => ({}));
-			if (!res.ok) {
-				status = `Error (${res.status}): ${data?.error || 'Request failed'}`;
-				return;
-			}
-			setTargetBranch(data);
-			savePasswordToSession(password);
-			status = publish
-				? `Published to main. Commit: ${data?.commit || '(unknown)'}`
-				: `Saved to dev preview. Commit: ${data?.commit || '(unknown)'}`;
-		} catch (e) {
-			status = `Network error: ${e?.message || e}`;
-		} finally {
-			busy = false;
-			publishing = false;
-		}
-	}
 </script>
 
 <svelte:head>
@@ -430,27 +363,7 @@
 	<header class="adminTop">
 		<div class="adminLeft">
 			<a class="navBtn ghost" href="/cms-admin">Sections</a>
-			<button
-				class="navBtn"
-				type="button"
-				on:click={saveDraft}
-				disabled={!allData || busy || publishing}
-			>
-				{busy ? 'Saving…' : 'Save to Dev Preview'}
-			</button>
-			{#if !isLocalDev}
-				<button
-					class="navBtn publishBtn"
-					type="button"
-					on:click={() => saveDraft({ publish: true })}
-					disabled={!allData || busy || publishing}
-				>
-					{publishing ? 'Publishing…' : 'Commit & Go Live'}
-				</button>
-			{/if}
-			{#if status}
-				<span class="saveStatus">{status}</span>
-			{/if}
+			<span class="editingHint">Changes are stored in draft automatically.</span>
 		</div>
 		<div class="adminCenter">
 			<a class="logo" href="/">
@@ -897,10 +810,10 @@
 	.navBtn.ghost {
 		opacity: 0.7;
 	}
-	.navBtn.publishBtn {
-		border-color: rgba(255, 199, 0, 0.6);
-		background: linear-gradient(180deg, rgba(255, 199, 0, 0.32), rgba(255, 199, 0, 0.12));
-		color: #fff5c1;
+	.editingHint {
+		font-size: 12px;
+		opacity: 0.8;
+		align-self: center;
 	}
 
 	.panel {
@@ -1253,20 +1166,11 @@
 		font-size: 13px;
 		opacity: 0.85;
 	}
-	.saveStatus {
-		font-size: 12px;
-		opacity: 0.85;
-		white-space: pre-line;
-		max-width: 420px;
-	}
 	.mobileStatus {
 		display: none;
 	}
 
 	@media (max-width: 860px) {
-		.saveStatus {
-			display: none;
-		}
 		.mobileStatus {
 			display: block;
 		}

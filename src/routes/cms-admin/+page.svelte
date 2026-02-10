@@ -1,5 +1,6 @@
 <script>
 	import { onMount } from 'svelte';
+	import { fade, scale } from 'svelte/transition';
 	import { cmsSections } from '$lib/cms/adminSchema';
 	import {
 		clearDraftStorage,
@@ -17,8 +18,14 @@
 	let allData = null;
 	let message = '';
 	let targetBranch = '';
+	let reviewDialogOpen = false;
+	let diffRows = [];
+	let diffOverflowCount = 0;
+	let diffSummary = { changed: 0, added: 0, removed: 0 };
 
 	const BRANCH_STORAGE_KEY = 'cms_target_branch';
+	const BASELINE_STORAGE_KEY = 'cms_baseline_data';
+	const MAX_DIFF_ROWS = 200;
 
 	function inferBranchFromHost() {
 		if (typeof window === 'undefined') return '';
@@ -55,6 +62,7 @@
 		if (draft) {
 			allData = normalizePricing(draft);
 			saveDraftToStorage(allData);
+			loadBaselineFromSession();
 			unlocked = true;
 			status = isLocalDev ? 'Draft loaded (local).' : 'Draft loaded.';
 			return;
@@ -65,6 +73,28 @@
 			unlocked = true;
 		}
 	});
+
+	const cloneData = (value) => JSON.parse(JSON.stringify(value ?? null));
+
+	function loadBaselineFromSession() {
+		if (typeof window === 'undefined') return null;
+		try {
+			const raw = window.sessionStorage.getItem(BASELINE_STORAGE_KEY);
+			if (!raw) return null;
+			return normalizePricing(JSON.parse(raw));
+		} catch {
+			return null;
+		}
+	}
+
+	function saveBaselineToSession(value) {
+		if (typeof window === 'undefined') return;
+		try {
+			window.sessionStorage.setItem(BASELINE_STORAGE_KEY, JSON.stringify(value ?? null));
+		} catch {
+			// ignore storage write failures
+		}
+	}
 
 	function setTargetBranch(data) {
 		if (data?.branchInfo?.publish === true) return;
@@ -84,6 +114,7 @@
 			const text = await res.text();
 			allData = normalizePricing(JSON.parse(text));
 			saveDraftToStorage(allData);
+			saveBaselineToSession(allData);
 			status = 'Loaded from /cms.json';
 		} catch (e) {
 			status = `Failed to load /cms.json: ${e?.message || e}`;
@@ -114,6 +145,7 @@
 
 			allData = normalizePricing(JSON.parse(String(data?.content || '{}')));
 			saveDraftToStorage(allData);
+			saveBaselineToSession(allData);
 			savePasswordToSession(password);
 			unlocked = true;
 			status = 'Unlocked.';
@@ -161,6 +193,8 @@
 			status = publish
 				? `Published to main. Commit: ${data?.commit || '(unknown)'}`
 				: `Saved to dev preview. Commit: ${data?.commit || '(unknown)'}`;
+			saveBaselineToSession(allData);
+			openReviewDialog();
 		} catch (e) {
 			status = `Network error: ${e?.message || e}`;
 		} finally {
@@ -173,7 +207,83 @@
 		clearDraftStorage();
 		allData = null;
 		unlocked = false;
+		reviewDialogOpen = false;
 		status = 'Draft cleared.';
+	}
+
+	const isRecord = (value) => value && typeof value === 'object' && !Array.isArray(value);
+
+	const formatValue = (value) => {
+		if (value === undefined) return 'undefined';
+		if (value === null) return 'null';
+		if (typeof value === 'string') return value.length > 110 ? `${value.slice(0, 110)}...` : value;
+		if (typeof value === 'number' || typeof value === 'boolean') return String(value);
+		if (Array.isArray(value)) return `[array length ${value.length}]`;
+		if (isRecord(value)) return '{object}';
+		return String(value);
+	};
+
+	const collectDiffs = (before, after, path = '') => {
+		if (Object.is(before, after)) return [];
+
+		if (Array.isArray(before) || Array.isArray(after)) {
+			const left = Array.isArray(before) ? before : [];
+			const right = Array.isArray(after) ? after : [];
+			const length = Math.max(left.length, right.length);
+			const out = [];
+			for (let i = 0; i < length; i += 1) {
+				const nextPath = `${path}[${i}]`;
+				if (i >= left.length) {
+					out.push({ type: 'added', path: nextPath, before: undefined, after: right[i] });
+				} else if (i >= right.length) {
+					out.push({ type: 'removed', path: nextPath, before: left[i], after: undefined });
+				} else {
+					out.push(...collectDiffs(left[i], right[i], nextPath));
+				}
+			}
+			return out;
+		}
+
+		if (isRecord(before) && isRecord(after)) {
+			const keys = new Set([...Object.keys(before), ...Object.keys(after)]);
+			const out = [];
+			for (const key of [...keys].sort()) {
+				const nextPath = path ? `${path}.${key}` : key;
+				if (!(key in before)) {
+					out.push({ type: 'added', path: nextPath, before: undefined, after: after[key] });
+				} else if (!(key in after)) {
+					out.push({ type: 'removed', path: nextPath, before: before[key], after: undefined });
+				} else {
+					out.push(...collectDiffs(before[key], after[key], nextPath));
+				}
+			}
+			return out;
+		}
+
+		return [{ type: 'changed', path: path || '(root)', before, after }];
+	};
+
+	function computeDiffState() {
+		const current = normalizePricing(loadDraftFromStorage() || allData || {});
+		allData = current;
+		const baseline = loadBaselineFromSession() || {};
+		const allRows = collectDiffs(cloneData(baseline), cloneData(current));
+		const summary = { changed: 0, added: 0, removed: 0 };
+		allRows.forEach((row) => {
+			summary[row.type] += 1;
+		});
+		diffSummary = summary;
+		diffRows = allRows.slice(0, MAX_DIFF_ROWS);
+		diffOverflowCount = Math.max(0, allRows.length - MAX_DIFF_ROWS);
+	}
+
+	function openReviewDialog() {
+		computeDiffState();
+		reviewDialogOpen = true;
+	}
+
+	function closeReviewDialog() {
+		reviewDialogOpen = false;
 	}
 
 	function normalizePricing(data) {
@@ -231,21 +341,11 @@
 			<button
 				class="navBtn"
 				type="button"
-				on:click={saveDraft}
+				on:click={openReviewDialog}
 				disabled={!allData || busy || publishing}
 			>
-				{busy ? 'Saving…' : 'Save to Dev Preview'}
+				See Changes Made
 			</button>
-			{#if !isLocalDev}
-				<button
-					class="navBtn publishBtn"
-					type="button"
-					on:click={() => saveDraft({ publish: true })}
-					disabled={!allData || publishing}
-				>
-					{publishing ? 'Publishing…' : 'Commit & Go Live'}
-				</button>
-			{/if}
 		</div>
 		<div class="adminCenter">
 			<a class="logo" href="/">
@@ -305,6 +405,54 @@
 			<p class="status">{status}</p>
 		{/if}
 	</section>
+
+	{#if reviewDialogOpen}
+		<button
+			class="reviewOverlay"
+			type="button"
+			aria-label="Close review dialog"
+			transition:fade={{ duration: 140 }}
+			on:click={closeReviewDialog}
+		></button>
+		<div class="reviewDialog" role="dialog" aria-modal="true" aria-label="Review CMS changes" transition:scale={{ duration: 150 }}>
+			<div class="reviewHeader">
+				<h2>Review Changes</h2>
+				<button class="iconBtn" type="button" aria-label="Close dialog" on:click={closeReviewDialog}>×</button>
+			</div>
+			<p class="reviewMeta">Target preview branch: <strong>{isLocalDev ? 'local' : targetBranch || 'unknown'}</strong></p>
+			<p class="reviewMeta">
+				Changed: {diffSummary.changed} | Added: {diffSummary.added} | Removed: {diffSummary.removed}
+			</p>
+			<div class="diffList">
+				{#if diffRows.length === 0}
+					<p class="emptyDiff">No draft changes detected compared to the last loaded/saved baseline.</p>
+				{:else}
+					{#each diffRows as row}
+						<div class="diffRow">
+							<div class="diffPath">{row.path}</div>
+							<div class="diffType">{row.type}</div>
+							<div class="diffBefore"><span>before</span> {formatValue(row.before)}</div>
+							<div class="diffAfter"><span>after</span> {formatValue(row.after)}</div>
+						</div>
+					{/each}
+					{#if diffOverflowCount > 0}
+						<p class="overflowNote">Showing first {MAX_DIFF_ROWS} changes. {diffOverflowCount} more not shown.</p>
+					{/if}
+				{/if}
+			</div>
+			<div class="reviewActions">
+				<button class="btn" type="button" on:click={closeReviewDialog} disabled={busy || publishing}>Cancel</button>
+				<button class="btn primary" type="button" on:click={() => saveDraft({ publish: false })} disabled={!allData || busy || publishing}>
+					{busy ? 'Saving…' : 'Save to Dev Preview'}
+				</button>
+				{#if !isLocalDev}
+					<button class="btn publishAction" type="button" on:click={() => saveDraft({ publish: true })} disabled={!allData || busy || publishing}>
+						{publishing ? 'Publishing…' : 'Commit & Go Live'}
+					</button>
+				{/if}
+			</div>
+		</div>
+	{/if}
 </main>
 
 <style>
@@ -373,11 +521,6 @@
 	.navBtn.ghost {
 		opacity: 0.7;
 		cursor: default;
-	}
-	.navBtn.publishBtn {
-		border-color: rgba(255, 199, 0, 0.6);
-		background: linear-gradient(180deg, rgba(255, 199, 0, 0.32), rgba(255, 199, 0, 0.12));
-		color: #fff5c1;
 	}
 	.navBtn[disabled] {
 		opacity: 0.5;
@@ -495,6 +638,111 @@
 		margin-top: 10px;
 		font-size: 13px;
 		opacity: 0.85;
+	}
+	.reviewOverlay {
+		position: fixed;
+		inset: 0;
+		background: rgba(0, 0, 0, 0.55);
+		z-index: 30;
+		border: 0;
+		padding: 0;
+		cursor: pointer;
+	}
+	.reviewDialog {
+		position: fixed;
+		inset: auto 16px 24px;
+		max-width: 1060px;
+		max-height: calc(100vh - 120px);
+		margin: 0 auto;
+		left: 0;
+		right: 0;
+		z-index: 31;
+		border: 1px solid rgba(255, 255, 255, 0.2);
+		border-radius: 14px;
+		background: #111319;
+		padding: 14px;
+		display: grid;
+		gap: 10px;
+	}
+	.reviewHeader {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+	}
+	.reviewHeader h2 {
+		margin: 0;
+		font-size: 18px;
+		text-transform: uppercase;
+		letter-spacing: 0.04em;
+	}
+	.reviewMeta {
+		margin: 0;
+		font-size: 13px;
+		opacity: 0.9;
+	}
+	.diffList {
+		border: 1px solid rgba(255, 255, 255, 0.16);
+		border-radius: 10px;
+		padding: 10px;
+		display: grid;
+		gap: 8px;
+		background: rgba(255, 255, 255, 0.02);
+		max-height: min(56vh, 520px);
+		overflow: auto;
+	}
+	.diffRow {
+		border: 1px solid rgba(255, 255, 255, 0.12);
+		border-radius: 8px;
+		padding: 8px;
+		display: grid;
+		gap: 4px;
+	}
+	.diffPath {
+		font-family: monospace;
+		font-size: 12px;
+		opacity: 0.95;
+	}
+	.diffType {
+		font-size: 11px;
+		text-transform: uppercase;
+		letter-spacing: 0.04em;
+		opacity: 0.7;
+	}
+	.diffBefore,
+	.diffAfter {
+		font-size: 12px;
+		word-break: break-word;
+	}
+	.diffBefore span,
+	.diffAfter span {
+		opacity: 0.7;
+		margin-right: 6px;
+	}
+	.overflowNote,
+	.emptyDiff {
+		margin: 0;
+		font-size: 12px;
+		opacity: 0.8;
+	}
+	.reviewActions {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 10px;
+		justify-content: flex-end;
+	}
+	.publishAction {
+		border-color: rgba(255, 199, 0, 0.6);
+		background: linear-gradient(180deg, rgba(255, 199, 0, 0.32), rgba(255, 199, 0, 0.12));
+		color: #fff5c1;
+	}
+	.iconBtn {
+		border: 1px solid rgba(255, 255, 255, 0.2);
+		background: rgba(255, 255, 255, 0.06);
+		color: #eef0f6;
+		border-radius: 8px;
+		width: 32px;
+		height: 32px;
+		cursor: pointer;
 	}
 
 	@media (max-width: 640px) {
