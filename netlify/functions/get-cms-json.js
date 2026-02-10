@@ -9,7 +9,10 @@
 // - CMS_REPO_B64: base64("owner/repo")
 //
 // Optional:
-// - GITHUB_BRANCH (default: "main")
+// - CMS_TARGET_BRANCH (preferred)
+// - GITHUB_BRANCH
+// - BRANCH / HEAD (provided by Netlify deploy context)
+//   Fallback defaults to "main"
 //
 // Endpoint: POST /.netlify/functions/get-cms-json
 
@@ -41,6 +44,16 @@ function decodeBase64Value(value) {
   }
 }
 
+function getTargetBranch() {
+  return (
+    process.env.CMS_TARGET_BRANCH ||
+    process.env.GITHUB_BRANCH ||
+    process.env.BRANCH ||
+    process.env.HEAD ||
+    'main'
+  );
+}
+
 exports.handler = async (event) => {
   if (event.httpMethod !== 'POST') {
     return json(405, { error: 'Method not allowed' });
@@ -49,7 +62,7 @@ exports.handler = async (event) => {
   const adminPassword = process.env.CMS_ADMIN_PASSWORD;
   const githubToken = process.env.GITHUB_TOKEN;
   const githubRepo = decodeBase64Value(process.env.CMS_REPO_B64);
-  const githubBranch = process.env.GITHUB_BRANCH || 'main';
+  const githubBranch = getTargetBranch();
 
   if (!adminPassword || !githubToken || !githubRepo) {
     return json(500, {
