@@ -15,6 +15,9 @@
 	let unlocked = false;
 	let allData = null;
 	let message = '';
+	let targetBranch = '';
+
+	const BRANCH_STORAGE_KEY = 'cms_target_branch';
 
 	const isLocalDev =
 		typeof window !== 'undefined' &&
@@ -23,6 +26,8 @@
 	onMount(async () => {
 		password = loadPasswordFromSession();
 		message = `Update cms.json (${new Date().toISOString().slice(0, 10)})`;
+		targetBranch =
+			typeof window !== 'undefined' ? window.sessionStorage.getItem(BRANCH_STORAGE_KEY) || '' : '';
 
 		const draft = loadDraftFromStorage();
 		if (draft) {
@@ -38,6 +43,15 @@
 			unlocked = true;
 		}
 	});
+
+	function setTargetBranch(data) {
+		const next = String(data?.branchInfo?.targetBranch || '').trim();
+		if (!next) return;
+		targetBranch = next;
+		if (typeof window !== 'undefined') {
+			window.sessionStorage.setItem(BRANCH_STORAGE_KEY, next);
+		}
+	}
 
 	async function reloadFromDisk() {
 		status = '';
@@ -73,6 +87,7 @@
 				status = `Error (${res.status}): ${data?.error || 'Request failed'}`;
 				return;
 			}
+			setTargetBranch(data);
 
 			allData = normalizePricing(JSON.parse(String(data?.content || '{}')));
 			saveDraftToStorage(allData);
@@ -110,6 +125,7 @@
 				status = `Error (${res.status}): ${data?.error || 'Request failed'}`;
 				return;
 			}
+			setTargetBranch(data);
 			status = `Updated. Commit: ${data?.commit || '(unknown)'}`;
 		} catch (e) {
 			status = `Network error: ${e?.message || e}`;
@@ -185,6 +201,9 @@
 			<a class="logo" href="/">
 				<img src="/logo_large.png" alt="North of the Border Logo" />
 			</a>
+		</div>
+		<div class="adminRight">
+			<span class="branchBadge">{isLocalDev ? 'target: local' : `target: ${targetBranch || 'unknown'}`}</span>
 		</div>
 	</header>
 
@@ -272,6 +291,20 @@
 		align-items: center;
 		justify-content: center;
 		flex: 1;
+	}
+	.adminRight {
+		display: flex;
+		justify-content: flex-end;
+		min-width: 140px;
+	}
+	.branchBadge {
+		border: 1px solid rgba(255, 255, 255, 0.18);
+		background: rgba(255, 255, 255, 0.06);
+		color: #eef0f6;
+		border-radius: 999px;
+		padding: 6px 10px;
+		font-size: 12px;
+		white-space: nowrap;
 	}
 	.logo img {
 		width: 120px;
@@ -415,6 +448,10 @@
 		}
 		.pageTitle {
 			font-size: 18px;
+		}
+		.branchBadge {
+			font-size: 11px;
+			padding: 5px 8px;
 		}
 	}
 </style>

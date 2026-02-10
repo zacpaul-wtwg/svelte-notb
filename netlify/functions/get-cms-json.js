@@ -54,6 +54,15 @@ function getTargetBranch() {
   );
 }
 
+function runtimeBranchInfo(targetBranch) {
+  return {
+    targetBranch,
+    context: process.env.CONTEXT || null,
+    branch: process.env.BRANCH || null,
+    head: process.env.HEAD || null,
+  };
+}
+
 exports.handler = async (event) => {
   if (event.httpMethod !== 'POST') {
     return json(405, { error: 'Method not allowed' });
@@ -63,10 +72,12 @@ exports.handler = async (event) => {
   const githubToken = process.env.GITHUB_TOKEN;
   const githubRepo = decodeBase64Value(process.env.CMS_REPO_B64);
   const githubBranch = getTargetBranch();
+  const branchInfo = runtimeBranchInfo(githubBranch);
 
   if (!adminPassword || !githubToken || !githubRepo) {
     return json(500, {
       error: 'Server not configured',
+      branchInfo,
       missing: {
         CMS_ADMIN_PASSWORD: !adminPassword,
         GITHUB_TOKEN: !githubToken,
@@ -99,7 +110,12 @@ exports.handler = async (event) => {
     const res = await fetch(`${apiBase}?ref=${encodeURIComponent(githubBranch)}`, { headers });
     const text = await res.text();
     if (!res.ok) {
-      return json(502, { error: 'Failed to read cms.json from GitHub', status: res.status, text });
+      return json(502, {
+        error: 'Failed to read cms.json from GitHub',
+        status: res.status,
+        text,
+        branchInfo,
+      });
     }
 
     const data = JSON.parse(text);
@@ -109,8 +125,12 @@ exports.handler = async (event) => {
     }
 
     const decoded = Buffer.from(contentB64.replace(/\n/g, ''), 'base64').toString('utf8');
-    return json(200, { ok: true, content: decoded, sha: data?.sha || null });
+    return json(200, { ok: true, content: decoded, sha: data?.sha || null, branchInfo });
   } catch (e) {
-    return json(502, { error: 'Network error reading GitHub', details: String(e?.message || e) });
+    return json(502, {
+      error: 'Network error reading GitHub',
+      details: String(e?.message || e),
+      branchInfo,
+    });
   }
 };

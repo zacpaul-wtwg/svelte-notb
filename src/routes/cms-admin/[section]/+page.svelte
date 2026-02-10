@@ -26,6 +26,9 @@
 	let errorKeys = [];
 	let faqOpenIndex = -1;
 	let faqPlaceholderIndex = null;
+	let targetBranch = '';
+
+	const BRANCH_STORAGE_KEY = 'cms_target_branch';
 
 	$: sectionKey = $page.params.section;
 	$: schema = cmsSectionByKey[sectionKey];
@@ -54,6 +57,8 @@
 	onMount(async () => {
 		password = loadPasswordFromSession();
 		message = `Update cms.json (${new Date().toISOString().slice(0, 10)})`;
+		targetBranch =
+			typeof window !== 'undefined' ? window.sessionStorage.getItem(BRANCH_STORAGE_KEY) || '' : '';
 		const draft = loadDraftFromStorage();
 		if (draft) {
 			allData = normalizePricing(draft);
@@ -64,6 +69,15 @@
 			await reloadFromDisk();
 		}
 	});
+
+	function setTargetBranch(data) {
+		const next = String(data?.branchInfo?.targetBranch || '').trim();
+		if (!next) return;
+		targetBranch = next;
+		if (typeof window !== 'undefined') {
+			window.sessionStorage.setItem(BRANCH_STORAGE_KEY, next);
+		}
+	}
 
 	function normalizePricing(data) {
 		if (!data || !Array.isArray(data.pricing)) return data;
@@ -362,6 +376,7 @@
 				status = `Error (${res.status}): ${data?.error || 'Request failed'}`;
 				return;
 			}
+			setTargetBranch(data);
 			savePasswordToSession(password);
 			status = `Updated. Commit: ${data?.commit || '(unknown)'}`;
 		} catch (e) {
@@ -392,6 +407,9 @@
 			<a class="logo" href="/">
 				<img src="/logo_large.png" alt="North of the Border Logo" />
 			</a>
+		</div>
+		<div class="adminRight">
+			<span class="branchBadge">{isLocalDev ? 'target: local' : `target: ${targetBranch || 'unknown'}`}</span>
 		</div>
 	</header>
 
@@ -798,6 +816,20 @@
 		justify-content: center;
 		flex: 1;
 	}
+	.adminRight {
+		display: flex;
+		justify-content: flex-end;
+		min-width: 140px;
+	}
+	.branchBadge {
+		border: 1px solid rgba(255, 255, 255, 0.18);
+		background: rgba(255, 255, 255, 0.06);
+		color: #eef0f6;
+		border-radius: 999px;
+		padding: 6px 10px;
+		font-size: 12px;
+		white-space: nowrap;
+	}
 	.logo img {
 		width: 120px;
 		height: auto;
@@ -1183,6 +1215,10 @@
 		}
 		.mobileStatus {
 			display: block;
+		}
+		.branchBadge {
+			font-size: 11px;
+			padding: 5px 8px;
 		}
 	}
 
