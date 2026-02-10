@@ -411,7 +411,7 @@
 			savePasswordToSession(password);
 			status = publish
 				? `Published to main. Commit: ${data?.commit || '(unknown)'}`
-				: `Updated. Commit: ${data?.commit || '(unknown)'}`;
+				: `Saved to dev preview. Commit: ${data?.commit || '(unknown)'}`;
 		} catch (e) {
 			status = `Network error: ${e?.message || e}`;
 		} finally {
@@ -436,7 +436,7 @@
 				on:click={saveDraft}
 				disabled={!allData || busy || publishing}
 			>
-				{busy ? 'Saving…' : 'Save'}
+				{busy ? 'Saving…' : 'Save to Dev Preview'}
 			</button>
 			{#if !isLocalDev}
 				<button
