@@ -266,7 +266,14 @@
 	function computeDiffState() {
 		const current = normalizePricing(loadDraftFromStorage() || allData || {});
 		allData = current;
-		const baseline = loadBaselineFromSession() || {};
+		const baseline = loadBaselineFromSession();
+		if (!baseline) {
+			saveBaselineToSession(current);
+			diffSummary = { changed: 0, added: 0, removed: 0 };
+			diffRows = [];
+			diffOverflowCount = 0;
+			return;
+		}
 		const allRows = collectDiffs(cloneData(baseline), cloneData(current));
 		const summary = { changed: 0, added: 0, removed: 0 };
 		allRows.forEach((row) => {
