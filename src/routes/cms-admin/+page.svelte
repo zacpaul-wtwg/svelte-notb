@@ -216,12 +216,22 @@
 	const formatValue = (value) => {
 		if (value === undefined) return 'undefined';
 		if (value === null) return 'null';
-		if (typeof value === 'string') return value.length > 110 ? `${value.slice(0, 110)}...` : value;
+		if (typeof value === 'string') return value;
 		if (typeof value === 'number' || typeof value === 'boolean') return String(value);
 		if (Array.isArray(value)) return `[array length ${value.length}]`;
 		if (isRecord(value)) return '{object}';
 		return String(value);
 	};
+
+	const isHtmlString = (value) => typeof value === 'string' && /<[^>]+>/.test(value);
+
+	const isRichTextDiffRow = (row) =>
+		Boolean(row) &&
+		(typeof row.path === 'string' &&
+			(row.path.endsWith('.body') || row.path.endsWith('.answer') || row.path.endsWith('.entry'))) &&
+		(isHtmlString(row.before) || isHtmlString(row.after));
+
+	const htmlValue = (value) => (typeof value === 'string' ? value : '');
 
 	const collectDiffs = (before, after, path = '') => {
 		if (Object.is(before, after)) return [];
@@ -440,6 +450,18 @@
 							<div class="diffType">{row.type}</div>
 							<div class="diffBefore"><span>before</span> {formatValue(row.before)}</div>
 							<div class="diffAfter"><span>after</span> {formatValue(row.after)}</div>
+							{#if isRichTextDiffRow(row)}
+								<div class="rtfPreviewGrid">
+									<div class="rtfPreviewCell">
+										<div class="rtfLabel">before rendered</div>
+										<div class="rtfSurface">{@html htmlValue(row.before)}</div>
+									</div>
+									<div class="rtfPreviewCell">
+										<div class="rtfLabel">after rendered</div>
+										<div class="rtfSurface">{@html htmlValue(row.after)}</div>
+									</div>
+								</div>
+							{/if}
 						</div>
 					{/each}
 					{#if diffOverflowCount > 0}
@@ -719,6 +741,7 @@
 	.diffAfter {
 		font-size: 12px;
 		word-break: break-word;
+		white-space: pre-wrap;
 	}
 	.diffBefore span,
 	.diffAfter span {
@@ -736,6 +759,39 @@
 		flex-wrap: wrap;
 		gap: 10px;
 		justify-content: flex-end;
+	}
+	.rtfPreviewGrid {
+		display: grid;
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		gap: 8px;
+		margin-top: 4px;
+	}
+	.rtfPreviewCell {
+		border: 1px solid rgba(255, 255, 255, 0.12);
+		border-radius: 8px;
+		background: rgba(255, 255, 255, 0.02);
+		padding: 8px;
+	}
+	.rtfLabel {
+		font-size: 11px;
+		text-transform: uppercase;
+		letter-spacing: 0.04em;
+		opacity: 0.75;
+		margin-bottom: 6px;
+	}
+	.rtfSurface {
+		font-size: 13px;
+		line-height: 1.4;
+		word-break: break-word;
+	}
+	.rtfSurface :global(p) {
+		margin: 0 0 0.6em;
+	}
+	.rtfSurface :global(h1),
+	.rtfSurface :global(h2),
+	.rtfSurface :global(h3),
+	.rtfSurface :global(h4) {
+		margin: 0 0 0.45em;
 	}
 	.publishAction {
 		border-color: rgba(255, 199, 0, 0.6);
@@ -762,6 +818,9 @@
 		.branchBadge {
 			font-size: 11px;
 			padding: 5px 8px;
+		}
+		.rtfPreviewGrid {
+			grid-template-columns: 1fr;
 		}
 	}
 </style>
