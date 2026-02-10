@@ -27,6 +27,12 @@ function json(statusCode, body) {
   };
 }
 
+function isCmsEnabled() {
+  const raw = String(process.env.CMS_ADMIN_ENABLED || '').trim().toLowerCase();
+  if (!raw) return true;
+  return raw === 'true' || raw === '1' || raw === 'yes';
+}
+
 function safeEqual(a, b) {
   // Constant-time-ish compare for same-length strings.
   if (typeof a !== 'string' || typeof b !== 'string') return false;
@@ -77,8 +83,12 @@ exports.handler = async (event) => {
   if (event.httpMethod !== 'POST') {
     return json(405, { error: 'Method not allowed' });
   }
+  if (!isCmsEnabled()) {
+    return json(404, { error: 'Not found' });
+  }
 
   const adminPassword = process.env.CMS_ADMIN_PASSWORD;
+  const publishPassword = process.env.CMS_PUBLISH_PASSWORD || '';
   const githubToken = process.env.GITHUB_TOKEN;
   const githubRepo = decodeBase64Value(process.env.CMS_REPO_B64);
 
@@ -102,18 +112,23 @@ exports.handler = async (event) => {
 
   const password = payload.password;
   const raw = payload.content;
+  const isPublish = payload.publish === true;
   const requestedBranch = sanitizeBranch(payload.targetBranch);
-  const githubBranch = requestedBranch || getTargetBranch();
+  const githubBranch = isPublish ? 'main' : requestedBranch || getTargetBranch();
   const branchInfo = {
     ...runtimeBranchInfo(githubBranch),
     requestedBranch: requestedBranch || null,
+    publish: isPublish,
   };
   const commitMessage =
     typeof payload.message === 'string' && payload.message.trim()
       ? payload.message.trim().slice(0, 200)
+      : isPublish
+      ? 'Publish cms.json to main via site form'
       : 'Update cms.json via site form';
 
-  if (!safeEqual(String(password || ''), adminPassword)) {
+  const expectedPassword = isPublish ? publishPassword || adminPassword : adminPassword;
+  if (!safeEqual(String(password || ''), expectedPassword)) {
     return json(401, { error: 'Unauthorized' });
   }
 

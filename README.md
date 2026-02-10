@@ -88,3 +88,19 @@ Comcash data is loaded on the server from these private vars:
 
 If `main` works but `develop` branch deploys do not, check Netlify variable scopes.
 These values must be available to the branch deploy context (or set to all contexts), not only production.
+
+## Netlify Environment Variables (CMS Admin)
+
+Use `CMS_ADMIN_ENABLED` to control whether `/cms-admin` is accessible:
+
+- `true`: CMS routes/functions enabled
+- `false`: CMS routes/functions return not found
+
+Recommended context setup:
+
+- `branch-deploy` (for `dev`): `CMS_ADMIN_ENABLED=true`
+- `production` (for `main`): `CMS_ADMIN_ENABLED=false`
+
+Optional publish credential:
+
+- `CMS_PUBLISH_PASSWORD`: when set, required for "Commit & Go Live" (publish-to-main) actions.

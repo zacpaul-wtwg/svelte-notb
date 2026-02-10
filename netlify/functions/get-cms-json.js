@@ -27,6 +27,12 @@ function json(statusCode, body) {
   };
 }
 
+function isCmsEnabled() {
+  const raw = String(process.env.CMS_ADMIN_ENABLED || '').trim().toLowerCase();
+  if (!raw) return true;
+  return raw === 'true' || raw === '1' || raw === 'yes';
+}
+
 function safeEqual(a, b) {
   if (typeof a !== 'string' || typeof b !== 'string') return false;
   if (a.length !== b.length) return false;
@@ -75,6 +81,9 @@ function runtimeBranchInfo(targetBranch) {
 exports.handler = async (event) => {
   if (event.httpMethod !== 'POST') {
     return json(405, { error: 'Method not allowed' });
+  }
+  if (!isCmsEnabled()) {
+    return json(404, { error: 'Not found' });
   }
 
   const adminPassword = process.env.CMS_ADMIN_PASSWORD;

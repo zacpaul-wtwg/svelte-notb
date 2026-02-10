@@ -21,6 +21,7 @@
 	let allData = null;
 	let status = '';
 	let busy = false;
+	let publishing = false;
 	let password = '';
 	let message = '';
 	let errorKeys = [];
@@ -91,6 +92,7 @@
 	});
 
 	function setTargetBranch(data) {
+		if (data?.branchInfo?.publish === true) return;
 		const next = String(data?.branchInfo?.targetBranch || '').trim();
 		if (!next) return;
 		targetBranch = next;
@@ -351,10 +353,14 @@
 		}
 	}
 
-	async function saveDraft() {
+	async function saveDraft({ publish = false } = {}) {
 		if (!allData) return;
 		status = '';
-		busy = true;
+		if (publish) {
+			publishing = true;
+		} else {
+			busy = true;
+		}
 		try {
 			const errors = validateHoursPayload();
 			if (errors.length) {
@@ -382,13 +388,17 @@
 				}
 				return;
 			}
+			if (publish && !confirm('Commit current cms.json to main and trigger live deploy?')) {
+				return;
+			}
 			const res = await fetch('/.netlify/functions/update-cms-json', {
 				method: 'POST',
 				headers: { 'content-type': 'application/json' },
 				body: JSON.stringify({
 					password,
-					message,
+					message: publish ? `Publish cms.json to main (${new Date().toISOString().slice(0, 10)})` : message,
 					targetBranch: inferBranchFromHost() || undefined,
+					publish,
 					content: JSON.stringify(allData, null, 2)
 				})
 			});
@@ -399,11 +409,14 @@
 			}
 			setTargetBranch(data);
 			savePasswordToSession(password);
-			status = `Updated. Commit: ${data?.commit || '(unknown)'}`;
+			status = publish
+				? `Published to main. Commit: ${data?.commit || '(unknown)'}`
+				: `Updated. Commit: ${data?.commit || '(unknown)'}`;
 		} catch (e) {
 			status = `Network error: ${e?.message || e}`;
 		} finally {
 			busy = false;
+			publishing = false;
 		}
 	}
 </script>
@@ -417,9 +430,24 @@
 	<header class="adminTop">
 		<div class="adminLeft">
 			<a class="navBtn ghost" href="/cms-admin">Sections</a>
-			<button class="navBtn" type="button" on:click={saveDraft} disabled={!allData || busy}>
+			<button
+				class="navBtn"
+				type="button"
+				on:click={saveDraft}
+				disabled={!allData || busy || publishing}
+			>
 				{busy ? 'Saving…' : 'Save'}
 			</button>
+			{#if !isLocalDev}
+				<button
+					class="navBtn publishBtn"
+					type="button"
+					on:click={() => saveDraft({ publish: true })}
+					disabled={!allData || busy || publishing}
+				>
+					{publishing ? 'Publishing…' : 'Commit & Go Live'}
+				</button>
+			{/if}
 			{#if status}
 				<span class="saveStatus">{status}</span>
 			{/if}
@@ -868,6 +896,11 @@
 	}
 	.navBtn.ghost {
 		opacity: 0.7;
+	}
+	.navBtn.publishBtn {
+		border-color: rgba(255, 199, 0, 0.6);
+		background: linear-gradient(180deg, rgba(255, 199, 0, 0.32), rgba(255, 199, 0, 0.12));
+		color: #fff5c1;
 	}
 
 	.panel {
