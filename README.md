@@ -101,6 +101,13 @@ Recommended context setup:
 - `branch-deploy` (for `dev`): `CMS_ADMIN_ENABLED=true`
 - `production` (for `main`): `CMS_ADMIN_ENABLED=false`
 
+Blob storage:
+
+- `CMS_BLOBS_STORE`: optional store name override (default: `cms-content`)
+- Runtime keys:
+  - `preview/<branch>.json` for preview edits
+  - `live.json` for published live content
+
 Optional publish credential:
 
-- `CMS_PUBLISH_PASSWORD`: when set, required for "Commit & Go Live" (publish-to-main) actions.
+- `CMS_PUBLISH_PASSWORD`: when set, required for "Commit & Go Live" actions.

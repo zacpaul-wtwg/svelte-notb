@@ -193,8 +193,8 @@
 			}
 			setTargetBranch(data);
 			status = publish
-				? `Published to main. Commit: ${data?.commit || '(unknown)'}`
-				: `Saved to dev preview. Commit: ${data?.commit || '(unknown)'}`;
+				? data?.message || 'Published live content.'
+				: data?.message || 'Saved preview content.';
 			saveBaselineToSession(allData);
 			openReviewDialog();
 		} catch (e) {
