@@ -20,6 +20,8 @@
 	let runtimeAllData = null;
 	$: allData = runtimeAllData ?? fallbackAllData;
 	$: isCmsAdmin = $page.url.pathname.startsWith('/cms-admin');
+	$: isHome = $page.url.pathname === '/';
+	$: showGlobalHeroStrip = !isCmsAdmin && !isHome;
 
 	onMount(async () => {
 		const latest = await fetchRuntimeCms();
@@ -31,6 +33,10 @@
 	<header>
 		<Navbar />
 	</header>
+{/if}
+
+{#if showGlobalHeroStrip}
+	<div class="global-hero-strip" aria-hidden="true"></div>
 {/if}
 
 <main>
@@ -70,6 +76,12 @@
 	}
 	main {
 		min-height: 75vh;
+	}
+	.global-hero-strip {
+		height: clamp(42px, 7vw, 72px);
+		background:
+			linear-gradient(rgba(0, 0, 0, 0.45), rgba(0, 0, 0, 0.45)),
+			url('/hero-bg.jpg') center / cover no-repeat;
 	}
 	.loading-backdrop {
 		position: fixed;
