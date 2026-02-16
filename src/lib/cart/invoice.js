@@ -126,29 +126,32 @@ export const generateInvoicePdfBase64 = async ({
 		color: accent
 	});
 
+	let headerTextX = margin + 16;
 	try {
 		const logoBytes = await getLogoBytes();
 		const logo = await pdfDoc.embedPng(logoBytes);
 		const logoScale = 34 / logo.height;
+		const logoWidth = logo.width * logoScale;
 		page.drawImage(logo, {
 			x: margin,
 			y: 736,
-			width: logo.width * logoScale,
+			width: logoWidth,
 			height: logo.height * logoScale
 		});
+		headerTextX = margin + logoWidth + 10;
 	} catch {
 		// Keep invoice generation resilient when logo is not available.
 	}
 
 	page.drawText('NORTH OF THE BORDER FIREWORKS', {
-		x: margin + 72,
+		x: headerTextX,
 		y: 754,
 		size: 13,
 		font: fontBold,
 		color: white
 	});
 	page.drawText('Cart Invoice', {
-		x: margin + 72,
+		x: headerTextX,
 		y: 736,
 		size: 11,
 		font,
@@ -177,12 +180,12 @@ export const generateInvoicePdfBase64 = async ({
 	y -= 2;
 
 	const columns = [
-		{ key: 'id', title: 'ID', width: 58, align: 'left' },
-		{ key: 'title', title: 'Item', width: 238, align: 'left' },
-		{ key: 'deal', title: 'Deal', width: 66, align: 'left' },
-		{ key: 'quantity', title: 'Qty', width: 44, align: 'right' },
-		{ key: 'unitPrice', title: 'Unit', width: 82, align: 'right' },
-		{ key: 'lineTotal', title: 'Line Total', width: 88, align: 'right' }
+		{ key: 'id', title: 'ID', width: 50, align: 'left' },
+		{ key: 'title', title: 'Item', width: 200, align: 'left' },
+		{ key: 'deal', title: 'Deal', width: 62, align: 'left' },
+		{ key: 'quantity', title: 'Qty', width: 40, align: 'right' },
+		{ key: 'unitPrice', title: 'Unit', width: 88, align: 'right' },
+		{ key: 'lineTotal', title: 'Line Total', width: 100, align: 'right' }
 	];
 	const rowHeight = 21;
 	let rowTop = y;
