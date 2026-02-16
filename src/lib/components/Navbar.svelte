@@ -7,6 +7,7 @@
 	import { page } from '$app/stores';
 	import { get } from 'svelte/store';
 	import { openGlobalCompareModal } from '$lib/modal-store';
+	import { fetchRuntimeCms } from '$lib/cms/runtime-client';
 
 	let showMobileMenu = false;
 	let pendingMobileHref = '';
@@ -24,6 +25,10 @@
 	const DESKTOP_HOVER_ANIMATION_MS = 150;
 	const mobileWidths = tweened({}, { duration: NAV_BUTTON_ANIMATION_MS, easing: cubicOut });
 	const desktopHoverProgress = tweened({}, { duration: DESKTOP_HOVER_ANIMATION_MS, easing: cubicOut });
+	const STORE_TIMEZONE = 'America/New_York';
+	const weekdayKeys = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+	let cmsHours = null;
+	let hoursStatus = { label: 'Hours unavailable', detail: '', tone: 'closed' };
 
 	const navItems = [
 		{ label: 'Home', href: '/' },
@@ -130,6 +135,94 @@
 		openGlobalCompareModal();
 	};
 
+	const parseTimeToMinutes = (value) => {
+		const match = String(value || '').match(/^([01]\d|2[0-3]):([0-5]\d)$/);
+		if (!match) return null;
+		return Number(match[1]) * 60 + Number(match[2]);
+	};
+
+	const formatClock = (time) => {
+		const mins = parseTimeToMinutes(time);
+		if (mins === null) return '';
+		const hours24 = Math.floor(mins / 60);
+		const minutes = mins % 60;
+		const suffix = hours24 >= 12 ? 'PM' : 'AM';
+		const hours12 = ((hours24 + 11) % 12) + 1;
+		return `${hours12}:${String(minutes).padStart(2, '0')} ${suffix}`;
+	};
+
+	const getNowInTimezone = (timeZone) => {
+		const parts = new Intl.DateTimeFormat('en-CA', {
+			timeZone,
+			year: 'numeric',
+			month: '2-digit',
+			day: '2-digit',
+			hour: '2-digit',
+			minute: '2-digit',
+			hourCycle: 'h23'
+		}).formatToParts(new Date());
+		const getPart = (type) => parts.find((p) => p.type === type)?.value || '';
+		return {
+			date: `${getPart('year')}-${getPart('month')}-${getPart('day')}`,
+			time: `${getPart('hour')}:${getPart('minute')}`
+		};
+	};
+
+	const parseIsoDate = (value) => {
+		const match = String(value || '').match(/^(\d{4})-(\d{2})-(\d{2})$/);
+		if (!match) return null;
+		const date = new Date(`${match[1]}-${match[2]}-${match[3]}T00:00:00Z`);
+		return Number.isNaN(date.getTime()) ? null : date;
+	};
+
+	const getHoursForDate = (cms, dateValue) => {
+		const specialHours = Array.isArray(cms?.specialHours) ? cms.specialHours : [];
+		for (const occasion of specialHours) {
+			for (const day of Array.isArray(occasion?.days) ? occasion.days : []) {
+				if (String(day?.date || '') === dateValue) return day;
+			}
+		}
+		const date = parseIsoDate(dateValue);
+		if (!date) return null;
+		const regularRanges = Array.isArray(cms?.regularHoursRanges) ? cms.regularHoursRanges : [];
+		const matching = regularRanges
+			.filter((range) => {
+				const start = parseIsoDate(range?.startDate);
+				const end = parseIsoDate(range?.endDate);
+				if (!start || !end || end < start) return false;
+				return date >= start && date <= end;
+			})
+			.sort((a, b) => String(b?.startDate || '').localeCompare(String(a?.startDate || '')));
+		if (!matching.length) return null;
+		return matching[0]?.hours?.[weekdayKeys[date.getUTCDay()]] ?? null;
+	};
+
+	const computeHoursStatus = (cms) => {
+		if (!cms) return { label: 'Hours unavailable', detail: '', tone: 'closed' };
+		const now = getNowInTimezone(STORE_TIMEZONE);
+		const current = parseTimeToMinutes(now.time);
+		const hours = getHoursForDate(cms, now.date);
+		if (!hours || hours.closed || !hours.open || !hours.close || current === null) {
+			return { label: 'Closed today', detail: '', tone: 'closed' };
+		}
+		const open = parseTimeToMinutes(hours.open);
+		const close = parseTimeToMinutes(hours.close);
+		if (open === null || close === null) return { label: 'Closed today', detail: '', tone: 'closed' };
+		if (current < open) {
+			const minsUntilOpen = open - current;
+			return minsUntilOpen <= 60
+				? { label: 'Opens soon', detail: formatClock(hours.open), tone: 'soon' }
+				: { label: 'Closed', detail: `Opens ${formatClock(hours.open)}`, tone: 'closed' };
+		}
+		if (current <= close) {
+			const minsUntilClose = close - current;
+			return minsUntilClose <= 60
+				? { label: 'Closes soon', detail: formatClock(hours.close), tone: 'soon' }
+				: { label: 'Open now', detail: `Until ${formatClock(hours.close)}`, tone: 'open' };
+		}
+		return { label: 'Closed', detail: 'See tomorrow', tone: 'closed' };
+	};
+
 	const syncNavVars = () => {
 		if (!navEl || !bottomRowEl) return;
 		const root = document.documentElement;
@@ -164,9 +257,18 @@
 			if (!event.matches) showMobileMenu = false;
 			syncNavVars();
 		};
+		const refreshCmsHours = async () => {
+			const latest = await fetchRuntimeCms();
+			if (latest) cmsHours = latest;
+			hoursStatus = computeHoursStatus(cmsHours);
+		};
 		window.addEventListener('resize', syncNavVars);
 		window.addEventListener('keydown', handleKeydown);
 		window.addEventListener('pointerdown', handlePointerDown);
+		refreshCmsHours();
+		const hoursStatusTimer = window.setInterval(() => {
+			hoursStatus = computeHoursStatus(cmsHours);
+		}, 60_000);
 
 		if (mediaListener.addEventListener) {
 			mediaListener.addEventListener('change', handleMediaChange);
@@ -184,6 +286,7 @@
 			} else {
 				mediaListener.removeListener(handleMediaChange);
 			}
+			window.clearInterval(hoursStatusTimer);
 		};
 	});
 
@@ -194,14 +297,33 @@
 
 <nav bind:this={navEl}>
 	<div class="top inner" bind:this={topRowEl}>
-		<div class="top-item"><a href="/product/pricelist">Pricelist</a></div>
 		<div class="top-item">
-			<button type="button" class="super-nav-button" on:click={handleCompareNavClick}>Compare</button>
+			<a href="/product/pricelist" class="utility-chip">
+				<span class="chip-icon" aria-hidden="true">≡</span>
+				<span>Pricelist</span>
+			</a>
 		</div>
 		<div class="top-item">
-			<a href="/product/cart"
-				><img src="/cart.svg" alt="cart icon" class="svg-filter-white cart" /></a
-			>
+			<button type="button" class="super-nav-button utility-chip" on:click={handleCompareNavClick}>
+				<span class="chip-icon" aria-hidden="true">⇄</span>
+				<span>Compare</span>
+			</button>
+		</div>
+		<div class="top-item">
+			<a href="/product/cart" class="utility-chip">
+				<img src="/cart.svg" alt="cart icon" class="svg-filter-white cart" />
+				<span>Cart</span>
+			</a>
+		</div>
+		<div class="top-item top-item-hours">
+			<div class={`utility-chip hours-chip ${hoursStatus.tone}`}>
+				<span class="chip-icon chip-icon-status" aria-hidden="true">◷</span>
+				<span class="status-dot" aria-hidden="true"></span>
+				<span>{hoursStatus.label}</span>
+				{#if hoursStatus.detail}
+					<span class="chip-meta">{hoursStatus.detail}</span>
+				{/if}
+			</div>
 		</div>
 	</div>
 	<div class="hr"></div>
@@ -277,9 +399,14 @@
 	.top {
 		display: flex;
 		justify-content: flex-end;
+		align-items: center;
+		gap: 0.35rem;
 		background: var(--grey);
 		color: white;
-		height: 20px;
+		min-height: 28px;
+		padding: 0.18rem 0;
+		overflow-x: auto;
+		scrollbar-width: thin;
 	}
 
 	.bottom {
@@ -290,25 +417,87 @@
 	}
 
 	.top-item {
-		padding: 5px;
-		margin-left: 10px;
-		font-size: 0.9em;
+		padding: 0;
+		margin-left: 0;
+		font-size: 0.78rem;
 		color: white;
 	}
 
 	.top-item a,
-	.top-item .super-nav-button {
+	.top-item .super-nav-button,
+	.utility-chip {
 		color: white;
 	}
 	.top-item .super-nav-button {
-		background: none;
-		border: 0;
-		padding: 0;
+		padding: 0.18rem 0.44rem;
 		cursor: pointer;
 		font-family: inherit;
 		font-size: inherit;
 		line-height: inherit;
 		text-decoration: none;
+	}
+	.utility-chip {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.28rem;
+		background: rgba(255, 255, 255, 0.08);
+		border: 1px solid rgba(255, 255, 255, 0.24);
+		border-radius: 999px;
+		padding: 0.18rem 0.44rem;
+		font-size: 0.72rem;
+		text-transform: uppercase;
+		letter-spacing: 0.04em;
+		text-decoration: none;
+		white-space: nowrap;
+	}
+	.chip-icon {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		width: 1.05rem;
+		height: 1.05rem;
+		border-radius: 50%;
+		background: rgba(255, 255, 255, 0.18);
+		font-size: 0.72rem;
+		font-weight: 700;
+	}
+	.chip-icon-status {
+		font-size: 0.7rem;
+	}
+	.hours-chip {
+		font-weight: 700;
+	}
+	.hours-chip.open {
+		background: rgba(52, 168, 83, 0.22);
+		border-color: rgba(52, 168, 83, 0.7);
+	}
+	.hours-chip.soon {
+		background: rgba(251, 188, 5, 0.24);
+		border-color: rgba(251, 188, 5, 0.75);
+	}
+	.hours-chip.closed {
+		background: rgba(234, 67, 53, 0.2);
+		border-color: rgba(234, 67, 53, 0.65);
+	}
+	.status-dot {
+		width: 0.5rem;
+		height: 0.5rem;
+		border-radius: 50%;
+		background: currentColor;
+		opacity: 0.9;
+	}
+	.hours-chip.open .status-dot {
+		color: #7dff9a;
+	}
+	.hours-chip.soon .status-dot {
+		color: #ffe38b;
+	}
+	.hours-chip.closed .status-dot {
+		color: #ff9d93;
+	}
+	.chip-meta {
+		opacity: 0.86;
+		font-weight: 500;
 	}
 
 	.hr {
@@ -324,7 +513,7 @@
 	nav {
 		background-color: var(--grey);
 		font-family: 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif;
-		height: 120px;
+		min-height: 120px;
 		padding-bottom: 20px;
 		box-sizing: border-box;
 		position: fixed;
@@ -570,5 +759,17 @@
 	.cart {
 		height: 15px;
 		margin-right: 0;
+	}
+	.top-item-hours {
+		margin-left: 0.25rem;
+	}
+
+	@media only screen and (max-width: 700px) {
+		.top {
+			justify-content: flex-start;
+		}
+		.chip-meta {
+			display: none;
+		}
 	}
 </style>
