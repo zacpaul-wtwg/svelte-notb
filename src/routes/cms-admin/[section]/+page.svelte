@@ -66,6 +66,9 @@
 		{ key: 'friday', label: 'Friday' },
 		{ key: 'saturday', label: 'Saturday' }
 	];
+	const createDefaultDayHours = () => ({ closed: false, open: '09:00', close: '17:00' });
+	const buildDefaultHoursObject = () =>
+		Object.fromEntries(days.map((day) => [day.key, createDefaultDayHours()]));
 
 	onMount(async () => {
 		password = loadPasswordFromSession();
@@ -174,6 +177,43 @@
 		} else {
 			const fallback = { open: day.open || '09:00', close: day.close || '17:00' };
 			updateHoursField(dayKey, { closed: false, ...fallback });
+		}
+	}
+
+	function addRegularRange() {
+		addListItem({
+			title: '',
+			startDate: '',
+			endDate: '',
+			hours: buildDefaultHoursObject()
+		});
+	}
+
+	function updateRegularRangeHours(rangeIdx, dayKey, patch) {
+		const ranges = ensureArray(getSectionData());
+		const range = ranges[rangeIdx];
+		if (!range) return;
+		const currentHours = range.hours || {};
+		const day = currentHours[dayKey] || createDefaultDayHours();
+		const nextDay = { ...day, ...patch };
+		updateListItem(rangeIdx, { hours: { ...currentHours, [dayKey]: nextDay } });
+	}
+
+	function toggleRegularRangeDayClosed(rangeIdx, dayKey) {
+		const ranges = ensureArray(getSectionData());
+		const range = ranges[rangeIdx];
+		if (!range) return;
+		const currentHours = range.hours || {};
+		const day = currentHours[dayKey] || createDefaultDayHours();
+		const closing = !day.closed;
+		if (closing) {
+			updateRegularRangeHours(rangeIdx, dayKey, { closed: true, open: '', close: '' });
+		} else {
+			updateRegularRangeHours(rangeIdx, dayKey, {
+				closed: false,
+				open: day.open || '09:00',
+				close: day.close || '17:00'
+			});
 		}
 	}
 
@@ -332,6 +372,38 @@
 				});
 			});
 		}
+		if (sectionKey === 'regularHoursRanges') {
+			const ranges = ensureArray(getSectionData());
+			ranges.forEach((range, rangeIdx) => {
+				const startDate = String(range?.startDate || '');
+				const endDate = String(range?.endDate || '');
+				if (!startDate || !endDate) {
+					errors.push(`Range ${rangeIdx + 1}: start and end dates are required`);
+					keys.push(`regular:${rangeIdx}:range`);
+				} else if (startDate > endDate) {
+					errors.push(`Range ${rangeIdx + 1}: start date must be before or equal to end date`);
+					keys.push(`regular:${rangeIdx}:range`);
+				}
+				for (const day of days) {
+					const entry = range?.hours?.[day.key];
+					if (!entry || entry.closed) continue;
+					if (!isTimeOrderValid(entry.open, entry.close)) {
+						errors.push(
+							`Range ${rangeIdx + 1} (${day.label}): open time must be before close time`
+						);
+						keys.push(`regular:${rangeIdx}:${day.key}`);
+					}
+				}
+			});
+		}
+		if (sectionKey === 'pickupSettings') {
+			const settings = getSectionData() || {};
+			const parsed = Number(settings.maxDaysOut);
+			if (!Number.isFinite(parsed) || parsed < 1 || parsed > 365) {
+				errors.push('Max pickup days out must be between 1 and 365');
+				keys.push('pickup:maxDaysOut');
+			}
+		}
 		errorKeys = keys;
 		return errors;
 	}
@@ -436,6 +508,112 @@
 							{/if}
 						</div>
 					{/each}
+				</div>
+			{/if}
+
+			{#if sectionKey === 'regularHoursRanges'}
+				<div class="stack">
+					{#each ensureArray(sectionData) as range, rangeIdx}
+						<div class="card">
+							<div class="cardHeader rowBetween">
+								<span>Range {rangeIdx + 1}: {range.title || 'Untitled'}</span>
+								<button class="iconBtn" type="button" on:click={() => removeListItem(rangeIdx)}>×</button>
+							</div>
+							<div class="cardBody">
+								<div class="gridTwo">
+									<label class="field">
+										<span>Range Title</span>
+										<input
+											type="text"
+											value={range.title || ''}
+											on:input={(e) => updateListItem(rangeIdx, { title: e.target.value })}
+										/>
+									</label>
+									<div class="row dateRangeRow" class:error={errorKeys.includes(`regular:${rangeIdx}:range`)}>
+										<label class="field">
+											<span>Start Date</span>
+											<input
+												type="date"
+												value={range.startDate || ''}
+												on:input={(e) => updateListItem(rangeIdx, { startDate: e.target.value })}
+											/>
+										</label>
+										<label class="field">
+											<span>End Date</span>
+											<input
+												type="date"
+												value={range.endDate || ''}
+												on:input={(e) => updateListItem(rangeIdx, { endDate: e.target.value })}
+											/>
+										</label>
+									</div>
+								</div>
+
+								<div class="stack">
+									{#each days as day}
+										<div class="card" class:error={errorKeys.includes(`regular:${rangeIdx}:${day.key}`)}>
+											<div class="cardHeader rowBetween">
+												<span class="dayLabel">{day.label}</span>
+												<div class="toggleWrap">
+													<button
+														class:toggleOn={range?.hours?.[day.key]?.closed}
+														class="toggle"
+														type="button"
+														aria-label={`Toggle closed for ${day.label}`}
+														on:click={() => toggleRegularRangeDayClosed(rangeIdx, day.key)}
+													>
+														<span></span>
+													</button>
+													<span class="toggleLabel">Closed</span>
+												</div>
+											</div>
+											{#if !range?.hours?.[day.key]?.closed}
+												<div class="cardBody" transition:slide>
+													<div class="timeInputs inlineTimes">
+														<input
+															type="time"
+															value={range?.hours?.[day.key]?.open || ''}
+															on:input={(e) =>
+																updateRegularRangeHours(rangeIdx, day.key, { open: e.target.value })}
+														/>
+														<input
+															type="time"
+															value={range?.hours?.[day.key]?.close || ''}
+															on:input={(e) =>
+																updateRegularRangeHours(rangeIdx, day.key, { close: e.target.value })}
+														/>
+													</div>
+												</div>
+											{/if}
+										</div>
+									{/each}
+								</div>
+							</div>
+						</div>
+					{/each}
+					<button class="btn primary" type="button" on:click={addRegularRange}>
+						Add Regular Hours Range
+					</button>
+				</div>
+			{/if}
+
+			{#if sectionKey === 'pickupSettings'}
+				<div class="card">
+					<div class="cardHeader">Pickup Settings</div>
+					<div class="cardBody">
+						<label class="field" class:error={errorKeys.includes('pickup:maxDaysOut')}>
+							<span>Max Pickup Days Out</span>
+							<input
+								type="number"
+								min="1"
+								max="365"
+								step="1"
+								value={sectionData?.maxDaysOut ?? 30}
+								on:input={(e) => updateObjectField('maxDaysOut', e.target.value)}
+							/>
+						</label>
+						<p class="muted">Customers cannot select a pickup date beyond this many days from today.</p>
+					</div>
 				</div>
 			{/if}
 
@@ -878,6 +1056,14 @@
 		align-items: center;
 		flex-wrap: wrap;
 	}
+	.gridTwo {
+		display: grid;
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		gap: 12px;
+	}
+	.dateRangeRow {
+		align-items: flex-end;
+	}
 	.dayLabel {
 		min-width: 110px;
 		font-weight: 600;
@@ -896,6 +1082,10 @@
 		text-transform: uppercase;
 		letter-spacing: 0.04em;
 		opacity: 0.8;
+	}
+	.field.error input {
+		border-color: rgba(255, 90, 90, 0.8);
+		box-shadow: 0 0 0 2px rgba(255, 90, 90, 0.3);
 	}
 	input,
 	textarea {
@@ -1177,6 +1367,9 @@
 		.branchBadge {
 			font-size: 11px;
 			padding: 5px 8px;
+		}
+		.gridTwo {
+			grid-template-columns: 1fr;
 		}
 	}
 

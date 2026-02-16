@@ -44,6 +44,21 @@ const getNowInTimezone = (timeZone) => {
 	};
 };
 
+const parseIsoDate = (value) => {
+	const match = String(value || '').match(/^(\d{4})-(\d{2})-(\d{2})$/);
+	if (!match) return null;
+	const date = new Date(`${match[1]}-${match[2]}-${match[3]}T00:00:00Z`);
+	return Number.isNaN(date.getTime()) ? null : date;
+};
+
+const addDaysToIsoDate = (isoDate, days) => {
+	const base = parseIsoDate(isoDate);
+	if (!base) return isoDate;
+	const next = new Date(base);
+	next.setUTCDate(next.getUTCDate() + days);
+	return next.toISOString().slice(0, 10);
+};
+
 const findHoursForDate = (cms, dateValue) => {
 	const specialHours = Array.isArray(cms?.specialHours) ? cms.specialHours : [];
 	const specialMatches = [];
@@ -59,8 +74,21 @@ const findHoursForDate = (cms, dateValue) => {
 		return { source: 'special', hours: specialMatches[specialMatches.length - 1] };
 	}
 
-	const date = new Date(`${dateValue}T00:00:00Z`);
-	if (Number.isNaN(date.getTime())) return { source: 'regular', hours: null };
+	const date = parseIsoDate(dateValue);
+	if (!date) return { source: 'regular', hours: null };
+	const regularRanges = Array.isArray(cms?.regularHoursRanges) ? cms.regularHoursRanges : [];
+	const rangeMatches = regularRanges.filter((range) => {
+		const start = parseIsoDate(range?.startDate);
+		const end = parseIsoDate(range?.endDate);
+		if (!start || !end || end < start) return false;
+		return date >= start && date <= end;
+	});
+	if (rangeMatches.length > 0) {
+		rangeMatches.sort((a, b) => String(b?.startDate || '').localeCompare(String(a?.startDate || '')));
+		const dayKey = weekdayKeys[date.getUTCDay()];
+		return { source: 'regularRange', hours: rangeMatches[0]?.hours?.[dayKey] ?? null };
+	}
+
 	const dayKey = weekdayKeys[date.getUTCDay()];
 	return { source: 'regular', hours: cms?.hours?.[dayKey] ?? null };
 };
@@ -160,6 +188,19 @@ export async function POST({ request, fetch }) {
 		}
 
 		const cms = await loadCmsData(fetch);
+		const maxDaysOutInput = Number(cms?.pickupSettings?.maxDaysOut);
+		const maxDaysOut = Number.isFinite(maxDaysOutInput)
+			? Math.max(1, Math.min(365, Math.floor(maxDaysOutInput)))
+			: 30;
+		const maxPickupDate = addDaysToIsoDate(now.date, maxDaysOut);
+		if (pickupDate > maxPickupDate) {
+			return json(
+				{
+					error: `Pickup date must be within ${maxDaysOut} day(s) from today.`
+				},
+				{ status: 400 }
+			);
+		}
 		const { hours } = findHoursForDate(cms, pickupDate);
 		if (!hours || hours.closed || !hours.open || !hours.close) {
 			return json({ error: 'Store is closed for the selected pickup date.' }, { status: 400 });
