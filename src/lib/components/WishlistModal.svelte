@@ -15,21 +15,9 @@
 		return Number.isFinite(num) ? num : fallback;
 	};
 
-	const getDealDivisor = (deal) => {
-		if (typeof deal === 'number' && Number.isFinite(deal) && deal > 0) return deal;
-		if (typeof deal === 'string') {
-			const text = deal.trim().toUpperCase();
-			if (text === '2 FOR' || text === '2 FOR 1') return 2;
-			if (text === '3 FOR' || text === '3 FOR 1') return 3;
-			const parsed = Number(text);
-			if (Number.isFinite(parsed) && parsed > 0) return parsed;
-		}
-		return 1;
-	};
-
 	const getQuantity = (item) => Math.max(0, toNumberOr(item?.quantity, 0));
 	const getBundlePrice = (item) => Math.max(0, toNumberOr(item?.price, 0));
-	const getVipUnitPrice = (item) => getBundlePrice(item) / getDealDivisor(item?.deal);
+	const getVipUnitPrice = (item) => getBundlePrice(item);
 	const getVipSubtotal = (item) => getVipUnitPrice(item) * getQuantity(item);
 	const getHiRollerSubtotal = (item) => (getBundlePrice(item) / 3) * getQuantity(item);
 
@@ -75,9 +63,9 @@
 <div class="modal-page">
 	<div class="modal-frame">
 		<div class="modal-backdrop" on:click={onClose}></div>
-		<div class="modal" role="dialog" aria-modal="true" aria-label="Wishlist">
+		<div class="modal" role="dialog" aria-modal="true" aria-label="Cart">
 			<div class="modal-header">
-				<h2>Wishlist</h2>
+				<h2>Cart</h2>
 				<button class="modal-close" type="button" on:click={onClose}>×</button>
 			</div>
 			<div class="modal-body">
@@ -149,8 +137,8 @@
 							</div>
 						</div>
 					{:else}
-						<h2>No Items in wishlist</h2>
-						<p>You may add items to your wishlist from the <a href="/product">Product Page</a></p>
+						<h2>No Items in Cart</h2>
+						<p>You may add items to your cart from the <a href="/product">Product Page</a></p>
 					{/if}
 				</Container>
 			</div>

@@ -195,19 +195,8 @@
 		return acc;
 	}, {});
 
-	const getDealCount = (deal) => {
-		const text = String(deal || '').trim().toUpperCase();
-		if (text === '2 FOR') return 2;
-		if (text === '3 FOR') return 3;
-		return 1;
-	};
-
 	const getSinglePrice = (product) => {
-		const bundlePrice = getNumericValue(product?.price);
-		if (bundlePrice === null) return null;
-		const divisor = getDealCount(product?.deal);
-		if (divisor <= 0) return bundlePrice;
-		return bundlePrice / divisor;
+		return getNumericValue(product?.price);
 	};
 
 	const toTextList = (value) => {
