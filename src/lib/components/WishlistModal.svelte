@@ -1,10 +1,11 @@
 <script>
-	import Button from '$lib/components/elements/Button.svelte';
 	import Container from '$lib/components/elements/Container.svelte';
 	import { cart } from '$lib/stores.js';
 	import { slugify } from '$lib/utility/slugify';
 
 	export let onClose = () => {};
+	export let showCheckout = true;
+	export let checkoutHref = '/product/cart/checkout';
 
 	if (typeof window !== 'undefined') {
 		$cart = JSON.parse(localStorage.getItem('cart'));
@@ -87,6 +88,7 @@
 	let checkoutError = '';
 	let checkoutSuccess = '';
 	const minPickupDate = getTodayLocalDate();
+	let downloadingInvoice = false;
 
 	const submitCheckout = async () => {
 		checkoutError = '';
@@ -121,6 +123,35 @@
 			checkoutError = error instanceof Error ? error.message : 'Checkout failed.';
 		} finally {
 			submittingCheckout = false;
+		}
+	};
+
+	const downloadInvoice = async () => {
+		downloadingInvoice = true;
+		checkoutError = '';
+		try {
+			const response = await fetch('/data/cart/invoice', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ items: visibleCart })
+			});
+			if (!response.ok) {
+				const payload = await response.json().catch(() => ({}));
+				throw new Error(payload?.error || 'Failed to generate invoice PDF.');
+			}
+			const blob = await response.blob();
+			const url = window.URL.createObjectURL(blob);
+			const link = document.createElement('a');
+			link.href = url;
+			link.download = `notb-cart-${Date.now()}.pdf`;
+			document.body.appendChild(link);
+			link.click();
+			link.remove();
+			window.URL.revokeObjectURL(url);
+		} catch (error) {
+			checkoutError = error instanceof Error ? error.message : 'Failed to generate invoice PDF.';
+		} finally {
+			downloadingInvoice = false;
 		}
 	};
 </script>
@@ -198,69 +229,78 @@
 								sales tax
 							</p>
 							<div class="actions">
-								<Button on:click={() => window.print()}>Print</Button>
+								<button class="download-button" type="button" on:click={downloadInvoice}>
+									{downloadingInvoice ? 'Generating...' : 'Download Invoice'}
+								</button>
+								{#if !showCheckout}
+									<a class="checkout-link" href={checkoutHref}>Checkout</a>
+								{/if}
 							</div>
-							<form class="checkout-form" on:submit|preventDefault={submitCheckout}>
-								<h3>Checkout Request</h3>
-								<p class="checkout-note">
-									No online payment is required. Payment happens in-store at pickup.
-								</p>
-								<label for="checkout-email">Email</label>
-								<input
-									id="checkout-email"
-									type="email"
-									bind:value={checkoutEmail}
-									required
-									autocomplete="email"
-								/>
+							{#if showCheckout}
+								<form class="checkout-form" on:submit|preventDefault={submitCheckout}>
+									<h3>Checkout Request</h3>
+									<p class="checkout-note">
+										No online payment is required. Payment happens in-store at pickup.
+									</p>
+									<label for="checkout-email">Email</label>
+									<input
+										id="checkout-email"
+										type="email"
+										bind:value={checkoutEmail}
+										required
+										autocomplete="email"
+									/>
 
-								<label for="checkout-phone">Phone Number</label>
-								<input
-									id="checkout-phone"
-									type="tel"
-									bind:value={checkoutPhone}
-									required
-									autocomplete="tel"
-								/>
+									<label for="checkout-phone">Phone Number</label>
+									<input
+										id="checkout-phone"
+										type="tel"
+										bind:value={checkoutPhone}
+										required
+										autocomplete="tel"
+									/>
 
-								<div class="pickup-grid">
-									<div>
-										<label for="pickup-date">Pickup Date</label>
-										<input
-											id="pickup-date"
-											type="date"
-											bind:value={pickupDate}
-											min={minPickupDate}
-											required
-										/>
+									<div class="pickup-grid">
+										<div>
+											<label for="pickup-date">Pickup Date</label>
+											<input
+												id="pickup-date"
+												type="date"
+												bind:value={pickupDate}
+												min={minPickupDate}
+												required
+											/>
+										</div>
+										<div>
+											<label for="pickup-time">Pickup Time</label>
+											<input id="pickup-time" type="time" bind:value={pickupTime} required />
+										</div>
 									</div>
-									<div>
-										<label for="pickup-time">Pickup Time</label>
-										<input id="pickup-time" type="time" bind:value={pickupTime} required />
+
+									<label class="agreement">
+										<input type="checkbox" bind:checked={agreeToPickup} required />
+										<span>
+											I agree to pick up at the selected date/time and understand that any changes must be
+											communicated by email or phone call.
+										</span>
+									</label>
+
+									{#if checkoutError}
+										<p class="checkout-error">{checkoutError}</p>
+									{/if}
+									{#if checkoutSuccess}
+										<p class="checkout-success">{checkoutSuccess}</p>
+									{/if}
+
+									<div class="checkout-actions">
+										<button class="checkout-submit" type="submit" disabled={submittingCheckout}>
+											{submittingCheckout ? 'Submitting...' : 'Submit Checkout'}
+										</button>
 									</div>
-								</div>
-
-								<label class="agreement">
-									<input type="checkbox" bind:checked={agreeToPickup} required />
-									<span>
-										I agree to pick up at the selected date/time and understand that any changes must be
-										communicated by email or phone call.
-									</span>
-								</label>
-
-								{#if checkoutError}
-									<p class="checkout-error">{checkoutError}</p>
-								{/if}
-								{#if checkoutSuccess}
-									<p class="checkout-success">{checkoutSuccess}</p>
-								{/if}
-
-								<div class="checkout-actions">
-									<button class="checkout-submit" type="submit" disabled={submittingCheckout}>
-										{submittingCheckout ? 'Submitting...' : 'Submit Checkout'}
-									</button>
-								</div>
-							</form>
+								</form>
+							{:else if checkoutError}
+								<p class="checkout-error">{checkoutError}</p>
+							{/if}
 						</div>
 					{:else}
 						<h2>No Items in Cart</h2>
@@ -468,6 +508,27 @@
 	}
 	.actions {
 		margin-top: 0.7em;
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.5rem;
+	}
+	.download-button,
+	.checkout-link {
+		color: var(--white);
+		background: var(--grey);
+		border: 1px solid var(--grey);
+		padding: 0.5rem 1rem;
+		font-family: Langdon, Arial, sans-serif;
+		font-size: 1.2rem;
+		text-transform: uppercase;
+		text-decoration: none;
+		cursor: pointer;
+		box-shadow: 3px 3px 0 var(--yellow-accent);
+	}
+	.download-button:disabled {
+		opacity: 0.6;
+		cursor: not-allowed;
+		box-shadow: none;
 	}
 	.checkout-form {
 		margin-top: 1rem;

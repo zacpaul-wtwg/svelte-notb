@@ -3,4 +3,4 @@
 	import WishlistModal from '$lib/components/WishlistModal.svelte';
 </script>
 
-<WishlistModal onClose={() => goto('/product')} showCheckout={false} />
+<WishlistModal onClose={() => goto('/product')} showCheckout={true} />

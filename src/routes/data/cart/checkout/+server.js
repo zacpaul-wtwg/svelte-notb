@@ -1,7 +1,13 @@
 import { json } from '@sveltejs/kit';
-import { PDFDocument, StandardFonts, rgb } from 'pdf-lib';
 import { env } from '$env/dynamic/private';
 import { loadCmsData } from '$lib/cms/loadCmsData';
+import {
+	CURRENCY,
+	computeInvoiceTotal,
+	generateInvoicePdfBase64,
+	renderInvoiceRowsHtml,
+	sanitizeCartItems
+} from '$lib/cart/invoice';
 
 const MANAGEMENT_EMAILS = [
 	'thom@notbfireworks.com',
@@ -12,31 +18,7 @@ const MANAGEMENT_EMAILS = [
 const STORE_TIMEZONE = env.STORE_TIMEZONE || 'America/New_York';
 const ORDER_EMAIL_FROM = env.ORDER_EMAIL_FROM || 'North of the Border <orders@notbfireworks.com>';
 
-const CURRENCY = new Intl.NumberFormat('en-US', {
-	style: 'currency',
-	currency: 'USD',
-	minimumFractionDigits: 2,
-	maximumFractionDigits: 2
-});
-
 const weekdayKeys = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
-
-const toFiniteNumber = (value, fallback = 0) => {
-	const num = Number(value);
-	return Number.isFinite(num) ? num : fallback;
-};
-
-const getDealDivisor = (deal) => {
-	if (typeof deal === 'number' && Number.isFinite(deal) && deal > 0) return deal;
-	const text = String(deal || '')
-		.trim()
-		.toUpperCase();
-	if (text.includes('2 FOR')) return 2;
-	if (text.includes('3 FOR')) return 3;
-	const parsed = Number(text);
-	if (Number.isFinite(parsed) && parsed > 0) return parsed;
-	return 1;
-};
 
 const parseTimeToMinutes = (value) => {
 	const match = String(value || '').match(/^([01]\d|2[0-3]):([0-5]\d)$/);
@@ -83,83 +65,6 @@ const findHoursForDate = (cms, dateValue) => {
 	return { source: 'regular', hours: cms?.hours?.[dayKey] ?? null };
 };
 
-const sanitizeCart = (items) => {
-	if (!Array.isArray(items)) return [];
-	return items
-		.map((item) => {
-			const id = item?.id;
-			const title = String(item?.title || '').trim();
-			const deal = String(item?.deal || '').trim();
-			const quantity = Math.max(0, toFiniteNumber(item?.quantity, 0));
-			const dealPrice = Math.max(0, toFiniteNumber(item?.price, 0));
-			if (!id || !title || quantity <= 0 || dealPrice <= 0) return null;
-			const divisor = getDealDivisor(deal);
-			const unitPrice = dealPrice / divisor;
-			const lineTotal = unitPrice * quantity;
-			return {
-				id,
-				title,
-				deal,
-				quantity,
-				dealPrice,
-				unitPrice,
-				lineTotal
-			};
-		})
-		.filter(Boolean);
-};
-
-const renderItemsRows = (items) =>
-	items
-		.map(
-			(item) =>
-				`<tr><td>${item.id}</td><td>${item.title}</td><td>${item.deal || '-'}</td><td>${item.quantity}</td><td>${CURRENCY.format(item.unitPrice)}</td><td>${CURRENCY.format(item.lineTotal)}</td></tr>`
-		)
-		.join('');
-
-const buildInvoiceHtml = ({ orderId, createdAt, customer, pickupDate, pickupTime, items, total }) => `
-<!doctype html>
-<html>
-<head>
-  <meta charset="utf-8" />
-  <title>Invoice ${orderId}</title>
-  <style>
-    body { font-family: Arial, sans-serif; color: #111; padding: 24px; }
-    h1 { margin: 0 0 8px 0; }
-    .meta { margin-bottom: 16px; }
-    table { width: 100%; border-collapse: collapse; margin-top: 12px; }
-    th, td { border: 1px solid #222; padding: 8px; font-size: 12px; }
-    th { background: #f1f1f1; text-align: left; }
-    .total { margin-top: 12px; font-size: 16px; font-weight: 700; }
-    .legal { margin-top: 20px; font-size: 12px; line-height: 1.4; }
-  </style>
-</head>
-<body>
-  <h1>North of the Border Fireworks</h1>
-  <div class="meta">
-    <div><strong>Invoice #:</strong> ${orderId}</div>
-    <div><strong>Created:</strong> ${createdAt}</div>
-    <div><strong>Email:</strong> ${customer.email}</div>
-    <div><strong>Phone:</strong> ${customer.phone}</div>
-    <div><strong>Pickup:</strong> ${pickupDate} ${pickupTime}</div>
-  </div>
-  <table>
-    <thead>
-      <tr>
-        <th>ID</th><th>Item</th><th>Deal</th><th>Qty</th><th>Unit</th><th>Line Total</th>
-      </tr>
-    </thead>
-    <tbody>${renderItemsRows(items)}</tbody>
-  </table>
-  <div class="total">Total: ${CURRENCY.format(total)}</div>
-  <p class="legal">
-    By placing this order, you agree to pick up at the selected date and time.
-    Any changes must be communicated by email or phone call.
-    Payment is completed in-store at pickup.
-  </p>
-</body>
-</html>`;
-
 const htmlToPlainText = (html) =>
 	String(html || '')
 		.replace(/<[^>]+>/g, ' ')
@@ -175,7 +80,7 @@ const buildManagementHtml = ({ orderId, customer, pickupDate, pickupTime, items,
   <thead>
     <tr><th>ID</th><th>Item</th><th>Deal</th><th>Qty</th><th>Unit</th><th>Line Total</th></tr>
   </thead>
-  <tbody>${renderItemsRows(items)}</tbody>
+  <tbody>${renderInvoiceRowsHtml(items)}</tbody>
 </table>
 <p><strong>Total:</strong> ${CURRENCY.format(total)}</p>
 <p>Payment is completed in-store at pickup.</p>
@@ -191,54 +96,6 @@ const buildCustomerHtml = ({ orderId, customer, pickupDate, pickupTime, total })
 <p>Attached: your invoice PDF.</p>
 <p>By placing this order, you agree to pick up at the selected date and time. Any changes must be communicated by email or phone call.</p>
 <p>Payment happens in-store at pickup.</p>`;
-
-const generateInvoicePdfBase64 = async ({ orderId, createdAt, customer, pickupDate, pickupTime, items, total }) => {
-	const pdfDoc = await PDFDocument.create();
-	const page = pdfDoc.addPage([612, 792]);
-	const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
-	const fontBold = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
-
-	let y = 760;
-	const draw = (text, { bold = false, size = 11 } = {}) => {
-		page.drawText(String(text), {
-			x: 50,
-			y,
-			size,
-			font: bold ? fontBold : font,
-			color: rgb(0.1, 0.1, 0.1)
-		});
-		y -= size + 6;
-	};
-
-	draw('North of the Border Fireworks', { bold: true, size: 18 });
-	draw(`Invoice #: ${orderId}`, { bold: true });
-	draw(`Created: ${createdAt}`);
-	draw(`Email: ${customer.email}`);
-	draw(`Phone: ${customer.phone}`);
-	draw(`Pickup: ${pickupDate} ${pickupTime}`);
-	y -= 8;
-	draw('Items', { bold: true });
-	draw('ID | Title | Deal | Qty | Unit | Line');
-	for (const item of items) {
-		const row = `${item.id} | ${item.title} | ${item.deal || '-'} | ${item.quantity} | ${CURRENCY.format(item.unitPrice)} | ${CURRENCY.format(item.lineTotal)}`;
-		draw(row);
-		if (y < 80) {
-			break;
-		}
-	}
-	y -= 8;
-	draw(`Total: ${CURRENCY.format(total)}`, { bold: true, size: 13 });
-	y -= 8;
-	draw(
-		'By placing this order, you agree to pick up at the selected date and time.',
-		{ size: 10 }
-	);
-	draw('Any changes must be communicated by email or phone call.', { size: 10 });
-	draw('Payment is completed in-store at pickup.', { size: 10 });
-
-	const bytes = await pdfDoc.save();
-	return Buffer.from(bytes).toString('base64');
-};
 
 const sendResendEmail = async ({ to, subject, html, attachments = [] }) => {
 	if (!env.RESEND_API_KEY) {
@@ -276,7 +133,7 @@ export async function POST({ request, fetch }) {
 		const pickupDate = String(payload?.pickupDate || '').trim();
 		const pickupTime = String(payload?.pickupTime || '').trim();
 		const agreeToPickup = Boolean(payload?.agreeToPickup);
-		const items = sanitizeCart(payload?.items);
+		const items = sanitizeCartItems(payload?.items);
 
 		if (!items.length) return json({ error: 'Cart is empty.' }, { status: 400 });
 		if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
@@ -324,7 +181,7 @@ export async function POST({ request, fetch }) {
 			);
 		}
 
-		const total = items.reduce((sum, item) => sum + item.lineTotal, 0);
+		const total = computeInvoiceTotal(items);
 		const orderId = `NOTB-${Date.now()}`;
 		const createdAt = new Date().toISOString();
 		const customer = { email, phone };
