@@ -10,12 +10,35 @@
 		$cart = JSON.parse(localStorage.getItem('cart'));
 	}
 
+	const toNumberOr = (value, fallback = 0) => {
+		const num = Number(value);
+		return Number.isFinite(num) ? num : fallback;
+	};
+
+	const getDealDivisor = (deal) => {
+		if (typeof deal === 'number' && Number.isFinite(deal) && deal > 0) return deal;
+		if (typeof deal === 'string') {
+			const text = deal.trim().toUpperCase();
+			if (text === '2 FOR' || text === '2 FOR 1') return 2;
+			if (text === '3 FOR' || text === '3 FOR 1') return 3;
+			const parsed = Number(text);
+			if (Number.isFinite(parsed) && parsed > 0) return parsed;
+		}
+		return 1;
+	};
+
+	const getQuantity = (item) => Math.max(0, toNumberOr(item?.quantity, 0));
+	const getBundlePrice = (item) => Math.max(0, toNumberOr(item?.price, 0));
+	const getVipUnitPrice = (item) => getBundlePrice(item) / getDealDivisor(item?.deal);
+	const getVipSubtotal = (item) => getVipUnitPrice(item) * getQuantity(item);
+	const getHiRollerSubtotal = (item) => (getBundlePrice(item) / 3) * getQuantity(item);
+
 	export const sumTotalItemsPrice = function (array) {
 		let hiroArray = [];
 		let vipArray = [];
 		array?.map((item) => {
-			hiroArray.push((parseFloat(item.price) / 3) * parseFloat(item.quantity));
-			vipArray.push((parseFloat(item.price) / item.deal) * parseFloat(item.quantity));
+			hiroArray.push(getHiRollerSubtotal(item));
+			vipArray.push(getVipSubtotal(item));
 		});
 		let hiroTotal = hiroArray.reduce(function (a, b) {
 			return a + b;
@@ -95,18 +118,16 @@
 										<div class="card-body">
 											<div class="price-group">
 												<span class="label">Qty</span>
-												<span class="value">{item.quantity}</span>
-												<span class="subtle">@ ${(item.price / item.deal).toFixed(2)}/pc</span>
+												<span class="value">{getQuantity(item)}</span>
+												<span class="subtle">@ ${getVipUnitPrice(item).toFixed(2)}/pc</span>
 											</div>
 											<div class="price-group">
 												<span class="label">Regular/VIP</span>
-												<span class="value"
-													>$ {((item.price / item.deal) * item.quantity).toFixed(2)}</span
-												>
+												<span class="value">$ {getVipSubtotal(item).toFixed(2)}</span>
 											</div>
 											<div class="price-group">
 												<span class="label">Hi-Roller</span>
-												<span class="value">$ {((item.price / 3) * item.quantity).toFixed(2)}</span>
+												<span class="value">$ {getHiRollerSubtotal(item).toFixed(2)}</span>
 											</div>
 										</div>
 									</article>
