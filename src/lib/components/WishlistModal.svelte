@@ -15,11 +15,30 @@
 		return Number.isFinite(num) ? num : fallback;
 	};
 
+	const getDealDivisor = (deal) => {
+		if (typeof deal === 'number' && Number.isFinite(deal) && deal > 0) return deal;
+		const text = String(deal || '')
+			.trim()
+			.toUpperCase();
+		if (text.includes('2 FOR')) return 2;
+		if (text.includes('3 FOR')) return 3;
+		const parsed = Number(text);
+		if (Number.isFinite(parsed) && parsed > 0) return parsed;
+		return 1;
+	};
+
 	const getQuantity = (item) => Math.max(0, toNumberOr(item?.quantity, 0));
 	const getBundlePrice = (item) => Math.max(0, toNumberOr(item?.price, 0));
-	const getVipUnitPrice = (item) => getBundlePrice(item);
+	const getVipUnitPrice = (item) => getBundlePrice(item) / getDealDivisor(item?.deal);
 	const getVipSubtotal = (item) => getVipUnitPrice(item) * getQuantity(item);
 	const getHiRollerSubtotal = (item) => (getBundlePrice(item) / 3) * getQuantity(item);
+	const getTodayLocalDate = () => {
+		const now = new Date();
+		const y = now.getFullYear();
+		const m = String(now.getMonth() + 1).padStart(2, '0');
+		const d = String(now.getDate()).padStart(2, '0');
+		return `${y}-${m}-${d}`;
+	};
 
 	export const sumTotalItemsPrice = function (array) {
 		let hiroArray = [];
@@ -58,6 +77,52 @@
 	};
 
 	$: totals = sumTotalItemsPrice($cart);
+	$: visibleCart = Array.isArray($cart) ? $cart.filter((item) => getQuantity(item) > 0) : [];
+	let checkoutEmail = '';
+	let checkoutPhone = '';
+	let pickupDate = '';
+	let pickupTime = '';
+	let agreeToPickup = false;
+	let submittingCheckout = false;
+	let checkoutError = '';
+	let checkoutSuccess = '';
+	const minPickupDate = getTodayLocalDate();
+
+	const submitCheckout = async () => {
+		checkoutError = '';
+		checkoutSuccess = '';
+		if (!visibleCart.length) {
+			checkoutError = 'Your cart is empty.';
+			return;
+		}
+		submittingCheckout = true;
+		try {
+			const response = await fetch('/data/cart/checkout', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({
+					email: checkoutEmail,
+					phone: checkoutPhone,
+					pickupDate,
+					pickupTime,
+					agreeToPickup,
+					items: visibleCart
+				})
+			});
+			const payload = await response.json().catch(() => ({}));
+			if (!response.ok) {
+				checkoutError = payload?.error || 'Checkout failed.';
+				return;
+			}
+			checkoutSuccess = `Request submitted. Reference: ${payload?.orderId || 'N/A'}.`;
+			$cart = [];
+			localStorage.setItem('cart', JSON.stringify([]));
+		} catch (error) {
+			checkoutError = error instanceof Error ? error.message : 'Checkout failed.';
+		} finally {
+			submittingCheckout = false;
+		}
+	};
 </script>
 
 <div class="modal-page">
@@ -135,6 +200,67 @@
 							<div class="actions">
 								<Button on:click={() => window.print()}>Print</Button>
 							</div>
+							<form class="checkout-form" on:submit|preventDefault={submitCheckout}>
+								<h3>Checkout Request</h3>
+								<p class="checkout-note">
+									No online payment is required. Payment happens in-store at pickup.
+								</p>
+								<label for="checkout-email">Email</label>
+								<input
+									id="checkout-email"
+									type="email"
+									bind:value={checkoutEmail}
+									required
+									autocomplete="email"
+								/>
+
+								<label for="checkout-phone">Phone Number</label>
+								<input
+									id="checkout-phone"
+									type="tel"
+									bind:value={checkoutPhone}
+									required
+									autocomplete="tel"
+								/>
+
+								<div class="pickup-grid">
+									<div>
+										<label for="pickup-date">Pickup Date</label>
+										<input
+											id="pickup-date"
+											type="date"
+											bind:value={pickupDate}
+											min={minPickupDate}
+											required
+										/>
+									</div>
+									<div>
+										<label for="pickup-time">Pickup Time</label>
+										<input id="pickup-time" type="time" bind:value={pickupTime} required />
+									</div>
+								</div>
+
+								<label class="agreement">
+									<input type="checkbox" bind:checked={agreeToPickup} required />
+									<span>
+										I agree to pick up at the selected date/time and understand that any changes must be
+										communicated by email or phone call.
+									</span>
+								</label>
+
+								{#if checkoutError}
+									<p class="checkout-error">{checkoutError}</p>
+								{/if}
+								{#if checkoutSuccess}
+									<p class="checkout-success">{checkoutSuccess}</p>
+								{/if}
+
+								<div class="checkout-actions">
+									<button class="checkout-submit" type="submit" disabled={submittingCheckout}>
+										{submittingCheckout ? 'Submitting...' : 'Submit Checkout'}
+									</button>
+								</div>
+							</form>
 						</div>
 					{:else}
 						<h2>No Items in Cart</h2>
@@ -343,6 +469,80 @@
 	.actions {
 		margin-top: 0.7em;
 	}
+	.checkout-form {
+		margin-top: 1rem;
+		border: 2px solid var(--grey);
+		background: var(--off-white);
+		padding: 0.9rem;
+		display: grid;
+		gap: 0.5rem;
+	}
+	.checkout-form h3 {
+		margin: 0;
+		text-transform: uppercase;
+	}
+	.checkout-note {
+		margin: 0 0 0.25rem 0;
+		font-size: 0.88rem;
+	}
+	.checkout-form label {
+		font-size: 0.75rem;
+		text-transform: uppercase;
+		letter-spacing: 0.04em;
+		font-weight: 700;
+	}
+	.checkout-form input[type='email'],
+	.checkout-form input[type='tel'],
+	.checkout-form input[type='date'],
+	.checkout-form input[type='time'] {
+		border: 1px solid var(--grey);
+		background: var(--white);
+		padding: 0.45rem 0.5rem;
+	}
+	.pickup-grid {
+		display: grid;
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		gap: 0.6rem;
+	}
+	.agreement {
+		display: grid;
+		grid-template-columns: auto 1fr;
+		gap: 0.5rem;
+		align-items: start;
+		text-transform: none !important;
+		font-size: 0.85rem !important;
+		font-weight: 500 !important;
+		letter-spacing: 0 !important;
+	}
+	.checkout-actions {
+		margin-top: 0.35rem;
+	}
+	.checkout-submit {
+		color: var(--white);
+		background: var(--grey);
+		border: 1px solid var(--grey);
+		padding: 0.5rem 1rem;
+		font-family: Langdon, Arial, sans-serif;
+		font-size: 1.2rem;
+		text-transform: uppercase;
+		cursor: pointer;
+		box-shadow: 3px 3px 0 var(--yellow-accent);
+	}
+	.checkout-submit:disabled {
+		opacity: 0.6;
+		cursor: not-allowed;
+		box-shadow: none;
+	}
+	.checkout-error {
+		margin: 0;
+		color: #9c1b1b;
+		font-weight: 700;
+	}
+	.checkout-success {
+		margin: 0;
+		color: #0e5a22;
+		font-weight: 700;
+	}
 	@media print {
 		.print-hide {
 			display: none !important;
@@ -374,6 +574,9 @@
 		}
 		.modal-body {
 			padding: 1em;
+		}
+		.pickup-grid {
+			grid-template-columns: 1fr;
 		}
 	}
 </style>
