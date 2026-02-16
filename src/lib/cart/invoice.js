@@ -244,7 +244,7 @@ export const generateInvoicePdfBase64 = async ({
 	});
 	y -= 26;
 
-	page.drawRectangle({ x: margin, y: y - 58, width: contentWidth, height: 62, color: soft });
+	page.drawRectangle({ x: margin, y: y - 78, width: contentWidth, height: 82, color: soft });
 	draw(
 		'All totals shown are pre-tax totals. All aerial and explosive items carry a 12% tax',
 		{ size: 9, x: margin + 8 }
