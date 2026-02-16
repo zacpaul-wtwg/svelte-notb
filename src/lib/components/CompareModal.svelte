@@ -5,6 +5,7 @@
 	import { cubicOut } from 'svelte/easing';
 	import Container from '$lib/components/elements/Container.svelte';
 	import ColorDots from '$lib/components/ColorDots.svelte';
+	import { formatDealLabel, getDealDivisor } from '$lib/cart/deal';
 	import { compare } from '$lib/stores.js';
 	import { sanitizeCompareList } from '$lib/compare/compareItem';
 	import { getThumb } from '$lib/utility/imageThumb';
@@ -198,6 +199,7 @@
 	const getSinglePrice = (product) => {
 		return getNumericValue(product?.price);
 	};
+	const getDealClass = (deal) => (getDealDivisor(deal) === 3 ? 'deal-three' : 'deal-two');
 
 	const toTextList = (value) => {
 		if (Array.isArray(value)) {
@@ -656,8 +658,8 @@
 															<div class="category-cell">{product.category || 'Uncategorized'}</div>
 														</div>
 													</button>
-													<div class="price-strip {product.deal === '3 FOR' ? 'deal-three' : 'deal-two'}">
-														<span class="deal-tag">{product.deal || 'Deal'}</span>
+													<div class="price-strip {getDealClass(product.deal)}">
+														<span class="deal-tag">{formatDealLabel(product.deal)}</span>
 														<span class="deal-price">{usd.format(product.price || 0)}</span>
 													</div>
 												</div>
@@ -737,8 +739,8 @@
 					<div class="name-cell">{previewProduct.title || 'Unnamed item'}</div>
 					<div class="category-cell">{previewProduct.category || 'Uncategorized'}</div>
 				</div>
-				<div class="price-strip {previewProduct.deal === '3 FOR' ? 'deal-three' : 'deal-two'}">
-					<span class="deal-tag">{previewProduct.deal || 'Deal'}</span>
+				<div class="price-strip {getDealClass(previewProduct.deal)}">
+					<span class="deal-tag">{formatDealLabel(previewProduct.deal)}</span>
 					<span class="deal-price">{usd.format(previewProduct.price || 0)}</span>
 				</div>
 			</div>

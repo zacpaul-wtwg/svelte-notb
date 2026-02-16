@@ -1,6 +1,7 @@
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { PDFDocument, StandardFonts, rgb } from 'pdf-lib';
+import { formatDealLabel, getDealDivisor } from '$lib/cart/deal';
 
 export const CURRENCY = new Intl.NumberFormat('en-US', {
 	style: 'currency',
@@ -14,25 +15,13 @@ const toFiniteNumber = (value, fallback = 0) => {
 	return Number.isFinite(num) ? num : fallback;
 };
 
-export const getDealDivisor = (deal) => {
-	if (typeof deal === 'number' && Number.isFinite(deal) && deal > 0) return deal;
-	const text = String(deal || '')
-		.trim()
-		.toUpperCase();
-	if (text.includes('2 FOR')) return 2;
-	if (text.includes('3 FOR')) return 3;
-	const parsed = Number(text);
-	if (Number.isFinite(parsed) && parsed > 0) return parsed;
-	return 1;
-};
-
 export const sanitizeCartItems = (items) => {
 	if (!Array.isArray(items)) return [];
 	return items
 		.map((item) => {
 			const id = item?.id;
 			const title = String(item?.title || '').trim();
-			const deal = String(item?.deal || '').trim();
+			const deal = formatDealLabel(item?.deal);
 			const quantity = Math.max(0, toFiniteNumber(item?.quantity, 0));
 			const dealPrice = Math.max(0, toFiniteNumber(item?.price, 0));
 			if (!id || !title || quantity <= 0 || dealPrice <= 0) return null;
@@ -59,7 +48,7 @@ export const renderInvoiceRowsHtml = (items) =>
 	(items || [])
 		.map(
 			(item) =>
-				`<tr><td>${item.id}</td><td>${item.title}</td><td>${item.deal || '-'}</td><td>${item.quantity}</td><td>${CURRENCY.format(item.unitPrice)}</td><td>${CURRENCY.format(item.lineTotal)}</td></tr>`
+				`<tr><td>${item.id}</td><td>${item.title}</td><td>${item.deal || '-'} (${CURRENCY.format(item.dealPrice || 0)})</td><td>${item.quantity}</td><td>${CURRENCY.format(item.unitPrice)}</td><td>${CURRENCY.format(item.lineTotal)}</td></tr>`
 		)
 		.join('');
 
@@ -202,11 +191,11 @@ export const generateInvoicePdfBase64 = async ({
 
 	const columns = [
 		{ key: 'id', title: 'ID', width: 50, align: 'left' },
-		{ key: 'title', title: 'Item', width: 200, align: 'left' },
-		{ key: 'deal', title: 'Deal', width: 62, align: 'left' },
-		{ key: 'quantity', title: 'Qty', width: 40, align: 'right' },
-		{ key: 'unitPrice', title: 'Unit', width: 88, align: 'right' },
-		{ key: 'lineTotal', title: 'Line Total', width: 100, align: 'right' }
+		{ key: 'title', title: 'Item', width: 170, align: 'left' },
+		{ key: 'deal', title: 'Deal', width: 125, align: 'left' },
+		{ key: 'quantity', title: 'Qty', width: 35, align: 'right' },
+		{ key: 'unitPrice', title: 'Unit', width: 75, align: 'right' },
+		{ key: 'lineTotal', title: 'Line Total', width: 85, align: 'right' }
 	];
 	const rowHeight = 21;
 	let rowTop = y;
@@ -242,7 +231,9 @@ export const generateInvoicePdfBase64 = async ({
 			let value = item[col.key] ?? '-';
 			if (col.key === 'unitPrice' || col.key === 'lineTotal') value = CURRENCY.format(value);
 			if (col.key === 'quantity') value = String(value);
+			if (col.key === 'deal') value = `${item.deal || '-'} (${CURRENCY.format(item.dealPrice || 0)})`;
 			if (col.key === 'title') value = clampText(value, 40);
+			if (col.key === 'deal') value = clampText(value, 22);
 			const text = String(value);
 			const textX =
 				col.align === 'right' ? x + col.width - font.widthOfTextAtSize(text, 9) - 6 : x + 6;

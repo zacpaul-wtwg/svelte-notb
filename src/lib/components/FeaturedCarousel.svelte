@@ -2,6 +2,7 @@
 	import { onDestroy, onMount } from 'svelte';
 	import Clickers from '$lib/components/Clickers.svelte';
 	import ExpandableDescription from '$lib/components/ExpandableDescription.svelte';
+	import { formatDealLabel, getDealDivisor } from '$lib/cart/deal';
 	import { getThumb } from '$lib/utility/imageThumb';
 	import { sentenceify, slugify } from '$lib/utility/slugify';
 
@@ -9,7 +10,7 @@
 	export let intervalMs = 5000;
 
 	const getColor = (deal) => {
-		if (deal === '2 FOR') return { bg: 'red', text: 'white' };
+		if (getDealDivisor(deal) === 2) return { bg: 'red', text: 'white' };
 		return { bg: 'yellow', text: 'grey' };
 	};
 
@@ -27,6 +28,7 @@
 	$: activeProduct = total > 0 ? products[activeIndex] : null;
 	$: ribbonColor = getColor(activeProduct?.deal);
 	$: price = Number(activeProduct?.price ?? 0).toFixed(2);
+	$: dealLabel = formatDealLabel(activeProduct?.deal);
 
 	const beginQueuedTransition = () => {
 		if (pendingIndex === null || pendingIndex === activeIndex) return;
@@ -121,7 +123,7 @@
 				class="price-tag header-price-tag"
 				style={`--price-bg:${ribbonColor.bg === 'yellow' ? 'var(--yellow)' : ribbonColor.bg === 'red' ? 'var(--red)' : 'var(--grey)'}; --price-fg:${ribbonColor.text === 'white' ? 'var(--white)' : 'var(--grey)'}`}
 			>
-				<span class="price-text">{activeProduct.deal} ${price}</span>
+				<span class="price-text">{dealLabel} ${price}</span>
 			</div>
 		</div>
 

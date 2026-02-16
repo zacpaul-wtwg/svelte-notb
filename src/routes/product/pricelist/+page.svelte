@@ -3,6 +3,7 @@
 	import { onMount } from 'svelte';
 	import Container from '$lib/components/elements/Container.svelte';
 	import ColorDots from '$lib/components/ColorDots.svelte';
+	import { formatDealLabel } from '$lib/cart/deal';
 
 	export const verticalize = function (array) {
 		return array.join(', ');
@@ -299,7 +300,7 @@
 												<span class="dept-chip">{product.category}</span>
 											</td>
 											<td class="tg-0lax col-pricing">
-												<span class="deal-inline">{product.deal}</span>
+												<span class="deal-inline">{formatDealLabel(product.deal)}</span>
 												<span class="price-inline">${product.price.toFixed(2)}</span>
 											</td>
 											{#if effects}

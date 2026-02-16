@@ -1,11 +1,14 @@
 <script>
+	import { formatDealLabel, getDealDivisor } from '$lib/cart/deal';
 	import Container from '$lib/components/elements/Container.svelte';
 	import { cart } from '$lib/stores.js';
 	import { slugify } from '$lib/utility/slugify';
 
 	export let onClose = () => {};
 	export let showCheckout = true;
+	export let mode = null;
 	export let checkoutHref = '/product/cart/checkout';
+	export let backHref = '/product/cart';
 
 	if (typeof window !== 'undefined') {
 		$cart = JSON.parse(localStorage.getItem('cart'));
@@ -14,18 +17,6 @@
 	const toNumberOr = (value, fallback = 0) => {
 		const num = Number(value);
 		return Number.isFinite(num) ? num : fallback;
-	};
-
-	const getDealDivisor = (deal) => {
-		if (typeof deal === 'number' && Number.isFinite(deal) && deal > 0) return deal;
-		const text = String(deal || '')
-			.trim()
-			.toUpperCase();
-		if (text.includes('2 FOR')) return 2;
-		if (text.includes('3 FOR')) return 3;
-		const parsed = Number(text);
-		if (Number.isFinite(parsed) && parsed > 0) return parsed;
-		return 1;
 	};
 
 	const getQuantity = (item) => Math.max(0, toNumberOr(item?.quantity, 0));
@@ -79,6 +70,8 @@
 
 	$: totals = sumTotalItemsPrice($cart);
 	$: visibleCart = Array.isArray($cart) ? $cart.filter((item) => getQuantity(item) > 0) : [];
+	$: viewMode = mode || (showCheckout ? 'checkout' : 'list');
+	$: isCheckoutView = viewMode === 'checkout';
 	let checkoutEmail = '';
 	let checkoutPhone = '';
 	let pickupDate = '';
@@ -159,153 +152,173 @@
 <div class="modal-page">
 	<div class="modal-frame">
 		<div class="modal-backdrop" on:click={onClose}></div>
-		<div class="modal" role="dialog" aria-modal="true" aria-label="Cart">
-			<div class="modal-header">
-				<h2>Cart</h2>
+			<div class="modal" role="dialog" aria-modal="true" aria-label={isCheckoutView ? 'Checkout' : 'Cart'}>
+				<div class="modal-header">
+					<h2>{isCheckoutView ? 'Checkout' : 'Cart'}</h2>
 				<button class="modal-close" type="button" on:click={onClose}>×</button>
 			</div>
 			<div class="modal-body">
 				<Container>
 					{#if $cart?.length >= 1}
-						<div class="wishlist-cards">
-							{#each $cart as item}
-								{#if item.quantity > 0}
-									<article class="wishlist-card">
-										<div class="card-header">
-											<span class="id">#{item.id}</span>
-											<a
-												class="title"
-												href="/product/{item.id}/{slugify(item.title)}"
-												target="_blank">{item.title}</a
-											>
-											<div class="controls print-hide">
-												<button
-													class="clicker clicker-sub"
-													on:click={() => changeQuantity(item.id, 'sub')}
-												>
-													-
-												</button>
-												<button
-													class="clicker clicker-add"
-													on:click={() => changeQuantity(item.id, 'add')}
-												>
-													+
-												</button>
-												<button
-													class="clicker clicker-del"
-													on:click={() => changeQuantity(item.id, 'del')}
-												>
-													<img src="/trashcan.svg" alt="trash can icon" />
-												</button>
-											</div>
-										</div>
-										<div class="card-body">
-											<div class="price-group">
-												<span class="label">Qty</span>
-												<span class="value">{getQuantity(item)}</span>
-												<span class="subtle">@ ${getVipUnitPrice(item).toFixed(2)}/pc</span>
-											</div>
-											<div class="price-group">
-												<span class="label">Regular/VIP</span>
-												<span class="value">$ {getVipSubtotal(item).toFixed(2)}</span>
-											</div>
-											<div class="price-group">
-												<span class="label">Hi-Roller</span>
-												<span class="value">$ {getHiRollerSubtotal(item).toFixed(2)}</span>
-											</div>
-										</div>
-									</article>
-								{/if}
-							{/each}
-							<div class="totals-card">
-								<div class="totals-row">
-									<span>Totals (Pre-Tax)</span>
-									<span class="total">$ {totals.vip.toFixed(2)} <em>VIP</em></span>
-									<span class="total">$ {totals.hiro.toFixed(2)} <em>Hi-Roller</em></span>
-								</div>
-							</div>
-							<p class="tax-note">
-								All totals shown are pre-tax totals. All aerial and explosive items carry a 12% tax
-								in addition to the regular state sales tax.
-							</p>
-							<div class="actions">
-								<button class="download-button" type="button" on:click={downloadInvoice}>
-									{downloadingInvoice ? 'Generating...' : 'Download Invoice'}
-								</button>
-								{#if !showCheckout}
-									<a class="checkout-link" href={checkoutHref}>Checkout</a>
-								{/if}
-							</div>
-							{#if showCheckout}
-								<form class="checkout-form" on:submit|preventDefault={submitCheckout}>
-									<h3>Checkout Request</h3>
-									<p class="checkout-note">
-										No online payment is required. Payment happens in-store at pickup.
-									</p>
-									<label for="checkout-email">Email</label>
-									<input
-										id="checkout-email"
-										type="email"
-										bind:value={checkoutEmail}
-										required
-										autocomplete="email"
-									/>
-
-									<label for="checkout-phone">Phone Number</label>
-									<input
-										id="checkout-phone"
-										type="tel"
-										bind:value={checkoutPhone}
-										required
-										autocomplete="tel"
-									/>
-
-									<div class="pickup-grid">
-										<div>
-											<label for="pickup-date">Pickup Date</label>
-											<input
-												id="pickup-date"
-												type="date"
-												bind:value={pickupDate}
-												min={minPickupDate}
-												required
-											/>
-										</div>
-										<div>
-											<label for="pickup-time">Pickup Time</label>
-											<input id="pickup-time" type="time" bind:value={pickupTime} required />
+							<div class="wishlist-cards">
+								{#if isCheckoutView}
+									<div class="checkout-nav print-hide">
+										<a class="back-link" href={backHref}>Back to Cart</a>
+									</div>
+									<div class="totals-card">
+										<div class="totals-row">
+											<span>Checkout Summary</span>
+											<span class="total">{visibleCart.length} items</span>
+											<span class="total">$ {totals.vip.toFixed(2)} <em>Pre-Tax</em></span>
 										</div>
 									</div>
+									<p class="tax-note">
+										All totals shown are pre-tax totals. All aerial and explosive items carry a 12% tax
+										in addition to the regular state sales tax.
+									</p>
+									<form class="checkout-form" on:submit|preventDefault={submitCheckout}>
+										<h3>Checkout Request</h3>
+										<p class="checkout-note">
+											No online payment is required. Payment happens in-store at pickup.
+										</p>
+										<label for="checkout-email">Email</label>
+										<input
+											id="checkout-email"
+											type="email"
+											bind:value={checkoutEmail}
+											required
+											autocomplete="email"
+										/>
 
-									<label class="agreement">
-										<input type="checkbox" bind:checked={agreeToPickup} required />
-										<span>
-											I agree to pick up at the selected date/time and understand that any changes must be
-											communicated by email or phone call.
-										</span>
-									</label>
+										<label for="checkout-phone">Phone Number</label>
+										<input
+											id="checkout-phone"
+											type="tel"
+											bind:value={checkoutPhone}
+											required
+											autocomplete="tel"
+										/>
 
+										<div class="pickup-grid">
+											<div>
+												<label for="pickup-date">Pickup Date</label>
+												<input
+													id="pickup-date"
+													type="date"
+													bind:value={pickupDate}
+													min={minPickupDate}
+													required
+												/>
+											</div>
+											<div>
+												<label for="pickup-time">Pickup Time</label>
+												<input id="pickup-time" type="time" bind:value={pickupTime} required />
+											</div>
+										</div>
+
+										<label class="agreement">
+											<input type="checkbox" bind:checked={agreeToPickup} required />
+											<span>
+												I agree to pick up at the selected date/time and understand that any changes must be
+												communicated by email or phone call.
+											</span>
+										</label>
+
+										{#if checkoutError}
+											<p class="checkout-error">{checkoutError}</p>
+										{/if}
+										{#if checkoutSuccess}
+											<p class="checkout-success">{checkoutSuccess}</p>
+										{/if}
+
+										<div class="checkout-actions">
+											<button class="checkout-submit" type="submit" disabled={submittingCheckout}>
+												{submittingCheckout ? 'Submitting...' : 'Submit Checkout'}
+											</button>
+										</div>
+									</form>
+								{:else}
+									{#each $cart as item}
+										{#if item.quantity > 0}
+											<article class="wishlist-card">
+												<div class="card-header">
+													<span class="id">#{item.id}</span>
+													<a
+														class="title"
+														href="/product/{item.id}/{slugify(item.title)}"
+														target="_blank">{item.title}</a
+													>
+													<div class="controls print-hide">
+														<button
+															class="clicker clicker-sub"
+															on:click={() => changeQuantity(item.id, 'sub')}
+														>
+															-
+														</button>
+														<button
+															class="clicker clicker-add"
+															on:click={() => changeQuantity(item.id, 'add')}
+														>
+															+
+														</button>
+														<button
+															class="clicker clicker-del"
+															on:click={() => changeQuantity(item.id, 'del')}
+														>
+															<img src="/trashcan.svg" alt="trash can icon" />
+														</button>
+													</div>
+												</div>
+												<div class="card-body">
+													<div class="price-group">
+														<span class="label">Qty</span>
+														<span class="value">{getQuantity(item)}</span>
+														<span class="subtle">Deal: {formatDealLabel(item?.deal)}</span>
+														<span class="subtle">@ ${getVipUnitPrice(item).toFixed(2)}/pc</span>
+													</div>
+													<div class="price-group">
+														<span class="label">Regular/VIP</span>
+														<span class="value">$ {getVipSubtotal(item).toFixed(2)}</span>
+													</div>
+													<div class="price-group">
+														<span class="label">Hi-Roller</span>
+														<span class="value">$ {getHiRollerSubtotal(item).toFixed(2)}</span>
+													</div>
+												</div>
+											</article>
+										{/if}
+									{/each}
+									<div class="totals-card">
+										<div class="totals-row">
+											<span>Totals (Pre-Tax)</span>
+											<span class="total">$ {totals.vip.toFixed(2)} <em>VIP</em></span>
+											<span class="total">$ {totals.hiro.toFixed(2)} <em>Hi-Roller</em></span>
+										</div>
+									</div>
+									<p class="tax-note">
+										All totals shown are pre-tax totals. All aerial and explosive items carry a 12% tax
+										in addition to the regular state sales tax.
+									</p>
+									<div class="actions">
+										<button class="download-button" type="button" on:click={downloadInvoice}>
+											{downloadingInvoice ? 'Generating...' : 'Download Invoice'}
+										</button>
+										<a class="checkout-link" href={checkoutHref}>Checkout</a>
+									</div>
 									{#if checkoutError}
 										<p class="checkout-error">{checkoutError}</p>
 									{/if}
-									{#if checkoutSuccess}
-										<p class="checkout-success">{checkoutSuccess}</p>
-									{/if}
-
-									<div class="checkout-actions">
-										<button class="checkout-submit" type="submit" disabled={submittingCheckout}>
-											{submittingCheckout ? 'Submitting...' : 'Submit Checkout'}
-										</button>
-									</div>
-								</form>
-							{:else if checkoutError}
-								<p class="checkout-error">{checkoutError}</p>
+								{/if}
+							</div>
+						{:else}
+							{#if isCheckoutView}
+								<div class="checkout-nav print-hide">
+									<a class="back-link" href={backHref}>Back to Cart</a>
+								</div>
 							{/if}
-						</div>
-					{:else}
-						<h2>No Items in Cart</h2>
-						<p>You may add items to your cart from the <a href="/product">Product Page</a></p>
-					{/if}
+							<h2>{isCheckoutView ? 'No Items to Checkout' : 'No Items in Cart'}</h2>
+							<p>You may add items to your cart from the <a href="/product">Product Page</a></p>
+						{/if}
 				</Container>
 			</div>
 		</div>
@@ -511,6 +524,21 @@
 		display: flex;
 		flex-wrap: wrap;
 		gap: 0.5rem;
+	}
+	.checkout-nav {
+		margin-bottom: 0.5rem;
+	}
+	.back-link {
+		display: inline-block;
+		color: var(--white);
+		background: #7c1313;
+		border: 1px solid #7c1313;
+		padding: 0.5rem 1rem;
+		font-family: Langdon, Arial, sans-serif;
+		font-size: 1.15rem;
+		text-transform: uppercase;
+		text-decoration: none;
+		box-shadow: 3px 3px 0 var(--yellow-accent);
 	}
 	.download-button,
 	.checkout-link {
