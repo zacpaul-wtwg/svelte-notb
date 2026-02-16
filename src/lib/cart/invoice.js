@@ -78,6 +78,27 @@ const clampText = (value, max) => {
 	return `${text.slice(0, max - 1)}...`;
 };
 
+const wrapTextLines = (text, { font, size, maxWidth }) => {
+	const words = String(text || '')
+		.trim()
+		.split(/\s+/)
+		.filter(Boolean);
+	if (!words.length) return [''];
+	const lines = [];
+	let current = words[0];
+	for (let i = 1; i < words.length; i += 1) {
+		const candidate = `${current} ${words[i]}`;
+		if (font.widthOfTextAtSize(candidate, size) <= maxWidth) {
+			current = candidate;
+		} else {
+			lines.push(current);
+			current = words[i];
+		}
+	}
+	lines.push(current);
+	return lines;
+};
+
 export const generateInvoicePdfBase64 = async ({
 	orderId,
 	createdAt,
@@ -165,15 +186,15 @@ export const generateInvoicePdfBase64 = async ({
 		color: white
 	});
 
-	y = 690;
+	y = 684;
 	page.drawRectangle({ x: margin, y: y - 74, width: contentWidth, height: 78, color: soft });
-	draw('Order Details', { bold: true, size: 11 });
-	draw(`Created: ${new Date(createdAt).toLocaleString('en-US')}`, { size: 10 });
+	draw('Order Details', { bold: true, size: 10 });
+	draw(`Created: ${new Date(createdAt).toLocaleString('en-US')}`, { size: 9 });
 	draw(`Pickup: ${(pickupDate || 'Not provided') + (pickupTime ? ` ${pickupTime}` : '')}`, {
-		size: 10
+		size: 9
 	});
-	draw(`Customer Email: ${customer?.email || 'Not provided'}`, { size: 10 });
-	draw(`Customer Phone: ${customer?.phone || 'Not provided'}`, { size: 10 });
+	draw(`Customer Email: ${customer?.email || 'Not provided'}`, { size: 9 });
+	draw(`Customer Phone: ${customer?.phone || 'Not provided'}`, { size: 9 });
 
 	y -= 6;
 	draw('Items', { bold: true, size: 12 });
@@ -244,18 +265,58 @@ export const generateInvoicePdfBase64 = async ({
 	});
 	y -= 26;
 
-	page.drawRectangle({ x: margin, y: y - 78, width: contentWidth, height: 82, color: soft });
-	draw(
-		'All totals shown are pre-tax totals. All aerial and explosive items carry a 12% tax',
-		{ size: 9, x: margin + 8 }
+	const legalHeader = 'Important Information';
+	const legalPoints = [
+		'1. All totals shown are pre-tax totals. All aerial and explosive items carry a 12% tax in addition to the regular state sales tax.',
+		'2. By placing this order, you agree to pick up at the selected date and time.',
+		'3. Any changes must be communicated by email or phone call.',
+		'4. Payment is completed in-store at pickup.'
+	];
+	const legalHeaderSize = 9;
+	const legalBodySize = 8;
+	const legalX = margin + 8;
+	const legalMaxWidth = contentWidth - 16;
+	const legalHeaderLines = wrapTextLines(legalHeader, {
+		font: fontBold,
+		size: legalHeaderSize,
+		maxWidth: legalMaxWidth
+	});
+	const legalPointLines = legalPoints.map((point) =>
+		wrapTextLines(point, { font, size: legalBodySize, maxWidth: legalMaxWidth })
 	);
-	draw('in addition to the regular state sales tax.', { size: 9, x: margin + 8 });
-	draw(
-		'By placing this order, you agree to pick up at the selected date and time.',
-		{ size: 9, x: margin + 8 }
-	);
-	draw('Any changes must be communicated by email or phone call.', { size: 9, x: margin + 8 });
-	draw('Payment is completed in-store at pickup.', { size: 9, x: margin + 8 });
+
+	const legalLayout = [];
+	let legalProbeY = y - 8;
+	for (const line of legalHeaderLines) {
+		legalLayout.push({ text: line, y: legalProbeY, size: legalHeaderSize, bold: true });
+		legalProbeY -= legalHeaderSize + 3;
+	}
+	legalProbeY -= 2;
+	for (const pointLines of legalPointLines) {
+		for (const line of pointLines) {
+			legalLayout.push({ text: line, y: legalProbeY, size: legalBodySize, bold: false });
+			legalProbeY -= legalBodySize + 3;
+		}
+		legalProbeY -= 1;
+	}
+	const legalTop = y + 4;
+	const legalBottom = legalProbeY - 4;
+	page.drawRectangle({
+		x: margin,
+		y: legalBottom,
+		width: contentWidth,
+		height: legalTop - legalBottom,
+		color: soft
+	});
+	for (const row of legalLayout) {
+		page.drawText(row.text, {
+			x: legalX,
+			y: row.y,
+			size: row.size,
+			font: row.bold ? fontBold : font,
+			color: primary
+		});
+	}
 
 	const bytes = await pdfDoc.save();
 	return Buffer.from(bytes).toString('base64');
