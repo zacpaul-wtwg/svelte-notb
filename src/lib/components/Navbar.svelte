@@ -297,32 +297,36 @@
 
 <nav bind:this={navEl}>
 	<div class="top inner" bind:this={topRowEl}>
-		<div class="top-item">
-			<a href="/product/pricelist" class="utility-chip">
-				<span class="chip-icon" aria-hidden="true">≡</span>
-				<span>Pricelist</span>
-			</a>
+		<div class="top-left">
+			<div class="top-item top-item-hours">
+				<div class={`utility-chip hours-chip ${hoursStatus.tone}`}>
+					<span class="chip-icon chip-icon-status" aria-hidden="true">◷</span>
+					<span class="status-dot" aria-hidden="true"></span>
+					<span>{hoursStatus.label}</span>
+					{#if hoursStatus.detail}
+						<span class="chip-meta">{hoursStatus.detail}</span>
+					{/if}
+				</div>
+			</div>
 		</div>
-		<div class="top-item">
-			<button type="button" class="super-nav-button utility-chip" on:click={handleCompareNavClick}>
-				<span class="chip-icon" aria-hidden="true">⇄</span>
-				<span>Compare</span>
-			</button>
-		</div>
-		<div class="top-item">
-			<a href="/product/cart" class="utility-chip">
-				<img src="/cart.svg" alt="cart icon" class="svg-filter-white cart" />
-				<span>Cart</span>
-			</a>
-		</div>
-		<div class="top-item top-item-hours">
-			<div class={`utility-chip hours-chip ${hoursStatus.tone}`}>
-				<span class="chip-icon chip-icon-status" aria-hidden="true">◷</span>
-				<span class="status-dot" aria-hidden="true"></span>
-				<span>{hoursStatus.label}</span>
-				{#if hoursStatus.detail}
-					<span class="chip-meta">{hoursStatus.detail}</span>
-				{/if}
+		<div class="top-right">
+			<div class="top-item">
+				<a href="/product/pricelist" class="utility-chip">
+					<span class="chip-icon" aria-hidden="true">≡</span>
+					<span>Pricelist</span>
+				</a>
+			</div>
+			<div class="top-item">
+				<button type="button" class="super-nav-button utility-chip" on:click={handleCompareNavClick}>
+					<span class="chip-icon" aria-hidden="true">⇄</span>
+					<span>Compare</span>
+				</button>
+			</div>
+			<div class="top-item">
+				<a href="/product/cart" class="utility-chip">
+					<img src="/cart.svg" alt="cart icon" class="svg-filter-white cart" />
+					<span>Cart</span>
+				</a>
 			</div>
 		</div>
 	</div>
@@ -398,15 +402,23 @@
 <style lang="scss">
 	.top {
 		display: flex;
-		justify-content: flex-end;
+		justify-content: space-between;
 		align-items: center;
-		gap: 0.35rem;
 		background: var(--grey);
 		color: white;
 		min-height: 28px;
 		padding: 0.18rem 0;
 		overflow-x: auto;
 		scrollbar-width: thin;
+	}
+	.top-left,
+	.top-right {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.35rem;
+	}
+	.top-right {
+		justify-content: flex-end;
 	}
 
 	.bottom {
@@ -761,15 +773,18 @@
 		margin-right: 0;
 	}
 	.top-item-hours {
-		margin-left: 0.25rem;
+		margin: 0;
 	}
 
 	@media only screen and (max-width: 700px) {
 		.top {
-			justify-content: flex-start;
+			justify-content: space-between;
 		}
 		.chip-meta {
 			display: none;
+		}
+		.top-right {
+			gap: 0.25rem;
 		}
 	}
 </style>
