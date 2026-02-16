@@ -15,6 +15,7 @@
 	let selectedIndex = 0;
 	$: selectedImage = images[selectedIndex];
 	let lightboxOpen = false;
+	$: displayPrice = Number(product?.price ?? 0).toFixed(2);
 
 	const openLightbox = (event) => {
 		event.preventDefault();
@@ -64,7 +65,7 @@
 											bgColor={'red'}
 											fontColor={'white'}
 											padding={'1'}
-											string={`${product.brand} $${product.price}`}
+											string={`${product.brand} $${displayPrice}`}
 										/>
 									</h3>
 								{:else}
@@ -73,7 +74,7 @@
 											bgColor={'yellow'}
 											fontColor={'grey'}
 											padding={'1'}
-											string={`${product.brand} $${product.price}`}
+											string={`${product.brand} $${displayPrice}`}
 										/>
 									</h3>
 								{/if}

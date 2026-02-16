@@ -15,6 +15,7 @@ const getDealCount = function (brandTitle) {
 	if (brandTitle === '3 FOR') return 3;
 	return 1;
 };
+const toDealPrice = (price, dealCount) => Number((Number(price) * dealCount).toFixed(2));
 //get the value for the custom attrubute title
 const getAttributeByTitle = function (array, title) {
 	return array?.find(function (element) {
@@ -77,7 +78,7 @@ export const refineProductIndexData = function (categories, brands, products) {
 				id: element.id,
 				imageThumb: element.imageUrl,
 				title: element.title,
-				price: Number(element.price) * dealCount,
+				price: toDealPrice(element.price, dealCount),
 				category: getCategoryById(categories, element.categoryId),
 				deal: brandTitle,
 				description: getAttributeByTitle(element.customAttributes, 'description'),
@@ -111,7 +112,7 @@ export const refineProductDetailsData = function (categories, brands, element) {
 		id: element.id,
 		images: element.images,
 		title: element.title,
-		price: Math.ceil(Number(element.price) * dealCount),
+		price: toDealPrice(element.price, dealCount),
 		category: getCategoryById(categories, element.categoryId),
 		brand: brandTitle,
 		description: getAttributeByTitle(element.customAttributes, 'description'),

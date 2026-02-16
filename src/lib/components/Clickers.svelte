@@ -104,11 +104,16 @@
 		let newArray = $cart?.filter((x) => x.id === id) ?? [];
 		return newArray[0]?.quantity ?? '0';
 	};
+	const getDealDivisor = (deal) => {
+		if (deal === '2 FOR') return 2;
+		if (deal === '3 FOR') return 3;
+		return 1;
+	};
 	$: itemObject = {
 		id: product.id,
 		quantity: 1,
 		title: product.title,
-		deal: product.deal === '2 FOR' ? 2 : 3,
+		deal: getDealDivisor(product.deal),
 		price: product.price.toFixed(2)
 	};
 
