@@ -199,8 +199,8 @@
 			<button type="button" class="super-nav-button" on:click={handleCompareNavClick}>Compare</button>
 		</div>
 		<div class="top-item">
-			<a href="/product/wishlist"
-				><img src="/cart.svg" alt="wishlist cart icon" class="svg-filter-white cart" /></a
+			<a href="/product/cart"
+				><img src="/cart.svg" alt="cart icon" class="svg-filter-white cart" /></a
 			>
 		</div>
 	</div>

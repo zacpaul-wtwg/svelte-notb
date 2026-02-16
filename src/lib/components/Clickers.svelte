@@ -104,16 +104,11 @@
 		let newArray = $cart?.filter((x) => x.id === id) ?? [];
 		return newArray[0]?.quantity ?? '0';
 	};
-	const getDealDivisor = (deal) => {
-		if (deal === '2 FOR') return 2;
-		if (deal === '3 FOR') return 3;
-		return 1;
-	};
 	$: itemObject = {
 		id: product.id,
 		quantity: 1,
 		title: product.title,
-		deal: getDealDivisor(product.deal),
+		deal: product.deal,
 		price: product.price.toFixed(2)
 	};
 
@@ -181,7 +176,7 @@
 			</div>
 			{#if showWishlist}
 				<span class="clicker-message">
-					<button type="button" class="wishlist-pill" on:click={openWishlist}>Wishlist</button>
+					<button type="button" class="wishlist-pill" on:click={openWishlist}>Cart</button>
 				</span>
 			{/if}
 		</div>

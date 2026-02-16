@@ -6,6 +6,7 @@
 	import Clickers from './Clickers.svelte';
 	import ColorDots from '$lib/components/ColorDots.svelte';
 	import ExpandableDescription from '$lib/components/ExpandableDescription.svelte';
+	import { formatDealLabel, getDealDivisor } from '$lib/cart/deal';
 	import { onMount, onDestroy } from 'svelte';
 	import { browser } from '$app/environment';
 	export let product;
@@ -15,7 +16,7 @@
 	export const getColor = function (deal) {
 		let bg;
 		let text;
-		if (deal === '2 FOR') {
+		if (getDealDivisor(deal) === 2) {
 			bg = 'red';
 			text = 'white';
 		} else {
@@ -33,7 +34,7 @@
 	$: title = product.title;
 	$: price = product.price.toFixed(2);
 	$: id = product.id;
-	$: deal = product.deal;
+	$: deal = formatDealLabel(product.deal);
 	$: category = product.category;
 	$: imageThumb = product.imageThumb;
 	const colorOrder = [

@@ -1,6 +1,7 @@
 <script>
 	import Container from '$lib/components/elements/Container.svelte';
 	import ColorDots from '$lib/components/ColorDots.svelte';
+	import { formatDealLabel, getDealDivisor } from '$lib/cart/deal';
 	import Ribbon from '$lib/components/ribbon.svelte';
 	import SpecTable from '$lib/components/SpecTable.svelte';
 
@@ -16,6 +17,7 @@
 	$: selectedImage = images[selectedIndex];
 	let lightboxOpen = false;
 	$: displayPrice = Number(product?.price ?? 0).toFixed(2);
+	$: dealLabel = formatDealLabel(product?.brand || product?.deal);
 
 	const openLightbox = (event) => {
 		event.preventDefault();
@@ -59,13 +61,13 @@
 					<div class="product-container">
 						<div class="image-container">
 							<div class="ribbon-container">
-								{#if product.brand === '2 FOR'}
+								{#if getDealDivisor(product?.brand || product?.deal) === 2}
 									<h3 class="ribbon">
 										<Ribbon
 											bgColor={'red'}
 											fontColor={'white'}
 											padding={'1'}
-											string={`${product.brand} $${displayPrice}`}
+											string={`${dealLabel} $${displayPrice}`}
 										/>
 									</h3>
 								{:else}
@@ -74,7 +76,7 @@
 											bgColor={'yellow'}
 											fontColor={'grey'}
 											padding={'1'}
-											string={`${product.brand} $${displayPrice}`}
+											string={`${dealLabel} $${displayPrice}`}
 										/>
 									</h3>
 								{/if}

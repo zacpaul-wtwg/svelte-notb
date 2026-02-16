@@ -10,12 +10,7 @@ const getBrandById = function (brands, brandId) {
 		return element.id === parseInt(brandId);
 	})?.title;
 };
-const getDealCount = function (brandTitle) {
-	if (brandTitle === '2 FOR') return 2;
-	if (brandTitle === '3 FOR') return 3;
-	return 1;
-};
-const toDealPrice = (price, dealCount) => Number((Number(price) * dealCount).toFixed(2));
+const toDealPrice = (price) => Number(Number(price).toFixed(2));
 //get the value for the custom attrubute title
 const getAttributeByTitle = function (array, title) {
 	return array?.find(function (element) {
@@ -67,7 +62,6 @@ export const refineProductIndexData = function (categories, brands, products) {
 		})
 		.forEach(function (element) {
 			const brandTitle = getBrandById(brands, element.brandId);
-			const dealCount = getDealCount(brandTitle);
 			getAttributeArrayByTitle(element.customAttributes, 'effects').forEach((v) =>
 				allAffects.add(v)
 			);
@@ -78,7 +72,7 @@ export const refineProductIndexData = function (categories, brands, products) {
 				id: element.id,
 				imageThumb: element.imageUrl,
 				title: element.title,
-				price: toDealPrice(element.price, dealCount),
+				price: toDealPrice(element.price),
 				category: getCategoryById(categories, element.categoryId),
 				deal: brandTitle,
 				description: getAttributeByTitle(element.customAttributes, 'description'),
@@ -107,12 +101,11 @@ export const refineProductIndexData = function (categories, brands, products) {
 export const refineProductDetailsData = function (categories, brands, element) {
 	//console.log({ element });
 	const brandTitle = getBrandById(brands, element.brandId);
-	const dealCount = getDealCount(brandTitle);
 	return {
 		id: element.id,
 		images: element.images,
 		title: element.title,
-		price: toDealPrice(element.price, dealCount),
+		price: toDealPrice(element.price),
 		category: getCategoryById(categories, element.categoryId),
 		brand: brandTitle,
 		description: getAttributeByTitle(element.customAttributes, 'description'),

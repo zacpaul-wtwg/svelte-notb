@@ -7,6 +7,27 @@ Everything you need to build a Svelte project, powered by [`create-svelte`](http
 - See `TODO-README.md` for current implementation tasks and follow-ups.
 - See `STYLE-ARCHITECTURE-PLAN.md` for the styling refactor roadmap.
 
+## Third-Party Tools and Services
+
+This project currently integrates with:
+
+- `Comcash Open API`
+  - Product/auth/category/brand data source.
+  - Endpoints include auth + product list/view.
+- `Netlify`
+  - Hosting/deploy platform.
+  - Netlify Functions in `netlify/functions`.
+  - Netlify Blobs (`@netlify/blobs`) for CMS preview/live content.
+  - Netlify Forms for basic form capture (contact form).
+- `Resend` (email API)
+  - Used by cart checkout flow to email management and customer confirmations.
+- `pdf-lib`
+  - Used to generate checkout invoice PDF attachments.
+- `Quill`
+  - Rich text editor for CMS admin content editing.
+- `Contentful` SDK
+  - Present in dependencies (legacy/integration support).
+
 ## Branch Workflow
 
 - Permanent branches:
@@ -88,6 +109,19 @@ Comcash data is loaded on the server from these private vars:
 
 If `main` works but `develop` branch deploys do not, check Netlify variable scopes.
 These values must be available to the branch deploy context (or set to all contexts), not only production.
+
+## Netlify Environment Variables (Cart Checkout)
+
+Cart checkout endpoint (`/data/cart/checkout`) uses:
+
+- `RESEND_API_KEY`
+  - Required for transactional emails.
+- `ORDER_EMAIL_FROM`
+  - Sender address used for checkout emails.
+  - Example: `North of the Border <orders@notbfireworks.com>`
+- `STORE_TIMEZONE`
+  - Optional; defaults to `America/New_York`.
+  - Used for pickup date/time validation against store hours.
 
 ## Netlify Environment Variables (CMS Admin)
 
