@@ -11,8 +11,8 @@ export const normalizeCompareItem = (item) => {
 	const id = item.id;
 	const title = hasText(item.title) ? item.title.trim() : '';
 	const imageThumb = hasText(item.imageThumb) ? item.imageThumb.trim() : '';
-	const category = hasText(item.category) ? item.category.trim() : '';
-	const deal = hasText(item.deal) ? item.deal.trim() : '';
+	const category = hasText(item.category) ? item.category.trim() : 'Uncategorized';
+	const deal = hasText(item.deal) ? item.deal.trim() : 'Deal';
 	const price = normalizePrice(item.price);
 	const colors = Array.isArray(item.colors)
 		? item.colors.map((value) => String(value || '').trim()).filter(Boolean)
@@ -24,7 +24,7 @@ export const normalizeCompareItem = (item) => {
 	const duration = normalizePrice(item.duration);
 	const height = normalizePrice(item.height);
 
-	if (!id || !title || !imageThumb || !category || !deal || price === null) return null;
+	if (!id || !title || price === null) return null;
 
 	return {
 		id,
