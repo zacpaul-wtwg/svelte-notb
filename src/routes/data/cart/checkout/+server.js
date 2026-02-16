@@ -9,14 +9,21 @@ import {
 	sanitizeCartItems
 } from '$lib/cart/invoice';
 
-const MANAGEMENT_EMAILS = [
+const DEFAULT_MANAGEMENT_EMAILS = [
 	'thom@notbfireworks.com',
 	'gwen@notbfireworks.com',
 	'zac@notbfireworks.com'
 ];
+const MANAGEMENT_EMAILS = String(env.ORDER_MANAGEMENT_EMAILS || '')
+	.split(',')
+	.map((value) => value.trim().toLowerCase())
+	.filter(Boolean);
+const RESOLVED_MANAGEMENT_EMAILS = MANAGEMENT_EMAILS.length
+	? MANAGEMENT_EMAILS
+	: DEFAULT_MANAGEMENT_EMAILS;
 
 const STORE_TIMEZONE = env.STORE_TIMEZONE || 'America/New_York';
-const ORDER_EMAIL_FROM = env.ORDER_EMAIL_FROM || 'North of the Border <orders@notbfireworks.com>';
+const ORDER_EMAIL_FROM = env.ORDER_EMAIL_FROM || 'no-reply@notbfireworks.com';
 
 const weekdayKeys = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
 
@@ -125,10 +132,11 @@ const buildCustomerHtml = ({ orderId, customer, pickupDate, pickupTime, total })
 <p>By placing this order, you agree to pick up at the selected date and time. Any changes must be communicated by email or phone call.</p>
 <p>Payment happens in-store at pickup.</p>`;
 
-const sendResendEmail = async ({ to, subject, html, attachments = [] }) => {
+const sendResendEmail = async ({ to, subject, html, attachments = [], replyTo }) => {
 	if (!env.RESEND_API_KEY) {
 		throw new Error('Missing RESEND_API_KEY');
 	}
+	const normalizedReplyTo = String(replyTo || '').trim();
 	const response = await fetch('https://api.resend.com/emails', {
 		method: 'POST',
 		headers: {
@@ -141,7 +149,8 @@ const sendResendEmail = async ({ to, subject, html, attachments = [] }) => {
 			subject,
 			html,
 			text: htmlToPlainText(html),
-			attachments
+			attachments,
+			...(normalizedReplyTo ? { reply_to: normalizedReplyTo } : {})
 		})
 	});
 	if (!response.ok) {
@@ -238,9 +247,10 @@ export async function POST({ request, fetch }) {
 		});
 
 		await sendResendEmail({
-			to: MANAGEMENT_EMAILS,
+			to: RESOLVED_MANAGEMENT_EMAILS,
 			subject: `New Cart Checkout ${orderId}`,
-			html: buildManagementHtml({ orderId, customer, pickupDate, pickupTime, items, total })
+			html: buildManagementHtml({ orderId, customer, pickupDate, pickupTime, items, total }),
+			replyTo: email
 		});
 
 		await sendResendEmail({
