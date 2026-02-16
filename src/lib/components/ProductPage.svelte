@@ -14,7 +14,7 @@
 
 	// #region filters
 	$: pricing = 'ALL PRICING';
-	$: pricingOptions = ['ALL PRICING', '2 FOR 1', '3 FOR 1'];
+	$: pricingOptions = ['ALL PRICING', '2 FOR', '3 FOR'];
 	$: department = 'FEATURED';
 	$: sortMethod = 'title';
 	$: sortOptions = [
@@ -123,7 +123,7 @@
 			</label>
 			<select id="pricing" bind:value={pricing}>
 				{#each pricingOptions as item}
-					<option value={item.replace(' 1', '')}>
+					<option value={item}>
 						{item === 'ALL PRICING' ? 'ALL' : item}
 					</option>
 				{/each}

@@ -16,9 +16,9 @@ export const formatDealLabel = (deal) => {
 	const normalized = text.toUpperCase().replace(/\s+/g, ' ');
 	const directNumber = Number(normalized);
 	if (Number.isFinite(directNumber) && directNumber > 0) {
-		return `${directNumber} FOR 1`;
+		return `${directNumber} FOR`;
 	}
 	const forMatch = normalized.match(/^(\d+)\s*FOR(?:\s*1)?$/);
-	if (forMatch) return `${forMatch[1]} FOR 1`;
+	if (forMatch) return `${forMatch[1]} FOR`;
 	return normalized;
 };
