@@ -1,148 +1,229 @@
 <script>
+	// Static hero lockup only.
 	import ButtonLink from '$lib/components/elements/ButtonLink.svelte';
-	import Ribbon from './ribbon.svelte';
-	import { formatDayHours } from '$lib/utility/time';
-	export let allData;
-
-	// Get the current day name in the required format
-	const daysOfWeek = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
-	const today = new Date();
-	const dayName = daysOfWeek[today.getDay()]; // This will be 'sunday', 'monday', etc.
-	const hoursKey = dayName; // Construct the key to access the hours
 </script>
 
 <div class="hero">
-	<div class="message">
-		<img src="logo_tall.png" alt="tall notb fireworks logo" />
-		<div>
-			<h1 class="title">
-				north of the border<br /><span class="fireworks">fireworks</span>
-			</h1>
-			<div class="deals everything">all items</div>
-			<div class="deals rotate">
-				<Ribbon bgColor={'red'} fontColor={'white'} string={'2 for 1'} />
-				<div class="or">
-					<span>or</span>
+	<div class="hero-lockup-bounds">
+		<section class="hero-lockup" aria-label="Deal lockup">
+			<header class="lockup-header">
+				<span>ALL ITEMS</span>
+			</header>
+
+			<div class="lockup-panels">
+				<div class="panel panel-deals">
+					<div class="label-stack deal-pair" aria-label="Hero deal labels">
+						<div class="hero-deal hero-deal-red"><span>2 FOR 1</span></div>
+						<div class="or-badge" aria-hidden="true"><span>OR</span></div>
+						<div class="hero-deal hero-deal-yellow"><span>3 FOR 1</span></div>
+					</div>
 				</div>
-				<Ribbon bgColor={'yellow'} fontColor={'grey'} string={'3 for 1'} />
 			</div>
+		</section>
+		<div class="hero-cta">
+			<ButtonLink destination="/product" label="Go to Products" />
 		</div>
 	</div>
-	<ButtonLink destination={'product'} label={'Go to Products'} />
-	<span class="hours">
-		{dayName.toUpperCase()} HOURS: {formatDayHours(allData.hours?.[hoursKey])}
-	</span>
 </div>
 
 <style>
-	.hours {
-		color: white;
-		font-size: 1.25em;
-		font-weight: 600;
-		padding: 15px;
-		background-color: black;
-		margin: 10px;
-	}
-	h1 {
-		margin-bottom: 0;
-	}
-	img {
-		height: 20rem;
-	}
-	.fireworks {
-		font-size: 2.5em;
-		text-transform: lowercase;
-	}
 	.hero {
+		--panel-height: clamp(220px, 30vw, 360px);
 		width: 100%;
-		height: calc(100vh - 60px);
+		min-height: calc(100vh - 60px);
 		background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('/hero-bg.jpg');
+		background-position: center;
+		background-size: cover;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		padding: 0 0.75rem;
+		box-sizing: border-box;
+		overflow: visible;
+	}
+
+	.hero-lockup {
+		width: min(940px, 100%);
+		position: relative;
+	}
+
+	.hero-lockup-bounds {
+		width: auto;
+		position: relative;
+	}
+
+	.hero-cta {
 		display: flex;
 		justify-content: center;
-		align-items: center;
-		flex-direction: column;
-		overflow-x: clip;
 	}
-	.message {
-		color: white;
+
+	:global(.hero-cta a),
+	:global(.hero-cta a:visited) {
+		background: var(--grey);
+		color: var(--white);
+		box-shadow: 6px 6px 0 var(--yellow-accent);
+		text-decoration: none;
+	}
+
+	.lockup-header {
 		display: flex;
-		max-width: 100%;
+		align-items: center;
+		justify-content: center;
+		width: 100%;
+		color: var(--white);
+		font-family: Langdon, Arial, sans-serif;
+		font-size: clamp(2rem, 5vw, 3.6rem);
+		letter-spacing: 0.05em;
+		text-transform: uppercase;
+		line-height: 0.82;
+		white-space: nowrap;
+		margin-bottom: 3px;
+	}
+
+	.lockup-panels {
+		display: flex;
+		justify-content: center;
+		width: 100%;
+	}
+
+	.panel {
+		overflow: visible;
+	}
+
+	.panel-deals {
+		display: flex;
+		align-items: center;
+		justify-content: center;
 		box-sizing: border-box;
 	}
-	.deals {
-		font-size: 2.5em;
-		font-family: langdon;
-		text-transform: uppercase;
-	}
-	.rotate {
-		transform: rotate(-7deg) translateY(-25px);
-	}
 
-	.everything {
-		transform: translateY(-10px);
-		position: relative;
-		z-index: 1;
-	}
-	.or {
-		transform: translateX(3em);
+	.label-stack {
 		display: flex;
-		font-weight: bolder;
-		font-size: 1em;
-		width: 1.5em;
-		height: 1.5em;
-		background: var(--grey);
-		justify-content: center;
+		flex-direction: column;
 		align-items: center;
-		border-radius: 50%;
-		margin: -0.2em;
-		position: relative;
-		z-index: 3;
-		line-height: 0px;
-	}
-	.or span {
-		position: relative;
-		top: 2px;
-		left: 0px;
+		gap: 50px;
 	}
 
-	@media only screen and (max-width: 700px) {
-		.message {
-			width: 100%;
-			padding: 0 0.75rem;
-			justify-content: center;
+	.deal-pair {
+		position: relative;
+	}
+
+	.hero-deal {
+		margin: 0;
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		background: var(--grey);
+		color: var(--white);
+		border: 1px solid var(--white);
+		box-shadow: 6px 6px 0 var(--yellow-accent);
+		transform: skew(-14deg);
+		min-height: clamp(2.9rem, 5.8vw, 4.7rem);
+		padding: 0 1.05rem;
+		font-family: Langdon, Arial, sans-serif;
+		font-size: clamp(2rem, 4.4vw, 3.6rem);
+		letter-spacing: 0.04em;
+		text-transform: uppercase;
+		line-height: 0;
+	}
+
+	.hero-deal span {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		line-height: 0;
+		transform: skew(14deg) translateY(-0.06em);
+	}
+
+	.hero-deal-red {
+		background: var(--red);
+		color: var(--white);
+		transform: translateX(-15px) skew(-14deg);
+	}
+
+	.hero-deal-yellow {
+		background: var(--yellow);
+		color: var(--grey);
+		transform: translateX(15px) skew(-14deg);
+	}
+
+	.or-badge {
+		position: absolute;
+		left: 50%;
+		top: 50%;
+		transform: translate(-50%, -50%);
+		width: 54px;
+		height: 54px;
+		border-radius: 50%;
+		background: var(--grey);
+		color: var(--white);
+		border: 2px solid var(--white);
+		box-shadow: 4px 4px 0 var(--yellow-accent);
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		font-family: Langdon, Arial, sans-serif;
+		font-size: 1rem;
+		letter-spacing: 0.04em;
+		text-transform: uppercase;
+		line-height: 0;
+		z-index: 2;
+		pointer-events: none;
+	}
+
+	.or-badge span {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		line-height: 0;
+		transform: translateY(-0.05em);
+	}
+
+	@media (max-width: 1024px) {
+		.hero {
+			--panel-height: clamp(180px, 27vw, 290px);
 		}
-		.message > div {
-			max-width: 100%;
+	}
+
+	@media (max-width: 700px) {
+		.hero {
+			--panel-height: 160px;
+			padding: 0 0.5rem;
 		}
-		.title {
-			font-size: clamp(1.7rem, 9vw, 2.35rem);
-			line-height: 1.02;
-			text-align: center;
+
+		.lockup-header {
+			font-size: 2rem;
+			margin-bottom: 2px;
 		}
-		.fireworks {
-			font-size: clamp(1.6rem, 10vw, 2.4rem);
+
+		.lockup-panels {
+			gap: 0;
 		}
-		.deals {
-			font-size: clamp(1.5rem, 8vw, 2rem);
-			text-align: center;
+
+		.label-stack {
+			gap: 34px;
 		}
-		.rotate {
-			transform: none;
-			display: flex;
-			justify-content: center;
-			align-items: center;
-			flex-wrap: wrap;
-			gap: 0.35rem;
+
+		.hero-deal {
+			min-height: 2.35rem;
+			padding: 0 0.62rem;
+			font-size: 2rem;
+			box-shadow: 4px 4px 0 var(--yellow-accent);
 		}
-		.everything {
-			transform: none;
+
+		.hero-deal-red {
+			transform: translateX(-10px) skew(-14deg);
 		}
-		.or {
-			transform: none;
-			margin: 0;
+
+		.hero-deal-yellow {
+			transform: translateX(10px) skew(-14deg);
 		}
-		img {
-			display: none;
+
+		.or-badge {
+			width: 40px;
+			height: 40px;
+			font-size: 0.82rem;
+			box-shadow: 3px 3px 0 var(--yellow-accent);
 		}
 	}
 </style>
