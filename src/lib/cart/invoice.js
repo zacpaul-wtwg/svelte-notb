@@ -233,7 +233,7 @@ export const generateInvoicePdfBase64 = async ({
 
 	page.drawRectangle({ x: margin, y: rowTop - 1, width: contentWidth, height: 1, color: primary });
 	y = rowTop - 18;
-	const totalText = `Total: ${CURRENCY.format(total || 0)}`;
+	const totalText = `Pre-Tax Total: ${CURRENCY.format(total || 0)}`;
 	const totalWidth = fontBold.widthOfTextAtSize(totalText, 15);
 	page.drawText(totalText, {
 		x: margin + contentWidth - totalWidth,
@@ -244,7 +244,12 @@ export const generateInvoicePdfBase64 = async ({
 	});
 	y -= 26;
 
-	page.drawRectangle({ x: margin, y: y - 46, width: contentWidth, height: 50, color: soft });
+	page.drawRectangle({ x: margin, y: y - 58, width: contentWidth, height: 62, color: soft });
+	draw(
+		'All totals shown are pre-tax totals. All aerial and explosive items carry a 12% tax',
+		{ size: 9, x: margin + 8 }
+	);
+	draw('in addition to the regular state sales tax.', { size: 9, x: margin + 8 });
 	draw(
 		'By placing this order, you agree to pick up at the selected date and time.',
 		{ size: 9, x: margin + 8 }

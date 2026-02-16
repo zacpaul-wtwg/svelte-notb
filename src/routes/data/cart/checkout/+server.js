@@ -82,7 +82,8 @@ const buildManagementHtml = ({ orderId, customer, pickupDate, pickupTime, items,
   </thead>
   <tbody>${renderInvoiceRowsHtml(items)}</tbody>
 </table>
-<p><strong>Total:</strong> ${CURRENCY.format(total)}</p>
+<p><strong>Pre-Tax Total:</strong> ${CURRENCY.format(total)}</p>
+<p>All totals shown are pre-tax totals. All aerial and explosive items carry a 12% tax in addition to the regular state sales tax.</p>
 <p>Payment is completed in-store at pickup.</p>
 <p>Customer agreed to pickup at selected date/time and understands changes must be communicated by email or phone call.</p>`;
 
@@ -92,7 +93,8 @@ const buildCustomerHtml = ({ orderId, customer, pickupDate, pickupTime, total })
 <p><strong>Pickup Date/Time:</strong> ${pickupDate} ${pickupTime}</p>
 <p><strong>Customer Email:</strong> ${customer.email}</p>
 <p><strong>Customer Phone:</strong> ${customer.phone}</p>
-<p><strong>Estimated Total:</strong> ${CURRENCY.format(total)}</p>
+<p><strong>Estimated Pre-Tax Total:</strong> ${CURRENCY.format(total)}</p>
+<p>All totals shown are pre-tax totals. All aerial and explosive items carry a 12% tax in addition to the regular state sales tax.</p>
 <p>Attached: your invoice PDF.</p>
 <p>By placing this order, you agree to pick up at the selected date and time. Any changes must be communicated by email or phone call.</p>
 <p>Payment happens in-store at pickup.</p>`;

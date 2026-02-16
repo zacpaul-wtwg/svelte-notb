@@ -219,14 +219,14 @@
 							{/each}
 							<div class="totals-card">
 								<div class="totals-row">
-									<span>Totals (before tax)</span>
+									<span>Totals (Pre-Tax)</span>
 									<span class="total">$ {totals.vip.toFixed(2)} <em>VIP</em></span>
 									<span class="total">$ {totals.hiro.toFixed(2)} <em>Hi-Roller</em></span>
 								</div>
 							</div>
 							<p class="tax-note">
-								all aerial and explosive items carry a 12% tax in addition to the regular state
-								sales tax
+								All totals shown are pre-tax totals. All aerial and explosive items carry a 12% tax
+								in addition to the regular state sales tax.
 							</p>
 							<div class="actions">
 								<button class="download-button" type="button" on:click={downloadInvoice}>
