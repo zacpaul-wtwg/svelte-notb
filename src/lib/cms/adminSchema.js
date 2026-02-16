@@ -1,5 +1,4 @@
 export const cmsSections = [
-	{ key: 'hours', label: 'Store Hours', kind: 'object' },
 	{ key: 'regularHoursRanges', label: 'Regular Hours Ranges', kind: 'list' },
 	{ key: 'specialHours', label: 'Special Hours', kind: 'list' },
 	{ key: 'pickupSettings', label: 'Pickup Settings', kind: 'object' },

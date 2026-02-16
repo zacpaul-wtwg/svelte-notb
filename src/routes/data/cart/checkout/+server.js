@@ -88,9 +88,7 @@ const findHoursForDate = (cms, dateValue) => {
 		const dayKey = weekdayKeys[date.getUTCDay()];
 		return { source: 'regularRange', hours: rangeMatches[0]?.hours?.[dayKey] ?? null };
 	}
-
-	const dayKey = weekdayKeys[date.getUTCDay()];
-	return { source: 'regular', hours: cms?.hours?.[dayKey] ?? null };
+	return { source: 'none', hours: null };
 };
 
 const htmlToPlainText = (html) =>
