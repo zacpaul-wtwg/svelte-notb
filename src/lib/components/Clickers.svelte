@@ -2,6 +2,8 @@
 	//cart incrementing and decrementing
 	import { cart } from '$lib/stores.js';
 	import { compare } from '$lib/stores.js';
+	import { cubicOut } from 'svelte/easing';
+	import { tweened } from 'svelte/motion';
 	import {
 		openGlobalCompareModal,
 		openGlobalProductModal,
@@ -14,6 +16,11 @@
 	export let onDetails = null;
 	export let onWishlist = null;
 	export let showWishlist = true;
+	const DETAILS_TAB_ANIMATION_MS = 160;
+	const detailsTabProgress = tweened(0, {
+		duration: DETAILS_TAB_ANIMATION_MS,
+		easing: cubicOut
+	});
 
 	const openDetails = () => {
 		if (onDetails) {
@@ -28,6 +35,14 @@
 			event.preventDefault();
 			openDetails();
 		}
+	};
+
+	const showDetailsTab = () => {
+		detailsTabProgress.set(1);
+	};
+
+	const hideDetailsTab = () => {
+		detailsTabProgress.set(0);
 	};
 
 	const openWishlist = () => {
@@ -125,49 +140,56 @@
 		duration: product.duration,
 		height: product.height
 	};
+	$: detailsTabStyle = `transform: translate(-50%, ${8 - $detailsTabProgress * 20}px); opacity: ${
+		$detailsTabProgress
+	};`;
 </script>
 
 <div class="clicker-container" class:inline>
 	<div class="assembly-shell">
 		<div>
-			<div
-				class="details-pill"
-				role="button"
-				tabindex="0"
-				aria-label={`View details for ${product.title}`}
-				on:click={openDetails}
-				on:keydown={handleDetailsKeydown}
-			>
-				<span class="sr-only">Details</span>
-				<span class="details-icon-set" aria-hidden="true">
-					<svg viewBox="0 0 24 24" role="img" focusable="false">
-						<path
-							fill="currentColor"
-							d="M4 5h16a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1zm1 2v10h14V7H5zm2 8 3.8-4.5 2.9 3.3 2.1-2.5 2.2 3.7H7z"
-						/>
-					</svg>
-					<span class="pipe">|</span>
-					<svg viewBox="0 0 24 24" role="img" focusable="false">
-						<path
-							fill="currentColor"
-							d="M6 5h9a2 2 0 0 1 2 2v2.5l4-2.5v10l-4-2.5V17a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2zm0 2v10h9V7H6z"
-						/>
-					</svg>
-					<span class="pipe">|</span>
-					<svg viewBox="0 0 24 24" role="img" focusable="false">
-						<path
-							fill="currentColor"
-							d="M3 7h11v2H3V7zm0 8h7v2H3v-2zm11.5-6a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5zm4 10a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5z"
-						/>
-					</svg>
-					<span class="pipe">|</span>
-					<svg viewBox="0 0 24 24" role="img" focusable="false">
-						<path
-							fill="currentColor"
-							d="M4 5h16v2H4V5zm0 4h16v2H4V9zm0 4h10v2H4v-2zm0 4h8v2H4v-2z"
-						/>
-					</svg>
-				</span>
+			<div class="details-pill-wrap">
+				<span class="details-tab" aria-hidden="true" style={detailsTabStyle}>CLICK FOR DETAILS</span>
+				<div
+					class="details-pill"
+					role="button"
+					tabindex="0"
+					aria-label={`View details for ${product.title}`}
+					on:click={openDetails}
+					on:keydown={handleDetailsKeydown}
+					on:mouseenter={showDetailsTab}
+					on:mouseleave={hideDetailsTab}
+					on:focus={showDetailsTab}
+					on:blur={hideDetailsTab}
+				>
+					<span class="sr-only">Details</span>
+					<span class="details-icon-set" aria-hidden="true">
+						<svg viewBox="0 0 24 24" role="img" focusable="false">
+							<path
+								fill="currentColor"
+								d="M4 5h16a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1zm1 2v10h14V7H5zm2 8 3.8-4.5 2.9 3.3 2.1-2.5 2.2 3.7H7z"
+							/>
+						</svg>
+						<svg viewBox="0 0 24 24" role="img" focusable="false">
+							<path
+								fill="currentColor"
+								d="M6 5h9a2 2 0 0 1 2 2v2.5l4-2.5v10l-4-2.5V17a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2zm0 2v10h9V7H6z"
+							/>
+						</svg>
+						<svg viewBox="0 0 24 24" role="img" focusable="false">
+							<path
+								fill="currentColor"
+								d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm0 3.4a1.2 1.2 0 1 1-1.2 1.2A1.2 1.2 0 0 1 12 5.4zm1.6 12.2h-3.2v-1.8h.7v-4h-.7V10h2.5v5.8h.7z"
+							/>
+						</svg>
+						<svg viewBox="0 0 24 24" role="img" focusable="false">
+							<path
+								fill="currentColor"
+								d="M4 5h16v2H4V5zm0 4h16v2H4V9zm0 4h10v2H4v-2zm0 4h8v2H4v-2z"
+							/>
+						</svg>
+					</span>
+				</div>
 			</div>
 			<div class="compare-row">
 				<button class="compare-pill compare-link-pill" type="button" on:click={openCompare}>
@@ -360,7 +382,7 @@
 		display: block;
 		width: 148px;
 		text-align: center;
-		padding: 0 2px;
+		padding: 0 1px;
 		border: 1px solid var(--grey);
 		text-transform: uppercase;
 		letter-spacing: 0.04em;
@@ -381,26 +403,45 @@
 			transform 0.2s ease,
 			box-shadow 0.2s ease;
 		box-shadow: 3px 3px 0 var(--yellow-accent);
+		position: relative;
+		z-index: 2;
+	}
+	.details-pill-wrap {
+		position: relative;
+		width: 148px;
+		height: 34px;
+	}
+	.details-tab {
+		position: absolute;
+		left: 50%;
+		top: -8px;
+		padding: 1px 8px;
+		font-size: 0.6em;
+		letter-spacing: 0.06em;
+		font-weight: 700;
+		text-transform: uppercase;
+		background: var(--yellow-accent);
+		color: var(--grey);
+		border: 1px solid var(--grey);
+		box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.2);
+		white-space: nowrap;
+		pointer-events: none;
+		z-index: 1;
 	}
 	.details-icon-set {
 		display: inline-flex;
 		align-items: center;
 		justify-content: center;
-		gap: 0.1em;
+		gap: 0;
 		width: 100%;
 		height: 100%;
 		line-height: 1;
 	}
 	.details-icon-set svg {
-		width: 21px;
-		height: 21px;
+		width: 24px;
+		height: 24px;
 		flex: 0 0 auto;
 		display: block;
-	}
-	.details-icon-set .pipe {
-		font-size: 0.95em;
-		line-height: 1;
-		opacity: 0.9;
 	}
 	.sr-only {
 		position: absolute;
