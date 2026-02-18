@@ -360,6 +360,7 @@
 		display: block;
 		width: 148px;
 		text-align: center;
+		padding: 0 2px;
 		border: 1px solid var(--grey);
 		text-transform: uppercase;
 		letter-spacing: 0.04em;
@@ -384,17 +385,22 @@
 	.details-icon-set {
 		display: inline-flex;
 		align-items: center;
-		gap: 0.3em;
+		justify-content: center;
+		gap: 0.1em;
+		width: 100%;
+		height: 100%;
+		line-height: 1;
 	}
 	.details-icon-set svg {
-		width: 13px;
-		height: 13px;
+		width: 21px;
+		height: 21px;
+		flex: 0 0 auto;
 		display: block;
 	}
 	.details-icon-set .pipe {
-		font-size: 0.8em;
+		font-size: 0.95em;
 		line-height: 1;
-		opacity: 0.75;
+		opacity: 0.9;
 	}
 	.sr-only {
 		position: absolute;
