@@ -1,4 +1,5 @@
 <script>
+	import { onMount } from 'svelte';
 	import { fly, fade, slide } from 'svelte/transition';
 	import MatchGroup from '$lib/matchGroup.svelte';
 	import { filterProducts, sortProducts } from '$lib/filter-utils';
@@ -23,15 +24,22 @@
 		{ display: 'NEWEST FIRST', value: 'newestFirst' },
 		{ display: 'OLDEST FIRST', value: 'oldestFirst' }
 	];
+	const FILTER_STORAGE_KEY = 'productPageFilters:v1';
 
 	$: categories = Object.keys(availableFilters);
-	$: selectedFilters = Object.keys(availableFilters).reduce(
-		(value, key) => ({
-			...value,
-			[key]: []
-		}),
-		{}
-	);
+	let selectedFilters = {};
+	$: categoriesSignature = categories.join('|');
+	let lastCategoriesSignature = '';
+	$: if (categoriesSignature !== lastCategoriesSignature) {
+		const next = {};
+		for (const key of categories) {
+			const validValues = Array.isArray(availableFilters[key]) ? availableFilters[key] : [];
+			const existing = Array.isArray(selectedFilters[key]) ? selectedFilters[key] : [];
+			next[key] = existing.filter((value) => validValues.includes(value));
+		}
+		selectedFilters = next;
+		lastCategoriesSignature = categoriesSignature;
+	}
 	$: readyFilters = Object.entries(selectedFilters || {}).filter(
 		([_, values]) => values.length > 0
 	);
@@ -100,6 +108,31 @@
 	);
 	$: sortedProducts = sortProducts(filteredProducts, sortMethod);
 	let highlightDepartments = false;
+	let hasLoadedPersistedFilters = false;
+	const clampRangePair = (minValue, maxValue, bounds) => {
+		if (!bounds) return { min: 0, max: 0 };
+		let min = Number(minValue);
+		let max = Number(maxValue);
+		if (!Number.isFinite(min)) min = bounds.min;
+		if (!Number.isFinite(max)) max = bounds.max;
+		min = Math.max(bounds.min, Math.min(bounds.max, min));
+		max = Math.max(bounds.min, Math.min(bounds.max, max));
+		if (min > max) [min, max] = [max, min];
+		return { min, max };
+	};
+	const resetFilters = () => {
+		pricing = 'ALL PRICING';
+		department = 'FEATURED';
+		sortMethod = 'title';
+		searchString = '';
+		selectedFilters = categories.reduce((acc, key) => ({ ...acc, [key]: [] }), {});
+		heightMin = heightBounds.min;
+		heightMax = heightBounds.max;
+		durationMin = durationBounds.min;
+		durationMax = durationBounds.max;
+		shotMin = shotBounds.min;
+		shotMax = shotBounds.max;
+	};
 	const showAllProductsFromFeatured = () => {
 		filter = true;
 		department = 'ALL DEPARTMENTS';
@@ -108,6 +141,63 @@
 			window.setTimeout(() => (highlightDepartments = false), 4000);
 		}
 	};
+	onMount(() => {
+		try {
+			const raw = localStorage.getItem(FILTER_STORAGE_KEY);
+			if (!raw) return;
+			const saved = JSON.parse(raw);
+			if (!saved || typeof saved !== 'object') return;
+
+			if (pricingOptions.includes(saved.pricing)) pricing = saved.pricing;
+			if (saved.department && typeof saved.department === 'string') department = saved.department;
+			if (sortOptions.some((option) => option.value === saved.sortMethod) || saved.sortMethod === 'title') {
+				sortMethod = saved.sortMethod;
+			}
+			if (typeof saved.searchString === 'string') searchString = saved.searchString;
+
+			if (saved.selectedFilters && typeof saved.selectedFilters === 'object') {
+				const next = {};
+				for (const key of categories) {
+					const options = Array.isArray(availableFilters[key]) ? availableFilters[key] : [];
+					const values = Array.isArray(saved.selectedFilters[key]) ? saved.selectedFilters[key] : [];
+					next[key] = values.filter((value) => options.includes(value));
+				}
+				selectedFilters = next;
+			}
+
+			const savedHeight = clampRangePair(saved.heightMin, saved.heightMax, heightBounds);
+			heightMin = savedHeight.min;
+			heightMax = savedHeight.max;
+			const savedDuration = clampRangePair(saved.durationMin, saved.durationMax, durationBounds);
+			durationMin = savedDuration.min;
+			durationMax = savedDuration.max;
+			const savedShot = clampRangePair(saved.shotMin, saved.shotMax, shotBounds);
+			shotMin = savedShot.min;
+			shotMax = savedShot.max;
+		} catch {
+			// Ignore malformed local storage payloads.
+		} finally {
+			hasLoadedPersistedFilters = true;
+		}
+	});
+	$: if (typeof window !== 'undefined' && hasLoadedPersistedFilters) {
+		localStorage.setItem(
+			FILTER_STORAGE_KEY,
+			JSON.stringify({
+				pricing,
+				department,
+				sortMethod,
+				searchString,
+				selectedFilters,
+				heightMin,
+				heightMax,
+				durationMin,
+				durationMax,
+				shotMin,
+				shotMax
+			})
+		);
+	}
 	let filter = false;
 	// #endregion
 </script>
@@ -273,6 +363,7 @@
 		{/if}
 
 		<div class="boxes filter-group bottom-group">
+			<button type="button" class="reset-filters" on:click={resetFilters}>Reset Filters</button>
 			{#each categories as category}
 				<details class="filter-group">
 					<summary>{category}</summary>
@@ -466,6 +557,22 @@
 	}
 	.filter-group label {
 		display: block;
+	}
+	.reset-filters {
+		width: 100%;
+		margin-top: 0.5em;
+		padding: 0.45em 0.6em;
+		font-family: Langdon;
+		font-size: 1em;
+		text-transform: uppercase;
+		background: var(--white);
+		color: var(--grey);
+		border: 1px solid var(--grey);
+		box-shadow: none;
+	}
+	.reset-filters:hover {
+		background: var(--off-white);
+		color: var(--grey);
 	}
 	.range-group {
 		padding: 0.4em 0.2em 0.6em;
