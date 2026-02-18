@@ -9,6 +9,8 @@
 	export let mode = null;
 	export let checkoutHref = '/product/cart/checkout';
 	export let backHref = '/product/cart';
+	export let onCheckout = null;
+	export let onBackToCart = null;
 
 	if (typeof window !== 'undefined') {
 		$cart = JSON.parse(localStorage.getItem('cart'));
@@ -147,6 +149,26 @@
 			downloadingInvoice = false;
 		}
 	};
+
+	const openCheckout = () => {
+		if (onCheckout) {
+			onCheckout();
+			return;
+		}
+		if (typeof window !== 'undefined') {
+			window.location.href = checkoutHref;
+		}
+	};
+
+	const backToCart = () => {
+		if (onBackToCart) {
+			onBackToCart();
+			return;
+		}
+		if (typeof window !== 'undefined') {
+			window.location.href = backHref;
+		}
+	};
 </script>
 
 <div class="modal-page">
@@ -163,7 +185,9 @@
 							<div class="wishlist-cards">
 								{#if isCheckoutView}
 									<div class="checkout-nav print-hide">
-										<a class="back-link" href={backHref}>Back to Cart</a>
+										<button class="back-link" type="button" on:click={backToCart}>
+											Back to Cart
+										</button>
 									</div>
 									<div class="totals-card">
 										<div class="totals-row">
@@ -304,7 +328,7 @@
 										<button class="download-button" type="button" on:click={downloadInvoice}>
 											{downloadingInvoice ? 'Generating...' : 'Download Invoice'}
 										</button>
-										<a class="checkout-link" href={checkoutHref}>Checkout</a>
+										<button class="checkout-link" type="button" on:click={openCheckout}>Checkout</button>
 									</div>
 									{#if checkoutError}
 										<p class="checkout-error">{checkoutError}</p>
@@ -314,7 +338,9 @@
 						{:else}
 							{#if isCheckoutView}
 								<div class="checkout-nav print-hide">
-									<a class="back-link" href={backHref}>Back to Cart</a>
+									<button class="back-link" type="button" on:click={backToCart}>
+										Back to Cart
+									</button>
 								</div>
 							{/if}
 							<h2>{isCheckoutView ? 'No Items to Checkout' : 'No Items in Cart'}</h2>

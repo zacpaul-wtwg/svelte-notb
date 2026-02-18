@@ -5,6 +5,7 @@ const initialState = {
 	productLoading: false,
 	productError: '',
 	wishlistOpen: false,
+	wishlistMode: 'list',
 	compareOpen: false
 };
 
@@ -22,7 +23,8 @@ export const closeGlobalProductModal = () => {
 export const closeGlobalWishlistModal = () => {
 	modalState.update((state) => ({
 		...state,
-		wishlistOpen: false
+		wishlistOpen: false,
+		wishlistMode: 'list'
 	}));
 };
 
@@ -37,15 +39,26 @@ export const closeAllGlobalModals = () => {
 	modalState.set({ ...initialState });
 };
 
-export const openGlobalWishlistModal = () => {
+export const openGlobalWishlistModal = (mode = 'list') => {
 	if (typeof window === 'undefined') return;
+	const resolvedMode = mode === 'checkout' ? 'checkout' : 'list';
 	modalState.update((state) => ({
 		...state,
 		compareOpen: false,
 		product: null,
 		productLoading: false,
 		productError: '',
-		wishlistOpen: true
+		wishlistOpen: true,
+		wishlistMode: resolvedMode
+	}));
+};
+
+export const setGlobalWishlistMode = (mode = 'list') => {
+	const resolvedMode = mode === 'checkout' ? 'checkout' : 'list';
+	modalState.update((state) => ({
+		...state,
+		wishlistOpen: true,
+		wishlistMode: resolvedMode
 	}));
 };
 

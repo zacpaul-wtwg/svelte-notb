@@ -6,7 +6,7 @@
 	import { fade, fly } from 'svelte/transition';
 	import { page } from '$app/stores';
 	import { get } from 'svelte/store';
-	import { openGlobalCompareModal } from '$lib/modal-store';
+	import { openGlobalCompareModal, openGlobalWishlistModal } from '$lib/modal-store';
 	import { fetchRuntimeCms } from '$lib/cms/runtime-client';
 
 	let showMobileMenu = false;
@@ -133,6 +133,11 @@
 	const handleCompareNavClick = (event) => {
 		event.preventDefault();
 		openGlobalCompareModal();
+	};
+
+	const handleCartNavClick = (event) => {
+		event.preventDefault();
+		openGlobalWishlistModal('list');
 	};
 
 	const parseTimeToMinutes = (value) => {
@@ -323,10 +328,10 @@
 				</button>
 			</div>
 			<div class="top-item">
-				<a href="/product/cart" class="utility-chip">
+				<button type="button" class="super-nav-button utility-chip" on:click={handleCartNavClick}>
 					<img src="/cart.svg" alt="cart icon" class="svg-filter-white cart" />
 					<span>Cart</span>
-				</a>
+				</button>
 			</div>
 		</div>
 	</div>

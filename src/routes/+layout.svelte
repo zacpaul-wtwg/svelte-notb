@@ -13,7 +13,8 @@
 		closeGlobalCompareModal,
 		closeGlobalProductModal,
 		closeGlobalWishlistModal,
-		modalState
+		modalState,
+		setGlobalWishlistMode
 	} from '$lib/modal-store';
 	import { fetchRuntimeCms } from '$lib/cms/runtime-client';
 
@@ -59,7 +60,12 @@
 {/if}
 
 {#if $modalState.wishlistOpen}
-	<WishlistModal onClose={closeGlobalWishlistModal} />
+	<WishlistModal
+		onClose={closeGlobalWishlistModal}
+		mode={$modalState.wishlistMode}
+		onCheckout={() => setGlobalWishlistMode('checkout')}
+		onBackToCart={() => setGlobalWishlistMode('list')}
+	/>
 {/if}
 
 {#if $modalState.compareOpen && $page.url.pathname !== '/compare'}
