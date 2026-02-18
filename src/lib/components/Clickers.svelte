@@ -138,7 +138,36 @@
 				on:click={openDetails}
 				on:keydown={handleDetailsKeydown}
 			>
-				Details
+				<span class="sr-only">Details</span>
+				<span class="details-icon-set" aria-hidden="true">
+					<svg viewBox="0 0 24 24" role="img" focusable="false">
+						<path
+							fill="currentColor"
+							d="M4 5h16a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1zm1 2v10h14V7H5zm2 8 3.8-4.5 2.9 3.3 2.1-2.5 2.2 3.7H7z"
+						/>
+					</svg>
+					<span class="pipe">|</span>
+					<svg viewBox="0 0 24 24" role="img" focusable="false">
+						<path
+							fill="currentColor"
+							d="M6 5h9a2 2 0 0 1 2 2v2.5l4-2.5v10l-4-2.5V17a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2zm0 2v10h9V7H6z"
+						/>
+					</svg>
+					<span class="pipe">|</span>
+					<svg viewBox="0 0 24 24" role="img" focusable="false">
+						<path
+							fill="currentColor"
+							d="M3 7h11v2H3V7zm0 8h7v2H3v-2zm11.5-6a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5zm4 10a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5z"
+						/>
+					</svg>
+					<span class="pipe">|</span>
+					<svg viewBox="0 0 24 24" role="img" focusable="false">
+						<path
+							fill="currentColor"
+							d="M4 5h16v2H4V5zm0 4h16v2H4V9zm0 4h10v2H4v-2zm0 4h8v2H4v-2z"
+						/>
+					</svg>
+				</span>
 			</div>
 			<div class="compare-row">
 				<button class="compare-pill compare-link-pill" type="button" on:click={openCompare}>
@@ -329,7 +358,7 @@
 	.details-pill {
 		height: 34px;
 		display: block;
-		width: 138px;
+		width: 148px;
 		text-align: center;
 		border: 1px solid var(--grey);
 		text-transform: uppercase;
@@ -351,6 +380,32 @@
 			transform 0.2s ease,
 			box-shadow 0.2s ease;
 		box-shadow: 3px 3px 0 var(--yellow-accent);
+	}
+	.details-icon-set {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.3em;
+	}
+	.details-icon-set svg {
+		width: 13px;
+		height: 13px;
+		display: block;
+	}
+	.details-icon-set .pipe {
+		font-size: 0.8em;
+		line-height: 1;
+		opacity: 0.75;
+	}
+	.sr-only {
+		position: absolute;
+		width: 1px;
+		height: 1px;
+		padding: 0;
+		margin: -1px;
+		overflow: hidden;
+		clip: rect(0, 0, 0, 0);
+		white-space: nowrap;
+		border: 0;
 	}
 	.details-pill:hover {
 		background: var(--grey);
