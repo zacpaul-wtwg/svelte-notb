@@ -95,8 +95,10 @@
 					100 - clampPercent(shotMax, shotBounds.min, shotBounds.max)
 				}%`
 			: '';
+	$: effectiveDepartment =
+		!showAllProducts && department === 'FEATURED' ? 'ALL DEPARTMENTS' : department;
 	$: filteredProducts = (products || []).filter(
-		filterProducts(searchStrings, readyFilters, pricing, department, rangeFilters)
+		filterProducts(searchStrings, readyFilters, pricing, effectiveDepartment, rangeFilters)
 	);
 	$: sortedProducts = sortProducts(filteredProducts, sortMethod);
 	$: featuredProducts = sortedProducts.filter((product) => isFeaturedProduct(product));
@@ -327,7 +329,9 @@
 					on:click|stopPropagation={() => {
 						showAllProducts = true;
 						filter = true;
-						department = 'ALL DEPARTMENTS';
+						if (department === 'FEATURED') {
+							department = 'ALL DEPARTMENTS';
+						}
 						highlightDepartments = true;
 						if (typeof window !== 'undefined') {
 							window.setTimeout(() => (highlightDepartments = false), 4000);
