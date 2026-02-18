@@ -104,29 +104,31 @@ const htmlToPlainText = (html) =>
 		.replace(/\s+/g, ' ')
 		.trim();
 
-const buildManagementHtml = ({ orderId, customer, pickupDate, pickupTime, items, total }) => `
+const buildManagementHtml = ({ orderId, customer, pickupDate, pickupTime, items, totals }) => `
 <h2>New Cart Checkout Request (${orderId})</h2>
 <p><strong>Customer Email:</strong> ${customer.email}</p>
 <p><strong>Customer Phone:</strong> ${customer.phone}</p>
 <p><strong>Requested Pickup:</strong> ${pickupDate} ${pickupTime}</p>
 <table border="1" cellpadding="6" cellspacing="0" style="border-collapse:collapse">
   <thead>
-    <tr><th>ID</th><th>Item</th><th>Deal</th><th>Qty</th><th>Unit</th><th>Line Total</th></tr>
+    <tr><th>ID</th><th>Item</th><th>Deal</th><th>Qty</th><th>VIP Unit</th><th>VIP Total</th><th>Hi-Roller Unit</th><th>Hi-Roller Total</th></tr>
   </thead>
   <tbody>${renderInvoiceRowsHtml(items)}</tbody>
 </table>
-<p><strong>Pre-Tax Total:</strong> ${CURRENCY.format(total)}</p>
+<p><strong>VIP Pre-Tax Total:</strong> ${CURRENCY.format(totals.vip)}</p>
+<p><strong>Hi-Roller Pre-Tax Total:</strong> ${CURRENCY.format(totals.hiro)}</p>
 <p>All totals shown are pre-tax totals. All aerial and explosive items carry a 12% tax in addition to the regular state sales tax.</p>
 <p>Payment is completed in-store at pickup.</p>
 <p>Customer agreed to pickup at selected date/time and understands changes must be communicated by email or phone call.</p>`;
 
-const buildCustomerHtml = ({ orderId, customer, pickupDate, pickupTime, total }) => `
+const buildCustomerHtml = ({ orderId, customer, pickupDate, pickupTime, totals }) => `
 <h2>Your North of the Border Cart Request (${orderId})</h2>
 <p>Thanks for submitting your cart. Management received your packing list.</p>
 <p><strong>Pickup Date/Time:</strong> ${pickupDate} ${pickupTime}</p>
 <p><strong>Customer Email:</strong> ${customer.email}</p>
 <p><strong>Customer Phone:</strong> ${customer.phone}</p>
-<p><strong>Estimated Pre-Tax Total:</strong> ${CURRENCY.format(total)}</p>
+<p><strong>Estimated VIP Pre-Tax Total:</strong> ${CURRENCY.format(totals.vip)}</p>
+<p><strong>Estimated Hi-Roller Pre-Tax Total:</strong> ${CURRENCY.format(totals.hiro)}</p>
 <p>All totals shown are pre-tax totals. All aerial and explosive items carry a 12% tax in addition to the regular state sales tax.</p>
 <p>Attached: your invoice PDF.</p>
 <p>By placing this order, you agree to pick up at the selected date and time. Any changes must be communicated by email or phone call.</p>
@@ -231,7 +233,7 @@ export async function POST({ request, fetch }) {
 			);
 		}
 
-		const total = computeInvoiceTotal(items);
+		const totals = computeInvoiceTotal(items);
 		const orderId = `NOTB-${Date.now()}`;
 		const createdAt = new Date().toISOString();
 		const customer = { email, phone };
@@ -243,20 +245,20 @@ export async function POST({ request, fetch }) {
 			pickupDate,
 			pickupTime,
 			items,
-			total
+			totals
 		});
 
 		await sendResendEmail({
 			to: RESOLVED_MANAGEMENT_EMAILS,
 			subject: `New Cart Checkout ${orderId}`,
-			html: buildManagementHtml({ orderId, customer, pickupDate, pickupTime, items, total }),
+			html: buildManagementHtml({ orderId, customer, pickupDate, pickupTime, items, totals }),
 			replyTo: email
 		});
 
 		await sendResendEmail({
 			to: [email],
 			subject: `Your North of the Border Cart Request ${orderId}`,
-			html: buildCustomerHtml({ orderId, customer, pickupDate, pickupTime, total }),
+			html: buildCustomerHtml({ orderId, customer, pickupDate, pickupTime, totals }),
 			attachments: [
 				{
 					filename: `${orderId}.pdf`,
@@ -269,7 +271,10 @@ export async function POST({ request, fetch }) {
 		return json({
 			ok: true,
 			orderId,
-			total: Number(total.toFixed(2))
+			totals: {
+				vip: Number(totals.vip.toFixed(2)),
+				hiro: Number(totals.hiro.toFixed(2))
+			}
 		});
 	} catch (error) {
 		return json(

@@ -16,7 +16,7 @@ export async function POST({ request }) {
 		}
 
 		const now = new Date().toISOString();
-		const total = computeInvoiceTotal(items);
+		const totals = computeInvoiceTotal(items);
 		const pdfBase64 = await generateInvoicePdfBase64({
 			orderId: `CART-PREVIEW-${Date.now()}`,
 			createdAt: now,
@@ -24,7 +24,7 @@ export async function POST({ request }) {
 			pickupDate: null,
 			pickupTime: null,
 			items,
-			total
+			totals
 		});
 		const bytes = Buffer.from(pdfBase64, 'base64');
 

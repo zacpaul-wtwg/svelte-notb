@@ -169,7 +169,8 @@
 										<div class="totals-row">
 											<span>Checkout Summary</span>
 											<span class="total">{visibleCart.length} items</span>
-											<span class="total">$ {totals.vip.toFixed(2)} <em>Pre-Tax</em></span>
+											<span class="total">$ {totals.vip.toFixed(2)} <em>VIP</em></span>
+											<span class="total">$ {totals.hiro.toFixed(2)} <em>Hi-Roller</em></span>
 										</div>
 									</div>
 									<p class="tax-note">

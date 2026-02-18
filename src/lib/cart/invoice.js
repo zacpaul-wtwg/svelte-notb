@@ -26,29 +26,39 @@ export const sanitizeCartItems = (items) => {
 			const dealPrice = Math.max(0, toFiniteNumber(item?.price, 0));
 			if (!id || !title || quantity <= 0 || dealPrice <= 0) return null;
 			const divisor = getDealDivisor(deal);
-			const unitPrice = dealPrice / divisor;
-			const lineTotal = unitPrice * quantity;
+			const vipUnitPrice = dealPrice / divisor;
+			const vipLineTotal = vipUnitPrice * quantity;
+			const hiRollerUnitPrice = dealPrice / 3;
+			const hiRollerLineTotal = hiRollerUnitPrice * quantity;
 			return {
 				id,
 				title,
 				deal,
 				quantity,
 				dealPrice,
-				unitPrice,
-				lineTotal
+				vipUnitPrice,
+				vipLineTotal,
+				hiRollerUnitPrice,
+				hiRollerLineTotal
 			};
 		})
 		.filter(Boolean);
 };
 
 export const computeInvoiceTotal = (items) =>
-	(items || []).reduce((sum, item) => sum + Number(item?.lineTotal || 0), 0);
+	(items || []).reduce(
+		(sum, item) => ({
+			vip: sum.vip + Number(item?.vipLineTotal || 0),
+			hiro: sum.hiro + Number(item?.hiRollerLineTotal || 0)
+		}),
+		{ vip: 0, hiro: 0 }
+	);
 
 export const renderInvoiceRowsHtml = (items) =>
 	(items || [])
 		.map(
 			(item) =>
-				`<tr><td>${item.id}</td><td>${item.title}</td><td>${item.deal || '-'} (${CURRENCY.format(item.dealPrice || 0)})</td><td>${item.quantity}</td><td>${CURRENCY.format(item.unitPrice)}</td><td>${CURRENCY.format(item.lineTotal)}</td></tr>`
+				`<tr><td>${item.id}</td><td>${item.title}</td><td>${item.deal || '-'} (${CURRENCY.format(item.dealPrice || 0)})</td><td>${item.quantity}</td><td>${CURRENCY.format(item.vipUnitPrice)}</td><td>${CURRENCY.format(item.vipLineTotal)}</td><td>${CURRENCY.format(item.hiRollerUnitPrice)}</td><td>${CURRENCY.format(item.hiRollerLineTotal)}</td></tr>`
 		)
 		.join('');
 
@@ -95,7 +105,7 @@ export const generateInvoicePdfBase64 = async ({
 	pickupDate,
 	pickupTime,
 	items,
-	total
+	totals
 }) => {
 	const pdfDoc = await PDFDocument.create();
 	const page = pdfDoc.addPage([612, 792]);
@@ -190,12 +200,14 @@ export const generateInvoicePdfBase64 = async ({
 	y -= 2;
 
 	const columns = [
-		{ key: 'id', title: 'ID', width: 50, align: 'left' },
-		{ key: 'title', title: 'Item', width: 170, align: 'left' },
-		{ key: 'deal', title: 'Deal', width: 125, align: 'left' },
-		{ key: 'quantity', title: 'Qty', width: 35, align: 'right' },
-		{ key: 'unitPrice', title: 'Unit', width: 75, align: 'right' },
-		{ key: 'lineTotal', title: 'Line Total', width: 85, align: 'right' }
+		{ key: 'id', title: 'ID', width: 35, align: 'left' },
+		{ key: 'title', title: 'Item', width: 130, align: 'left' },
+		{ key: 'deal', title: 'Deal', width: 90, align: 'left' },
+		{ key: 'quantity', title: 'Qty', width: 25, align: 'right' },
+		{ key: 'vipUnitPrice', title: 'VIP Unit', width: 60, align: 'right' },
+		{ key: 'vipLineTotal', title: 'VIP Total', width: 65, align: 'right' },
+		{ key: 'hiRollerUnitPrice', title: 'Hiro Unit', width: 60, align: 'right' },
+		{ key: 'hiRollerLineTotal', title: 'Hiro Total', width: 65, align: 'right' }
 	];
 	const rowHeight = 21;
 	let rowTop = y;
@@ -229,10 +241,13 @@ export const generateInvoicePdfBase64 = async ({
 		x = margin;
 		for (const col of columns) {
 			let value = item[col.key] ?? '-';
-			if (col.key === 'unitPrice' || col.key === 'lineTotal') value = CURRENCY.format(value);
+			if (col.key === 'vipUnitPrice' || col.key === 'vipLineTotal') value = CURRENCY.format(value);
+			if (col.key === 'hiRollerUnitPrice' || col.key === 'hiRollerLineTotal') {
+				value = CURRENCY.format(value);
+			}
 			if (col.key === 'quantity') value = String(value);
 			if (col.key === 'deal') value = `${item.deal || '-'} (${CURRENCY.format(item.dealPrice || 0)})`;
-			if (col.key === 'title') value = clampText(value, 40);
+			if (col.key === 'title') value = clampText(value, 28);
 			if (col.key === 'deal') value = clampText(value, 22);
 			const text = String(value);
 			const textX =
@@ -245,16 +260,26 @@ export const generateInvoicePdfBase64 = async ({
 
 	page.drawRectangle({ x: margin, y: rowTop - 1, width: contentWidth, height: 1, color: primary });
 	y = rowTop - 18;
-	const totalText = `Pre-Tax Total: ${CURRENCY.format(total || 0)}`;
-	const totalWidth = fontBold.widthOfTextAtSize(totalText, 15);
-	page.drawText(totalText, {
-		x: margin + contentWidth - totalWidth,
+	const vipTotalText = `VIP Pre-Tax Total: ${CURRENCY.format(totals?.vip || 0)}`;
+	const hiroTotalText = `Hi-Roller Pre-Tax Total: ${CURRENCY.format(totals?.hiro || 0)}`;
+	const vipTotalWidth = fontBold.widthOfTextAtSize(vipTotalText, 13);
+	const hiroTotalWidth = fontBold.widthOfTextAtSize(hiroTotalText, 13);
+	page.drawText(vipTotalText, {
+		x: margin + contentWidth - vipTotalWidth,
 		y,
-		size: 15,
+		size: 13,
 		font: fontBold,
 		color: primary
 	});
-	y -= 26;
+	y -= 18;
+	page.drawText(hiroTotalText, {
+		x: margin + contentWidth - hiroTotalWidth,
+		y,
+		size: 13,
+		font: fontBold,
+		color: primary
+	});
+	y -= 22;
 
 	const legalHeader = 'Important Information';
 	const legalPoints = [
