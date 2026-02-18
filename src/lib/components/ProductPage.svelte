@@ -95,8 +95,11 @@
 					100 - clampPercent(shotMax, shotBounds.min, shotBounds.max)
 				}%`
 			: '';
-	$: effectiveDepartment =
-		!showAllProducts && department === 'FEATURED' ? 'ALL DEPARTMENTS' : department;
+	$: isFeaturedOnlyMode = !showAllProducts && department === 'FEATURED';
+	$: effectiveDepartment = isFeaturedOnlyMode ? 'ALL DEPARTMENTS' : department;
+	$: if (showAllProducts && department === 'FEATURED') {
+		department = 'ALL DEPARTMENTS';
+	}
 	$: filteredProducts = (products || []).filter(
 		filterProducts(searchStrings, readyFilters, pricing, effectiveDepartment, rangeFilters)
 	);
