@@ -1,7 +1,7 @@
 <script>
 	import { fly, fade, slide } from 'svelte/transition';
 	import MatchGroup from '$lib/matchGroup.svelte';
-	import { filterProducts, isFeaturedProduct, sortProducts } from '$lib/filter-utils';
+	import { filterProducts, sortProducts } from '$lib/filter-utils';
 	import SectionHeader from '$lib/components/SectionHeader.svelte';
 	import TitleBar from '$lib/components/TitleBar.svelte';
 	import ProductCard from '$lib/components/ProductCard.svelte';
@@ -95,52 +95,19 @@
 					100 - clampPercent(shotMax, shotBounds.min, shotBounds.max)
 				}%`
 			: '';
-	$: isFeaturedOnlyMode = !showAllProducts && department === 'FEATURED';
-	$: effectiveDepartment = isFeaturedOnlyMode ? 'ALL DEPARTMENTS' : department;
-	$: if (showAllProducts && department === 'FEATURED') {
-		department = 'ALL DEPARTMENTS';
-	}
 	$: filteredProducts = (products || []).filter(
-		filterProducts(searchStrings, readyFilters, pricing, effectiveDepartment, rangeFilters)
+		filterProducts(searchStrings, readyFilters, pricing, department, rangeFilters)
 	);
 	$: sortedProducts = sortProducts(filteredProducts, sortMethod);
-	$: featuredProducts = sortedProducts.filter((product) => isFeaturedProduct(product));
-	let showAllProducts = false;
 	let highlightDepartments = false;
-	let hasAutoExpandedFromFilter = false;
-	const isRangeDefault = (valueMin, valueMax, bounds) =>
-		valueMin === bounds?.min && valueMax === bounds?.max;
-	const enterAllProductsMode = ({ highlightDepartment = false } = {}) => {
-		showAllProducts = true;
-		if (department === 'FEATURED') {
-			department = 'ALL DEPARTMENTS';
-		}
-		if (highlightDepartment) {
-			highlightDepartments = true;
-			if (typeof window !== 'undefined') {
-				window.setTimeout(() => (highlightDepartments = false), 4000);
-			}
+	const showAllProductsFromFeatured = () => {
+		filter = true;
+		department = 'ALL DEPARTMENTS';
+		highlightDepartments = true;
+		if (typeof window !== 'undefined') {
+			window.setTimeout(() => (highlightDepartments = false), 4000);
 		}
 	};
-	$: visibleProducts = showAllProducts ? sortedProducts : featuredProducts;
-	$: hasSearchFilter = searchString.trim().length > 0;
-	$: hasPricingFilter = pricing !== 'ALL PRICING';
-	$: hasDepartmentFilter = !['FEATURED', 'ALL DEPARTMENTS'].includes(department);
-	$: hasAttributeFilters = readyFilters.length > 0;
-	$: hasRangeFilter =
-		!isRangeDefault(heightMin, heightMax, heightBounds) ||
-		!isRangeDefault(durationMin, durationMax, durationBounds) ||
-		!isRangeDefault(shotMin, shotMax, shotBounds);
-	$: hasActiveFilters =
-		hasSearchFilter ||
-		hasPricingFilter ||
-		hasDepartmentFilter ||
-		hasAttributeFilters ||
-		hasRangeFilter;
-	$: if (!showAllProducts && !hasAutoExpandedFromFilter && hasActiveFilters) {
-		hasAutoExpandedFromFilter = true;
-		enterAllProductsMode();
-	}
 	let filter = false;
 	// #endregion
 </script>
@@ -356,22 +323,19 @@
 	</div>
 
 	<div class="card-container {filter ? 'no-scroll' : 'scroll'}">
-		{#if !showAllProducts}
+		{#if department === 'FEATURED'}
 			<div class="load-all" transition:slide={{ duration: 300 }}>
-				<p>Showing featured products only.</p>
+				<p>Showing featured products only via Department filter.</p>
 				<button
 					type="button"
 					class="load-all-button"
-					on:click|stopPropagation={() => {
-						filter = true;
-						enterAllProductsMode({ highlightDepartment: true });
-					}}
+					on:click|stopPropagation={showAllProductsFromFeatured}
 				>
 					See All Products
 				</button>
 			</div>
 		{/if}
-		{#each visibleProducts as product}
+		{#each sortedProducts as product}
 			<ProductCard {product} />
 		{/each}
 	</div>
