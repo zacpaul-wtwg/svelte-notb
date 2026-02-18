@@ -13,11 +13,11 @@
 	$: departmentsAlphabetical = [...departments].sort();
 
 	// #region filters
-	$: pricing = 'ALL PRICING';
-	$: pricingOptions = ['ALL PRICING', '2 FOR', '3 FOR'];
-	$: department = 'FEATURED';
-	$: sortMethod = 'title';
-	$: sortOptions = [
+	let pricing = 'ALL PRICING';
+	const pricingOptions = ['ALL PRICING', '2 FOR', '3 FOR'];
+	let department = 'FEATURED';
+	let sortMethod = 'title';
+	const sortOptions = [
 		{ display: 'LOWEST PRICE FIRST', value: 'lowestPriceFirst' },
 		{ display: 'HIGHEST PRICE FIRST', value: 'highestPriceFirst' },
 		{ display: 'NEWEST FIRST', value: 'newestFirst' },
@@ -35,7 +35,7 @@
 	$: readyFilters = Object.entries(selectedFilters || {}).filter(
 		([_, values]) => values.length > 0
 	);
-	$: searchString = '';
+	let searchString = '';
 	$: searchStrings = searchString.toLowerCase().split(' ');
 	const getRange = (items, key, capMax) => {
 		const values = (items || []).map((item) => item?.[key]).filter((v) => Number.isFinite(v));
@@ -107,8 +107,41 @@
 	$: featuredProducts = sortedProducts.filter((product) => isFeaturedProduct(product));
 	let showAllProducts = false;
 	let highlightDepartments = false;
+	let hasAutoExpandedFromFilter = false;
+	const isRangeDefault = (valueMin, valueMax, bounds) =>
+		valueMin === bounds?.min && valueMax === bounds?.max;
+	const enterAllProductsMode = ({ highlightDepartment = false } = {}) => {
+		showAllProducts = true;
+		if (department === 'FEATURED') {
+			department = 'ALL DEPARTMENTS';
+		}
+		if (highlightDepartment) {
+			highlightDepartments = true;
+			if (typeof window !== 'undefined') {
+				window.setTimeout(() => (highlightDepartments = false), 4000);
+			}
+		}
+	};
 	$: visibleProducts = showAllProducts ? sortedProducts : featuredProducts;
-	$: filter = false;
+	$: hasSearchFilter = searchString.trim().length > 0;
+	$: hasPricingFilter = pricing !== 'ALL PRICING';
+	$: hasDepartmentFilter = !['FEATURED', 'ALL DEPARTMENTS'].includes(department);
+	$: hasAttributeFilters = readyFilters.length > 0;
+	$: hasRangeFilter =
+		!isRangeDefault(heightMin, heightMax, heightBounds) ||
+		!isRangeDefault(durationMin, durationMax, durationBounds) ||
+		!isRangeDefault(shotMin, shotMax, shotBounds);
+	$: hasActiveFilters =
+		hasSearchFilter ||
+		hasPricingFilter ||
+		hasDepartmentFilter ||
+		hasAttributeFilters ||
+		hasRangeFilter;
+	$: if (!showAllProducts && !hasAutoExpandedFromFilter && hasActiveFilters) {
+		hasAutoExpandedFromFilter = true;
+		enterAllProductsMode();
+	}
+	let filter = false;
 	// #endregion
 </script>
 
@@ -330,15 +363,8 @@
 					type="button"
 					class="load-all-button"
 					on:click|stopPropagation={() => {
-						showAllProducts = true;
 						filter = true;
-						if (department === 'FEATURED') {
-							department = 'ALL DEPARTMENTS';
-						}
-						highlightDepartments = true;
-						if (typeof window !== 'undefined') {
-							window.setTimeout(() => (highlightDepartments = false), 4000);
-						}
+						enterAllProductsMode({ highlightDepartment: true });
 					}}
 				>
 					See All Products
