@@ -18,6 +18,25 @@
 		typeof window !== 'undefined' &&
 		(window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
 
+	function localDateStamp(date = new Date()) {
+		const year = date.getFullYear();
+		const month = String(date.getMonth() + 1).padStart(2, '0');
+		const day = String(date.getDate()).padStart(2, '0');
+		return `${year}-${month}-${day}`;
+	}
+
+	function localIsoTimestamp(date = new Date()) {
+		const hours = String(date.getHours()).padStart(2, '0');
+		const minutes = String(date.getMinutes()).padStart(2, '0');
+		const seconds = String(date.getSeconds()).padStart(2, '0');
+		const offsetMinutes = -date.getTimezoneOffset();
+		const offsetSign = offsetMinutes >= 0 ? '+' : '-';
+		const absOffset = Math.abs(offsetMinutes);
+		const offsetHours = String(Math.floor(absOffset / 60)).padStart(2, '0');
+		const offsetMins = String(absOffset % 60).padStart(2, '0');
+		return `${localDateStamp(date)}T${hours}:${minutes}:${seconds}${offsetSign}${offsetHours}:${offsetMins}`;
+	}
+
 	let allData = null;
 	let status = '';
 	let busy = false;
@@ -72,7 +91,7 @@
 
 	onMount(async () => {
 		password = loadPasswordFromSession();
-		message = `Update cms.json (${new Date().toISOString().slice(0, 10)})`;
+		message = `Update cms.json (${localDateStamp()})`;
 		const inferredBranch = inferBranchFromHost();
 		if (inferredBranch) {
 			targetBranch = inferredBranch;
@@ -336,7 +355,7 @@
 
 	function stampNewsDate() {
 		if (sectionKey !== 'newsPosts') return;
-		updateObjectField('date', new Date().toISOString());
+		updateObjectField('date', localIsoTimestamp());
 	}
 
 	function isTimeOrderValid(open, close) {

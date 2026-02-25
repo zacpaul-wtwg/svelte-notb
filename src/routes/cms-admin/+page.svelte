@@ -47,9 +47,16 @@
 		typeof window !== 'undefined' &&
 		(window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
 
+	function localDateStamp(date = new Date()) {
+		const year = date.getFullYear();
+		const month = String(date.getMonth() + 1).padStart(2, '0');
+		const day = String(date.getDate()).padStart(2, '0');
+		return `${year}-${month}-${day}`;
+	}
+
 	onMount(async () => {
 		password = loadPasswordFromSession();
-		message = `Update cms.json (${new Date().toISOString().slice(0, 10)})`;
+		message = `Update cms.json (${localDateStamp()})`;
 		const inferredBranch = inferBranchFromHost();
 		if (inferredBranch) {
 			targetBranch = inferredBranch;
@@ -184,7 +191,7 @@
 				headers: { 'content-type': 'application/json' },
 				body: JSON.stringify({
 					password,
-					message: publish ? `Publish cms.json to main (${new Date().toISOString().slice(0, 10)})` : message,
+					message: publish ? `Publish cms.json to main (${localDateStamp()})` : message,
 					targetBranch: getRequestedTargetBranch(),
 					publish,
 					content: JSON.stringify(allData, null, 2)
