@@ -43,18 +43,13 @@ This project currently integrates with:
   - merge hotfix into `main`
   - then merge `main` back into `develop` so both stay aligned
 
-## Local Git Safety Hooks
+## Git Hooks
 
-This repo includes hooks in `.githooks/` to enforce safer flow:
-
-- block direct pushes from `main` (`pre-push`)
-- block merge commits while checked out on `main` (`pre-merge-commit`)
-
-Enable them in your local clone:
+This repo does not ship repo-local Git hooks.
+If a local clone still has an old `core.hooksPath` configured from a previous setup, remove it with:
 
 ```bash
-git config core.hooksPath .githooks
-chmod +x .githooks/pre-push .githooks/pre-merge-commit
+git config --unset core.hooksPath
 ```
 
 ## Animation Policy
