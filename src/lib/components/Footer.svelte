@@ -3,6 +3,7 @@
 	import Address from './Address.svelte';
 	import SkewLabel from './SkewLabel.svelte';
 	export let allData;
+	import { getNowInTimezone, getRegularHoursForDate } from '$lib/cms/hours';
 	import { formatDateLong } from '$lib/utility/date';
 	import { formatDayHours } from '$lib/utility/time';
 
@@ -26,7 +27,7 @@
 	};
 	$: footerBody = resolveFooterDescription(allData);
 	$: specialHours = Array.isArray(allData?.specialHours) ? allData.specialHours : [];
-	$: regularHours = allData?.hours ?? {};
+	$: regularHours = getRegularHoursForDate(allData, getNowInTimezone('America/New_York').date);
 </script>
 
 <footer class="site-footer">

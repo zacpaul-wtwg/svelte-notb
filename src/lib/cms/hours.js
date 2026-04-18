@@ -63,6 +63,18 @@ const normalizeHoursEntry = (entry) => {
 	};
 };
 
+const findMatchingRegularRange = (cms, date) => {
+	const regularRanges = Array.isArray(cms?.regularHoursRanges) ? cms.regularHoursRanges : [];
+	return regularRanges
+		.filter((range) => {
+			const start = parseIsoDate(range?.startDate);
+			const end = parseIsoDate(range?.endDate);
+			if (!start || !end || end < start) return false;
+			return date >= start && date <= end;
+		})
+		.sort((a, b) => String(b?.startDate || '').localeCompare(String(a?.startDate || '')))[0];
+};
+
 export const resolveHoursForDate = (cms, dateValue) => {
 	const date = parseIsoDate(dateValue);
 	if (!date) return { source: 'invalidDate', hours: null };
@@ -83,16 +95,7 @@ export const resolveHoursForDate = (cms, dateValue) => {
 		};
 	}
 
-	const regularRanges = Array.isArray(cms?.regularHoursRanges) ? cms.regularHoursRanges : [];
-	const matchingRange = regularRanges
-		.filter((range) => {
-			const start = parseIsoDate(range?.startDate);
-			const end = parseIsoDate(range?.endDate);
-			if (!start || !end || end < start) return false;
-			return date >= start && date <= end;
-		})
-		.sort((a, b) => String(b?.startDate || '').localeCompare(String(a?.startDate || '')))[0];
-
+	const matchingRange = findMatchingRegularRange(cms, date);
 	if (!matchingRange) {
 		return { source: 'none', hours: null };
 	}
@@ -101,4 +104,11 @@ export const resolveHoursForDate = (cms, dateValue) => {
 		source: 'regularRange',
 		hours: normalizeHoursEntry(matchingRange?.hours?.[weekdayKeys[date.getUTCDay()]])
 	};
+};
+
+export const getRegularHoursForDate = (cms, dateValue) => {
+	const date = parseIsoDate(dateValue);
+	if (!date) return {};
+	const matchingRange = findMatchingRegularRange(cms, date);
+	return matchingRange?.hours && typeof matchingRange.hours === 'object' ? matchingRange.hours : {};
 };

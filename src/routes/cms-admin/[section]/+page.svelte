@@ -5,6 +5,7 @@
 	import { cubicOut } from 'svelte/easing';
 	import { page } from '$app/stores';
 	import { cmsSectionByKey } from '$lib/cms/adminSchema';
+	import { normalizeCmsData } from '$lib/cms/normalize';
 	import {
 		loadDraftFromStorage,
 		loadPasswordFromSession,
@@ -103,7 +104,7 @@
 			typeof window !== 'undefined' ? window.sessionStorage.getItem(BRANCH_STORAGE_KEY) || targetBranch : targetBranch;
 		const draft = loadDraftFromStorage();
 		if (draft) {
-			allData = normalizePricing(draft);
+			allData = normalizeCmsData(draft);
 			saveDraftToStorage(allData);
 			return;
 		}
@@ -122,48 +123,6 @@
 		}
 	}
 
-	function normalizePricing(data) {
-		if (!data || !Array.isArray(data.pricing)) return data;
-		const marker = '\n\n#### Highlights\n';
-		const toText = (s) =>
-			String(s || '').replace(/\*\*([^*]+)\*\*/g, '$1').replace(/__([^_]+)__/g, '$1');
-		const converted = data.pricing.map((item) => {
-			if (!item || (item.subtitle && item.highlights)) return item;
-			const entry = String(item.entry || '');
-			const out = {
-				title: item.title || '',
-				subtitle: '',
-				highlights: [],
-				howItWorks: '',
-				bestFor: '',
-				order: item.order ?? 0
-			};
-			if (entry.includes(marker)) {
-				const [subtitle, rest] = entry.split(marker);
-				out.subtitle = toText(subtitle.trim());
-				const sections = rest.split('\n\n#### ');
-				const highlightsBlock = sections[0] || '';
-				out.highlights = highlightsBlock
-					.split('\n')
-					.map((l) => l.trim())
-					.filter(Boolean)
-					.map((l) => toText(l.replace(/^[\-•]\s*/, '').trim()));
-				for (const sec of sections.slice(1)) {
-					const idx = sec.indexOf('\n');
-					if (idx === -1) continue;
-					const name = sec.slice(0, idx).trim().toLowerCase();
-					const body = toText(sec.slice(idx + 1).trim());
-					if (name === 'how it works') out.howItWorks = body;
-					if (name === 'best for') out.bestFor = body;
-				}
-			} else {
-				out.subtitle = toText(entry.trim());
-			}
-			return out;
-		});
-		return { ...data, pricing: converted };
-	}
-
 	function getSectionData() {
 		if (!allData || !schema) return null;
 		return allData[sectionKey];
@@ -178,25 +137,6 @@
 		const next = { ...(getSectionData() || {}), [field]: value };
 		if (getSectionData()?.[field] === value) return;
 		setSectionData(next);
-	}
-
-	function updateHoursField(dayKey, patch) {
-		const current = getSectionData() || {};
-		const day = current[dayKey] || { closed: false, open: '', close: '' };
-		const nextDay = { ...day, ...patch };
-		setSectionData({ ...current, [dayKey]: nextDay });
-	}
-
-	function toggleDayClosed(dayKey) {
-		const current = getSectionData() || {};
-		const day = current[dayKey] || { closed: false, open: '', close: '' };
-		const closing = !day.closed;
-		if (closing) {
-			updateHoursField(dayKey, { closed: true, open: '', close: '' });
-		} else {
-			const fallback = { open: day.open || '09:00', close: day.close || '17:00' };
-			updateHoursField(dayKey, { closed: false, ...fallback });
-		}
 	}
 
 	function addRegularRange() {
@@ -366,17 +306,6 @@
 	function validateHoursPayload() {
 		const errors = [];
 		const keys = [];
-		if (sectionKey === 'hours') {
-			const data = getSectionData() || {};
-			for (const day of days) {
-				const entry = data[day.key];
-				if (!entry || entry.closed) continue;
-				if (!isTimeOrderValid(entry.open, entry.close)) {
-					errors.push(`${day.label}: open time must be before close time`);
-					keys.push(`hours:${day.key}`);
-				}
-			}
-		}
 		if (sectionKey === 'specialHours') {
 			const events = ensureArray(getSectionData());
 			events.forEach((event, eventIdx) => {
@@ -433,7 +362,7 @@
 		try {
 			const res = await fetch('/cms.json', { cache: 'no-store' });
 			const text = await res.text();
-			allData = normalizePricing(JSON.parse(text));
+			allData = normalizeCmsData(JSON.parse(text));
 			saveDraftToStorage(allData);
 			status = 'Loaded from /cms.json';
 		} catch (e) {
@@ -488,48 +417,6 @@
 				</button>
 			{/if}
 		{:else}
-			{#if sectionKey === 'hours'}
-				<div class="stack">
-					{#each days as day}
-						<div class="card" class:error={errorKeys.includes(`hours:${day.key}`)}>
-							<div class="cardHeader rowBetween">
-								<span class="dayLabel">{day.label}</span>
-								<div class="toggleWrap">
-									<button
-										class:toggleOn={sectionData?.[day.key]?.closed}
-										class="toggle"
-										type="button"
-										aria-label={`Toggle closed for ${day.label}`}
-										on:click={() => toggleDayClosed(day.key)}
-									>
-										<span></span>
-									</button>
-									<span class="toggleLabel">Closed</span>
-								</div>
-							</div>
-							{#if !sectionData?.[day.key]?.closed}
-								<div class="cardBody" transition:slide>
-									<div class="timeInputs inlineTimes">
-										<input
-											type="time"
-											value={sectionData?.[day.key]?.open || ''}
-											disabled={sectionData?.[day.key]?.closed}
-											on:input={(e) => updateHoursField(day.key, { open: e.target.value })}
-										/>
-										<input
-											type="time"
-											value={sectionData?.[day.key]?.close || ''}
-											disabled={sectionData?.[day.key]?.closed}
-											on:input={(e) => updateHoursField(day.key, { close: e.target.value })}
-										/>
-									</div>
-								</div>
-							{/if}
-						</div>
-					{/each}
-				</div>
-			{/if}
-
 			{#if sectionKey === 'regularHoursRanges'}
 				<div class="stack">
 					{#each ensureArray(sectionData) as range, rangeIdx}
@@ -1290,15 +1177,10 @@
 			flex: 1 1 140px;
 		}
 	}
-	.timeInputs.collapsed {
-		display: none;
-	}
-
 	input[type='time']::-webkit-calendar-picker-indicator {
 		filter: invert(1);
 	}
-	input[type='date']::-webkit-calendar-picker-indicator,
-	input[type='datetime-local']::-webkit-calendar-picker-indicator {
+	input[type='date']::-webkit-calendar-picker-indicator {
 		filter: invert(1);
 	}
 
@@ -1360,11 +1242,6 @@
 	.dayCard.error {
 		border-color: rgba(255, 90, 90, 0.8);
 		box-shadow: 0 0 0 2px rgba(255, 90, 90, 0.3);
-	}
-	.dayMeta {
-		font-size: 12px;
-		text-transform: uppercase;
-		opacity: 0.7;
 	}
 	.dayHeader {
 		align-items: center;

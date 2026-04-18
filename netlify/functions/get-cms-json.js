@@ -12,6 +12,7 @@
 // Endpoint: POST /.netlify/functions/get-cms-json
 
 const { connectLambda, getStore } = require('@netlify/blobs');
+const { normalizeCmsData } = require('./cms-normalize');
 
 function json(statusCode, body) {
   return {
@@ -135,21 +136,26 @@ exports.handler = async (event) => {
 
     let allData = await store.get(previewKey, { type: 'json' });
     let source = previewKey;
+    let shouldSeedPreview = false;
 
     if (!allData) {
       allData = await store.get(liveKey, { type: 'json' });
       source = liveKey;
+      shouldSeedPreview = Boolean(allData);
     }
 
     if (!allData) {
       allData = await readCmsFromSiteFallback(event);
       source = 'site-fallback:/cms.json';
-      if (allData) {
-        await store.setJSON(previewKey, allData, {
-          metadata: { source, initializedAt: new Date().toISOString() },
-        });
-        source = `${previewKey} (initialized from fallback)`;
-      }
+      shouldSeedPreview = Boolean(allData);
+    }
+
+    if (allData && shouldSeedPreview) {
+      allData = normalizeCmsData(allData);
+      await store.setJSON(previewKey, allData, {
+        metadata: { source, initializedAt: new Date().toISOString() },
+      });
+      source = `${previewKey} (initialized from ${source})`;
     }
 
     if (!allData) {
@@ -158,7 +164,7 @@ exports.handler = async (event) => {
 
     return json(200, {
       ok: true,
-      content: JSON.stringify(allData, null, 2),
+      content: JSON.stringify(normalizeCmsData(allData), null, 2),
       branchInfo,
       source,
     });

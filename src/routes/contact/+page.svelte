@@ -6,10 +6,12 @@
 	import SectionHeader from '$lib/components/SectionHeader.svelte';
 	import TitleBar from '$lib/components/TitleBar.svelte';
 	import { fallbackAllData } from '$lib/cms/fallback';
+	import { getNowInTimezone, getRegularHoursForDate } from '$lib/cms/hours';
 	import { fetchRuntimeCms } from '$lib/cms/runtime-client';
 
 	let runtimeAllData = null;
 	$: allData = runtimeAllData ?? fallbackAllData;
+	$: contactHours = getRegularHoursForDate(allData, getNowInTimezone('America/New_York').date);
 
 	onMount(async () => {
 		const latest = await fetchRuntimeCms();
@@ -44,7 +46,7 @@
 			<article class="contact-card">
 				<div class="card-body">
 					<section class="section section-info">
-						<Address showHours hours={allData.hours} />
+						<Address showHours hours={contactHours} />
 					</section>
 					<section class="section section-message">
 						<form

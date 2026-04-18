@@ -8,106 +8,6 @@
     "title": "NOTB Fireworks",
     "body": "Nestled at the northern tip of Lake Wallenpaupack in the scenic Pocono Mountains, North of the Border fireworks is in the best spot to meet the fireworks demands of the Pocono Mountain area. We carry a large selection of fireworks: from sparklers to mortars, and Roman Candles to 500g cakes."
   },
-  "hours": {
-    "title": "Store Hours",
-    "sunday": {
-      "0": "1",
-      "1": "0",
-      "2": " ",
-      "3": "a",
-      "4": "m",
-      "5": " ",
-      "6": "-",
-      "7": " ",
-      "8": "2",
-      "9": " ",
-      "10": "p",
-      "11": "m",
-      "closed": false,
-      "open": "10:00",
-      "close": "16:00"
-    },
-    "monday": {
-      "0": "C",
-      "1": "l",
-      "2": "o",
-      "3": "s",
-      "4": "e",
-      "5": "d",
-      "closed": true,
-      "open": "",
-      "close": ""
-    },
-    "tuesday": {
-      "0": "C",
-      "1": "l",
-      "2": "o",
-      "3": "s",
-      "4": "e",
-      "5": "d",
-      "closed": true,
-      "open": "",
-      "close": ""
-    },
-    "wednesday": {
-      "0": "C",
-      "1": "l",
-      "2": "o",
-      "3": "s",
-      "4": "e",
-      "5": "d",
-      "closed": true,
-      "open": "",
-      "close": ""
-    },
-    "thursday": {
-      "0": "C",
-      "1": "l",
-      "2": "o",
-      "3": "s",
-      "4": "e",
-      "5": "d",
-      "closed": true,
-      "open": "",
-      "close": ""
-    },
-    "friday": {
-      "0": "1",
-      "1": "0",
-      "2": " ",
-      "3": "p",
-      "4": "m",
-      "5": " ",
-      "6": "-",
-      "7": " ",
-      "8": "6",
-      "9": " ",
-      "10": "p",
-      "11": "m",
-      "closed": false,
-      "open": "10:00",
-      "close": "18:00"
-    },
-    "saturday": {
-      "0": "1",
-      "1": "0",
-      "2": " ",
-      "3": "a",
-      "4": "m",
-      "5": " ",
-      "6": "-",
-      "7": " ",
-      "8": "6",
-      "9": " ",
-      "10": "p",
-      "11": "m",
-      "closed": false,
-      "open": "10:00",
-      "close": "18:00"
-    },
-    "areSpecialHoursActive": false,
-    "specialHours": "__Memorial Day Weekend__\n- Friday 27th - Sunday 29th: 9 AM - 9 PM\n---\n- Monday 30th: 9 AM - 4 PM\n---\n"
-  },
   "regularHoursRanges": [
     {
       "title": "Default 2026 Store Hours",
@@ -126,16 +26,6 @@
   ],
   "pickupSettings": {
     "maxDaysOut": 30
-  },
-  "regularHoursStrict": {
-    "title": "Regular Hours Strict",
-    "sundayHours": "10:00AM-04:00PM",
-    "mondayHours": "CLOSED",
-    "tuesdayHours": "CLOSED",
-    "wednesdayHours": "CLOSED",
-    "thursdayHours": "CLOSED",
-    "fridayHours": "10:00AM-06:00PM",
-    "saturdayHours": "10:00AM-06:00PM"
   },
   "faq": [
     {
@@ -221,9 +111,6 @@
   "specialHours": [
     {
       "title": "Family Event",
-      "occasion": "FAMILY EVENT",
-      "isActive": false,
-      "dayOneHours": "CLOSED",
       "days": [
         {
           "date": "2026-05-24",
@@ -232,15 +119,6 @@
           "close": ""
         }
       ]
-    }
-  ],
-  "closedRange": [
-    {
-      "occasion": "Fall Break",
-      "isActive": false,
-      "startOfBreak": "2023-09-17",
-      "endOfBreak": "2023-09-28",
-      "moreInfo": "We will re-open on Friday, September 29th at 10 AM"
     }
   ]
 }

@@ -1,4 +1,5 @@
 import { fallbackAllData } from '$lib/cms/fallback';
+import { normalizeCmsData } from '$lib/cms/normalize';
 import { building } from '$app/environment';
 
 export async function loadCmsData(fetch) {
@@ -13,7 +14,7 @@ export async function loadCmsData(fetch) {
 		if (res.ok && contentType.includes('application/json')) {
 			const parsed = await res.json();
 			// Support both shapes in case callers return { allData }.
-			allData = parsed?.allData ?? parsed ?? fallbackAllData;
+			allData = normalizeCmsData(parsed?.allData ?? parsed ?? fallbackAllData);
 		}
 	} catch {
 		// Keep fallback data if cms.json cannot be loaded.

@@ -9,6 +9,7 @@
 		saveDraftToStorage,
 		savePasswordToSession
 	} from '$lib/cms/adminDraft';
+	import { normalizeCmsData } from '$lib/cms/normalize';
 
 	let password = '';
 	let status = '';
@@ -69,7 +70,7 @@
 
 		const draft = loadDraftFromStorage();
 		if (draft) {
-			allData = normalizePricing(draft);
+			allData = normalizeCmsData(draft);
 			saveDraftToStorage(allData);
 			loadBaselineFromSession();
 			unlocked = true;
@@ -90,7 +91,7 @@
 		try {
 			const raw = window.sessionStorage.getItem(BASELINE_STORAGE_KEY);
 			if (!raw) return null;
-			return normalizePricing(JSON.parse(raw));
+			return normalizeCmsData(JSON.parse(raw));
 		} catch {
 			return null;
 		}
@@ -125,7 +126,7 @@
 		try {
 			const res = await fetch('/cms.json', { cache: 'no-store' });
 			const text = await res.text();
-			allData = normalizePricing(JSON.parse(text));
+			allData = normalizeCmsData(JSON.parse(text));
 			saveDraftToStorage(allData);
 			saveBaselineToSession(allData);
 			status = 'Loaded from /cms.json';
@@ -156,7 +157,7 @@
 			}
 			setTargetBranch(data);
 
-			allData = normalizePricing(JSON.parse(String(data?.content || '{}')));
+			allData = normalizeCmsData(JSON.parse(String(data?.content || '{}')));
 			saveDraftToStorage(allData);
 			saveBaselineToSession(allData);
 			savePasswordToSession(password);
@@ -172,6 +173,7 @@
 	async function saveDraft({ publish = false } = {}) {
 		if (!allData) return;
 		status = '';
+		allData = normalizeCmsData(allData);
 		if (publish) {
 			publishing = true;
 		} else {
@@ -297,15 +299,6 @@
 			.trim()
 			.replace(/\b\w/g, (c) => c.toUpperCase());
 
-	const dayLabel = (value) => titleCase(value);
-
-	const hoursText = (hours) => {
-		if (!hours || hours.closed) return 'Closed';
-		const open = hours.open || '(unset)';
-		const close = hours.close || '(unset)';
-		return `${open} to ${close}`;
-	};
-
 	const pricingTitleFor = (source, index) => {
 		const item = Array.isArray(source?.pricing) ? source.pricing[index] : null;
 		return typeof item?.title === 'string' ? item.title : '';
@@ -333,50 +326,17 @@
 		if (String(path).startsWith('footerDescription.')) {
 			return `Footer Description - ${titleCase(String(path).replace('footerDescription.', ''))}`;
 		}
-		if (String(path).startsWith('hours.')) {
-			return `Hours - ${titleCase(String(path).replace('hours.', ''))}`;
-		}
 		if (String(path).startsWith('specialHours[')) {
 			return `Special Hours - ${titleCase(String(path).replace(/^specialHours\[\d+\]\.?/, ''))}`;
-		}
-		if (String(path).startsWith('closedRange[')) {
-			return `Closed Range - ${titleCase(String(path).replace(/^closedRange\[\d+\]\.?/, ''))}`;
 		}
 		return titleCase(String(path).replace(/\[(\d+)\]/g, ' $1 ').replace(/\./g, ' - '));
 	};
 
-	const buildFriendlyRows = (rows) => {
-		const changedHourDays = new Set();
-		const out = [];
-
-		for (const row of rows) {
-			const hourMatch = String(row.path).match(/^hours\.([a-z]+)\.(open|close|closed)$/i);
-			if (hourMatch) {
-				changedHourDays.add(hourMatch[1].toLowerCase());
-				continue;
-			}
-			out.push({
-				...row,
-				label: friendlyLabelForPath(row.path)
-			});
-		}
-
-		for (const day of [...changedHourDays].sort()) {
-			const before = diffBaselineData?.hours?.[day];
-			const after = diffCurrentData?.hours?.[day];
-			out.push({
-				type: 'changed',
-				path: `hours.${day}`,
-				label: `${dayLabel(day)} Hours`,
-				before,
-				after,
-				renderBefore: hoursText(before),
-				renderAfter: hoursText(after)
-			});
-		}
-
-		return out;
-	};
+	const buildFriendlyRows = (rows) =>
+		rows.map((row) => ({
+			...row,
+			label: friendlyLabelForPath(row.path)
+		}));
 
 	const collectDiffs = (before, after, path = '') => {
 		if (Object.is(before, after)) return [];
@@ -419,7 +379,7 @@
 	};
 
 	function computeDiffState() {
-		const current = normalizePricing(loadDraftFromStorage() || allData || {});
+		const current = normalizeCmsData(loadDraftFromStorage() || allData || {});
 		allData = current;
 		const baseline = loadBaselineFromSession();
 		if (!baseline) {
@@ -453,47 +413,6 @@
 		reviewDialogOpen = false;
 	}
 
-	function normalizePricing(data) {
-		if (!data || !Array.isArray(data.pricing)) return data;
-		const marker = '\n\n#### Highlights\n';
-		const toText = (s) =>
-			String(s || '').replace(/\*\*([^*]+)\*\*/g, '$1').replace(/__([^_]+)__/g, '$1');
-		const converted = data.pricing.map((item) => {
-			if (!item || (item.subtitle && item.highlights)) return item;
-			const entry = String(item.entry || '');
-			const out = {
-				title: item.title || '',
-				subtitle: '',
-				highlights: [],
-				howItWorks: '',
-				bestFor: '',
-				order: item.order ?? 0
-			};
-			if (entry.includes(marker)) {
-				const [subtitle, rest] = entry.split(marker);
-				out.subtitle = toText(subtitle.trim());
-				const sections = rest.split('\n\n#### ');
-				const highlightsBlock = sections[0] || '';
-				out.highlights = highlightsBlock
-					.split('\n')
-					.map((l) => l.trim())
-					.filter(Boolean)
-					.map((l) => toText(l.replace(/^[\-•]\s*/, '').trim()));
-				for (const sec of sections.slice(1)) {
-					const idx = sec.indexOf('\n');
-					if (idx === -1) continue;
-					const name = sec.slice(0, idx).trim().toLowerCase();
-					const body = toText(sec.slice(idx + 1).trim());
-					if (name === 'how it works') out.howItWorks = body;
-					if (name === 'best for') out.bestFor = body;
-				}
-			} else {
-				out.subtitle = toText(entry.trim());
-			}
-			return out;
-		});
-		return { ...data, pricing: converted };
-	}
 </script>
 
 <svelte:head>
