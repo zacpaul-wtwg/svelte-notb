@@ -7,6 +7,7 @@
 	import { page } from '$app/stores';
 	import { get } from 'svelte/store';
 	import { openGlobalCompareModal, openGlobalWishlistModal } from '$lib/modal-store';
+	import { getNowInTimezone, parseTimeToMinutes, resolveHoursForDate } from '$lib/cms/hours';
 	import { fetchRuntimeCms } from '$lib/cms/runtime-client';
 
 	let showMobileMenu = false;
@@ -26,7 +27,6 @@
 	const mobileWidths = tweened({}, { duration: NAV_BUTTON_ANIMATION_MS, easing: cubicOut });
 	const desktopHoverProgress = tweened({}, { duration: DESKTOP_HOVER_ANIMATION_MS, easing: cubicOut });
 	const STORE_TIMEZONE = 'America/New_York';
-	const weekdayKeys = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
 	let cmsHours = null;
 	let hoursStatus = { label: 'Hours unavailable', detail: '', tone: 'closed' };
 
@@ -140,12 +140,6 @@
 		openGlobalWishlistModal('list');
 	};
 
-	const parseTimeToMinutes = (value) => {
-		const match = String(value || '').match(/^([01]\d|2[0-3]):([0-5]\d)$/);
-		if (!match) return null;
-		return Number(match[1]) * 60 + Number(match[2]);
-	};
-
 	const formatClock = (time) => {
 		const mins = parseTimeToMinutes(time);
 		if (mins === null) return '';
@@ -156,63 +150,22 @@
 		return `${hours12}:${String(minutes).padStart(2, '0')} ${suffix}`;
 	};
 
-	const getNowInTimezone = (timeZone) => {
-		const parts = new Intl.DateTimeFormat('en-CA', {
-			timeZone,
-			year: 'numeric',
-			month: '2-digit',
-			day: '2-digit',
-			hour: '2-digit',
-			minute: '2-digit',
-			hourCycle: 'h23'
-		}).formatToParts(new Date());
-		const getPart = (type) => parts.find((p) => p.type === type)?.value || '';
-		return {
-			date: `${getPart('year')}-${getPart('month')}-${getPart('day')}`,
-			time: `${getPart('hour')}:${getPart('minute')}`
-		};
-	};
-
-	const parseIsoDate = (value) => {
-		const match = String(value || '').match(/^(\d{4})-(\d{2})-(\d{2})$/);
-		if (!match) return null;
-		const date = new Date(`${match[1]}-${match[2]}-${match[3]}T00:00:00Z`);
-		return Number.isNaN(date.getTime()) ? null : date;
-	};
-
-	const getHoursForDate = (cms, dateValue) => {
-		const specialHours = Array.isArray(cms?.specialHours) ? cms.specialHours : [];
-		for (const occasion of specialHours) {
-			for (const day of Array.isArray(occasion?.days) ? occasion.days : []) {
-				if (String(day?.date || '') === dateValue) return day;
-			}
-		}
-		const date = parseIsoDate(dateValue);
-		if (!date) return null;
-		const regularRanges = Array.isArray(cms?.regularHoursRanges) ? cms.regularHoursRanges : [];
-		const matching = regularRanges
-			.filter((range) => {
-				const start = parseIsoDate(range?.startDate);
-				const end = parseIsoDate(range?.endDate);
-				if (!start || !end || end < start) return false;
-				return date >= start && date <= end;
-			})
-			.sort((a, b) => String(b?.startDate || '').localeCompare(String(a?.startDate || '')));
-		if (!matching.length) return null;
-		return matching[0]?.hours?.[weekdayKeys[date.getUTCDay()]] ?? null;
-	};
-
 	const computeHoursStatus = (cms) => {
 		if (!cms) return { label: 'Hours unavailable', detail: '', tone: 'closed' };
 		const now = getNowInTimezone(STORE_TIMEZONE);
 		const current = parseTimeToMinutes(now.time);
-		const hours = getHoursForDate(cms, now.date);
-		if (!hours || hours.closed || !hours.open || !hours.close || current === null) {
+		const { hours } = resolveHoursForDate(cms, now.date);
+		if (!hours || current === null) {
+			return { label: 'Hours unavailable', detail: '', tone: 'closed' };
+		}
+		if (hours.closed) {
 			return { label: 'Closed today', detail: '', tone: 'closed' };
 		}
 		const open = parseTimeToMinutes(hours.open);
 		const close = parseTimeToMinutes(hours.close);
-		if (open === null || close === null) return { label: 'Closed today', detail: '', tone: 'closed' };
+		if (open === null || close === null) {
+			return { label: 'Hours unavailable', detail: '', tone: 'closed' };
+		}
 		if (current < open) {
 			const minsUntilOpen = open - current;
 			return minsUntilOpen <= 60

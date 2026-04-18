@@ -2,6 +2,12 @@ import { json } from '@sveltejs/kit';
 import { env } from '$env/dynamic/private';
 import { loadCmsData } from '$lib/cms/loadCmsData';
 import {
+	getNowInTimezone,
+	parseIsoDate,
+	parseTimeToMinutes,
+	resolveHoursForDate
+} from '$lib/cms/hours';
+import {
 	CURRENCY,
 	computeInvoiceTotal,
 	generateInvoicePdfBase64,
@@ -25,77 +31,12 @@ const RESOLVED_MANAGEMENT_EMAILS = MANAGEMENT_EMAILS.length
 const STORE_TIMEZONE = env.STORE_TIMEZONE || 'America/New_York';
 const ORDER_EMAIL_FROM = env.ORDER_EMAIL_FROM || 'no-reply@notbfireworks.com';
 
-const weekdayKeys = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
-
-const parseTimeToMinutes = (value) => {
-	const match = String(value || '').match(/^([01]\d|2[0-3]):([0-5]\d)$/);
-	if (!match) return null;
-	return Number(match[1]) * 60 + Number(match[2]);
-};
-
-const getNowInTimezone = (timeZone) => {
-	const parts = new Intl.DateTimeFormat('en-CA', {
-		timeZone,
-		year: 'numeric',
-		month: '2-digit',
-		day: '2-digit',
-		hour: '2-digit',
-		minute: '2-digit',
-		hourCycle: 'h23'
-	}).formatToParts(new Date());
-
-	const get = (type) => parts.find((p) => p.type === type)?.value || '';
-	return {
-		date: `${get('year')}-${get('month')}-${get('day')}`,
-		time: `${get('hour')}:${get('minute')}`
-	};
-};
-
-const parseIsoDate = (value) => {
-	const match = String(value || '').match(/^(\d{4})-(\d{2})-(\d{2})$/);
-	if (!match) return null;
-	const date = new Date(`${match[1]}-${match[2]}-${match[3]}T00:00:00Z`);
-	return Number.isNaN(date.getTime()) ? null : date;
-};
-
 const addDaysToIsoDate = (isoDate, days) => {
 	const base = parseIsoDate(isoDate);
 	if (!base) return isoDate;
 	const next = new Date(base);
 	next.setUTCDate(next.getUTCDate() + days);
 	return next.toISOString().slice(0, 10);
-};
-
-const findHoursForDate = (cms, dateValue) => {
-	const specialHours = Array.isArray(cms?.specialHours) ? cms.specialHours : [];
-	const specialMatches = [];
-	for (const occasion of specialHours) {
-		const days = Array.isArray(occasion?.days) ? occasion.days : [];
-		for (const day of days) {
-			if (String(day?.date || '') === dateValue) {
-				specialMatches.push(day);
-			}
-		}
-	}
-	if (specialMatches.length > 0) {
-		return { source: 'special', hours: specialMatches[specialMatches.length - 1] };
-	}
-
-	const date = parseIsoDate(dateValue);
-	if (!date) return { source: 'regular', hours: null };
-	const regularRanges = Array.isArray(cms?.regularHoursRanges) ? cms.regularHoursRanges : [];
-	const rangeMatches = regularRanges.filter((range) => {
-		const start = parseIsoDate(range?.startDate);
-		const end = parseIsoDate(range?.endDate);
-		if (!start || !end || end < start) return false;
-		return date >= start && date <= end;
-	});
-	if (rangeMatches.length > 0) {
-		rangeMatches.sort((a, b) => String(b?.startDate || '').localeCompare(String(a?.startDate || '')));
-		const dayKey = weekdayKeys[date.getUTCDay()];
-		return { source: 'regularRange', hours: rangeMatches[0]?.hours?.[dayKey] ?? null };
-	}
-	return { source: 'none', hours: null };
 };
 
 const htmlToPlainText = (html) =>
@@ -210,8 +151,14 @@ export async function POST({ request, fetch }) {
 				{ status: 400 }
 			);
 		}
-		const { hours } = findHoursForDate(cms, pickupDate);
-		if (!hours || hours.closed || !hours.open || !hours.close) {
+		const { hours } = resolveHoursForDate(cms, pickupDate);
+		if (!hours) {
+			return json(
+				{ error: 'Store hours are unavailable for the selected pickup date.' },
+				{ status: 400 }
+			);
+		}
+		if (hours.closed || !hours.open || !hours.close) {
 			return json({ error: 'Store is closed for the selected pickup date.' }, { status: 400 });
 		}
 
