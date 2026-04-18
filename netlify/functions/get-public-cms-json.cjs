@@ -9,7 +9,7 @@
 // Endpoint: GET /.netlify/functions/get-public-cms-json
 
 const { connectLambda, getStore } = require('@netlify/blobs');
-const { normalizeCmsData } = require('./cms-normalize');
+const { normalizeCmsData } = require('../lib/cms-normalize.cjs');
 
 function json(statusCode, body) {
   return {

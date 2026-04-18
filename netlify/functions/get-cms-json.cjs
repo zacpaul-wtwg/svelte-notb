@@ -1,19 +1,18 @@
-// Netlify Function: update CMS JSON in Netlify Blobs.
+// Netlify Function: fetch CMS JSON from Netlify Blobs.
 //
 // Required env vars:
 // - CMS_ADMIN_PASSWORD
 //
 // Optional env vars:
-// - CMS_PUBLISH_PASSWORD
 // - CMS_BLOBS_STORE (default: "cms-content")
 // - CMS_TARGET_BRANCH
 // - GITHUB_BRANCH
 // - BRANCH / HEAD (provided by Netlify deploy context)
 //
-// Endpoint: POST /.netlify/functions/update-cms-json
+// Endpoint: POST /.netlify/functions/get-cms-json
 
 const { connectLambda, getStore } = require('@netlify/blobs');
-const { normalizeCmsData } = require('./cms-normalize');
+const { normalizeCmsData } = require('../lib/cms-normalize.cjs');
 
 function json(statusCode, body) {
   return {
@@ -78,6 +77,22 @@ function runtimeBranchInfo(targetBranch) {
   };
 }
 
+async function readCmsFromSiteFallback(event) {
+  const host = event.headers['x-forwarded-host'] || event.headers.host;
+  if (!host) return null;
+
+  const proto = event.headers['x-forwarded-proto'] || 'https';
+  const url = `${proto}://${host}/cms.json`;
+
+  try {
+    const res = await fetch(url, { headers: { accept: 'application/json' } });
+    if (!res.ok) return null;
+    return await res.json();
+  } catch {
+    return null;
+  }
+}
+
 exports.handler = async (event) => {
   if (event.httpMethod !== 'POST') {
     return json(405, { error: 'Method not allowed' });
@@ -87,8 +102,6 @@ exports.handler = async (event) => {
   }
 
   const adminPassword = process.env.CMS_ADMIN_PASSWORD;
-  const publishPassword = process.env.CMS_PUBLISH_PASSWORD || '';
-
   if (!adminPassword) {
     return json(500, {
       error: 'Server not configured',
@@ -104,61 +117,60 @@ exports.handler = async (event) => {
   }
 
   const password = payload.password;
-  const raw = payload.content;
-  const isPublish = payload.publish === true;
   const requestedBranch = sanitizeBranch(payload.targetBranch);
   const targetBranch = requestedBranch || getTargetBranch();
-  const expectedPassword = isPublish ? publishPassword || adminPassword : adminPassword;
-
-  if (!safeEqual(String(password || ''), expectedPassword)) {
-    return json(401, { error: 'Unauthorized' });
-  }
-
-  if (typeof raw !== 'string' || !raw.trim()) {
-    return json(400, { error: 'Missing content' });
-  }
-
-  let allData;
-  try {
-    allData = normalizeCmsData(JSON.parse(raw));
-  } catch (e) {
-    return json(400, { error: 'cms.json must be valid JSON', details: String(e?.message || e) });
-  }
-
-  const liveKey = 'live.json';
-  const previewKey = previewKeyForBranch(targetBranch);
-  const writeKey = isPublish ? liveKey : previewKey;
   const branchInfo = {
     ...runtimeBranchInfo(targetBranch),
     requestedBranch: requestedBranch || null,
-    publish: isPublish,
   };
+
+  if (!safeEqual(String(password || ''), adminPassword)) {
+    return json(401, { error: 'Unauthorized' });
+  }
 
   try {
     connectLambda(event);
     const store = getStore(getStoreName());
+    const liveKey = 'live.json';
+    const previewKey = previewKeyForBranch(targetBranch);
 
-    const metadata = {
-      updatedAt: new Date().toISOString(),
-      targetBranch,
-      publish: isPublish,
-      source: 'cms-admin',
-    };
+    let allData = await store.get(previewKey, { type: 'json' });
+    let source = previewKey;
+    let shouldSeedPreview = false;
 
-    await store.setJSON(writeKey, allData, { metadata });
+    if (!allData) {
+      allData = await store.get(liveKey, { type: 'json' });
+      source = liveKey;
+      shouldSeedPreview = Boolean(allData);
+    }
+
+    if (!allData) {
+      allData = await readCmsFromSiteFallback(event);
+      source = 'site-fallback:/cms.json';
+      shouldSeedPreview = Boolean(allData);
+    }
+
+    if (allData && shouldSeedPreview) {
+      allData = normalizeCmsData(allData);
+      await store.setJSON(previewKey, allData, {
+        metadata: { source, initializedAt: new Date().toISOString() },
+      });
+      source = `${previewKey} (initialized from ${source})`;
+    }
+
+    if (!allData) {
+      return json(404, { error: 'No CMS content found', branchInfo });
+    }
 
     return json(200, {
       ok: true,
+      content: JSON.stringify(normalizeCmsData(allData), null, 2),
       branchInfo,
-      key: writeKey,
-      updatedAt: metadata.updatedAt,
-      message: isPublish
-        ? `Published live content to ${liveKey}`
-        : `Saved preview content to ${previewKey}`,
+      source,
     });
   } catch (e) {
     return json(502, {
-      error: 'Failed to write CMS content to Netlify Blobs',
+      error: 'Failed to read CMS content from Netlify Blobs',
       details: String(e?.message || e),
       branchInfo,
     });
