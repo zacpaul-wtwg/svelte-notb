@@ -5,8 +5,10 @@
 	import {
 		clearDraftStorage,
 		loadDraftFromStorage,
+		loadDraftSourceFromStorage,
 		loadPasswordFromSession,
 		saveDraftToStorage,
+		saveDraftSourceToStorage,
 		savePasswordToSession
 	} from '$lib/cms/adminDraft';
 	import { normalizeCmsData } from '$lib/cms/normalize';
@@ -25,6 +27,7 @@
 	let diffSummary = { changed: 0, added: 0, removed: 0 };
 	let diffBaselineData = {};
 	let diffCurrentData = {};
+	let draftSource = 'live';
 
 	const BRANCH_STORAGE_KEY = 'cms_target_branch';
 	const BASELINE_STORAGE_KEY = 'cms_baseline_data';
@@ -71,10 +74,11 @@
 		const draft = loadDraftFromStorage();
 		if (draft) {
 			allData = normalizeCmsData(draft);
+			draftSource = loadDraftSourceFromStorage();
 			saveDraftToStorage(allData);
 			loadBaselineFromSession();
 			unlocked = true;
-			status = isLocalDev ? 'Draft loaded (local).' : 'Draft loaded.';
+			status = isLocalDev ? 'Draft loaded (local).' : `Draft loaded from ${draftSource}.`;
 			return;
 		}
 
@@ -120,15 +124,35 @@
 		return targetBranch || inferBranchFromHost() || undefined;
 	}
 
+	function setDraftState(nextData, { source = 'live', baseline = true } = {}) {
+		allData = normalizeCmsData(nextData);
+		draftSource = source === 'preview' ? 'preview' : 'live';
+		saveDraftToStorage(allData);
+		saveDraftSourceToStorage(draftSource);
+		if (baseline) saveBaselineToSession(allData);
+	}
+
+	async function fetchRemoteCms(source = 'live') {
+		const res = await fetch('/.netlify/functions/get-cms-json', {
+			method: 'POST',
+			headers: { 'content-type': 'application/json' },
+			body: JSON.stringify({
+				password,
+				targetBranch: getRequestedTargetBranch(),
+				source
+			})
+		});
+		const data = await res.json().catch(() => ({}));
+		return { res, data };
+	}
+
 	async function reloadFromDisk() {
 		status = '';
 		busy = true;
 		try {
 			const res = await fetch('/cms.json', { cache: 'no-store' });
 			const text = await res.text();
-			allData = normalizeCmsData(JSON.parse(text));
-			saveDraftToStorage(allData);
-			saveBaselineToSession(allData);
+			setDraftState(JSON.parse(text), { source: 'live' });
 			status = 'Loaded from /cms.json';
 		} catch (e) {
 			status = `Failed to load /cms.json: ${e?.message || e}`;
@@ -145,24 +169,16 @@
 				status = 'Enter the password to unlock.';
 				return;
 			}
-			const res = await fetch('/.netlify/functions/get-cms-json', {
-				method: 'POST',
-				headers: { 'content-type': 'application/json' },
-				body: JSON.stringify({ password, targetBranch: getRequestedTargetBranch() })
-			});
-			const data = await res.json().catch(() => ({}));
+			const { res, data } = await fetchRemoteCms('live');
 			if (!res.ok) {
 				status = `Error (${res.status}): ${data?.error || 'Request failed'}`;
 				return;
 			}
 			setTargetBranch(data);
-
-			allData = normalizeCmsData(JSON.parse(String(data?.content || '{}')));
-			saveDraftToStorage(allData);
-			saveBaselineToSession(allData);
+			setDraftState(JSON.parse(String(data?.content || '{}')), { source: 'live' });
 			savePasswordToSession(password);
 			unlocked = true;
-			status = 'Unlocked.';
+			status = 'Unlocked from live.';
 		} catch (e) {
 			status = `Network error: ${e?.message || e}`;
 		} finally {
@@ -172,18 +188,31 @@
 
 	async function syncDraftWithRemote() {
 		if (isLocalDev || !password) return false;
-		const res = await fetch('/.netlify/functions/get-cms-json', {
-			method: 'POST',
-			headers: { 'content-type': 'application/json' },
-			body: JSON.stringify({ password, targetBranch: getRequestedTargetBranch() })
-		});
-		const data = await res.json().catch(() => ({}));
+		const { res, data } = await fetchRemoteCms('preview');
 		if (!res.ok) return false;
 		setTargetBranch(data);
-		allData = normalizeCmsData(JSON.parse(String(data?.content || '{}')));
-		saveDraftToStorage(allData);
-		saveBaselineToSession(allData);
+		setDraftState(JSON.parse(String(data?.content || '{}')), { source: 'preview' });
 		return true;
+	}
+
+	async function resetToLive() {
+		if (isLocalDev || !password) return;
+		status = '';
+		busy = true;
+		try {
+			const { res, data } = await fetchRemoteCms('live');
+			if (!res.ok) {
+				status = `Error (${res.status}): ${data?.error || 'Request failed'}`;
+				return;
+			}
+			setTargetBranch(data);
+			setDraftState(JSON.parse(String(data?.content || '{}')), { source: 'live' });
+			status = 'Draft reset to live.';
+		} catch (e) {
+			status = `Network error: ${e?.message || e}`;
+		} finally {
+			busy = false;
+		}
 	}
 
 	async function saveDraft({ publish = false } = {}) {
@@ -191,6 +220,7 @@
 		if (!latestDraft) return;
 		allData = latestDraft;
 		saveDraftToStorage(allData);
+		saveDraftSourceToStorage(draftSource);
 		status = '';
 		if (publish) {
 			publishing = true;
@@ -227,9 +257,13 @@
 				? data?.message || 'Published live content.'
 				: data?.message || 'Saved preview content.';
 			if (!publish) {
+				draftSource = 'preview';
+				saveDraftSourceToStorage(draftSource);
 				const synced = await syncDraftWithRemote();
 				if (!synced) saveBaselineToSession(allData);
 			} else {
+				draftSource = 'live';
+				saveDraftSourceToStorage(draftSource);
 				saveBaselineToSession(allData);
 			}
 			openReviewDialog();
@@ -260,6 +294,7 @@
 	function resetDraft() {
 		clearDraftStorage();
 		allData = null;
+		draftSource = 'live';
 		unlocked = false;
 		reviewDialogOpen = false;
 		status = 'Draft cleared.';
@@ -486,7 +521,9 @@
 			</a>
 		</div>
 		<div class="adminRight">
-			<span class="branchBadge">{isLocalDev ? 'target: local' : `target: ${targetBranch || 'unknown'}`}</span>
+			<span class="branchBadge">
+				{isLocalDev ? 'target: local' : `target: ${targetBranch || 'unknown'} | source: ${draftSource}`}
+			</span>
 		</div>
 	</header>
 
@@ -518,6 +555,11 @@
 				<button class="btn" type="button" on:click={resetDraft} disabled={busy}>
 					Clear Draft
 				</button>
+				{#if !isLocalDev}
+					<button class="btn" type="button" on:click={resetToLive} disabled={busy || publishing}>
+						Reset to Live
+					</button>
+				{/if}
 				<a class="btn" href="/cms.json" target="_blank" rel="noreferrer">View Live cms.json</a>
 			</div>
 

@@ -48,6 +48,12 @@ function sanitizeBranch(value) {
   return branch;
 }
 
+function sanitizeSource(value) {
+  const source = String(value || '').trim().toLowerCase();
+  if (source === 'live' || source === 'preview' || source === 'auto') return source;
+  return 'auto';
+}
+
 function getTargetBranch() {
   return (
     process.env.CMS_TARGET_BRANCH ||
@@ -118,10 +124,12 @@ exports.handler = async (event) => {
 
   const password = payload.password;
   const requestedBranch = sanitizeBranch(payload.targetBranch);
+  const requestedSource = sanitizeSource(payload.source);
   const targetBranch = requestedBranch || getTargetBranch();
   const branchInfo = {
     ...runtimeBranchInfo(targetBranch),
     requestedBranch: requestedBranch || null,
+    requestedSource,
   };
 
   if (!safeEqual(String(password || ''), adminPassword)) {
@@ -134,28 +142,40 @@ exports.handler = async (event) => {
     const liveKey = 'live.json';
     const previewKey = previewKeyForBranch(targetBranch);
 
-    let allData = await store.get(previewKey, { type: 'json' });
-    let source = previewKey;
-    let shouldSeedPreview = false;
+    let allData = null;
+    let source = '';
 
-    if (!allData) {
+    if (requestedSource === 'live') {
       allData = await store.get(liveKey, { type: 'json' });
       source = liveKey;
-      shouldSeedPreview = Boolean(allData);
-    }
+      if (!allData) {
+        allData = await readCmsFromSiteFallback(event);
+        source = 'site-fallback:/cms.json';
+      }
+    } else {
+      let shouldSeedPreview = false;
+      allData = await store.get(previewKey, { type: 'json' });
+      source = previewKey;
 
-    if (!allData) {
-      allData = await readCmsFromSiteFallback(event);
-      source = 'site-fallback:/cms.json';
-      shouldSeedPreview = Boolean(allData);
-    }
+      if (!allData) {
+        allData = await store.get(liveKey, { type: 'json' });
+        source = liveKey;
+        shouldSeedPreview = Boolean(allData);
+      }
 
-    if (allData && shouldSeedPreview) {
-      allData = normalizeCmsData(allData);
-      await store.setJSON(previewKey, allData, {
-        metadata: { source, initializedAt: new Date().toISOString() },
-      });
-      source = `${previewKey} (initialized from ${source})`;
+      if (!allData) {
+        allData = await readCmsFromSiteFallback(event);
+        source = 'site-fallback:/cms.json';
+        shouldSeedPreview = Boolean(allData);
+      }
+
+      if (allData && shouldSeedPreview && requestedSource !== 'live') {
+        allData = normalizeCmsData(allData);
+        await store.setJSON(previewKey, allData, {
+          metadata: { source, initializedAt: new Date().toISOString() },
+        });
+        source = `${previewKey} (initialized from ${source})`;
+      }
     }
 
     if (!allData) {
