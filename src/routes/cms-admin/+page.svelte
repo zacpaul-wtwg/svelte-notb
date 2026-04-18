@@ -5,10 +5,14 @@
 	import {
 		clearDraftStorage,
 		loadDraftFromStorage,
+		loadDraftSourceFromStorage,
 		loadPasswordFromSession,
 		saveDraftToStorage,
+		saveDraftSourceToStorage,
 		savePasswordToSession
 	} from '$lib/cms/adminDraft';
+	import { getHoursCoverageSummary, getNowInTimezone, STORE_TIMEZONE } from '$lib/cms/hours';
+	import { normalizeCmsData } from '$lib/cms/normalize';
 
 	let password = '';
 	let status = '';
@@ -24,6 +28,7 @@
 	let diffSummary = { changed: 0, added: 0, removed: 0 };
 	let diffBaselineData = {};
 	let diffCurrentData = {};
+	let draftSource = 'live';
 
 	const BRANCH_STORAGE_KEY = 'cms_target_branch';
 	const BASELINE_STORAGE_KEY = 'cms_baseline_data';
@@ -54,6 +59,66 @@
 		return `${year}-${month}-${day}`;
 	}
 
+	function localIsoTimestamp(date = new Date()) {
+		const hours = String(date.getHours()).padStart(2, '0');
+		const minutes = String(date.getMinutes()).padStart(2, '0');
+		const seconds = String(date.getSeconds()).padStart(2, '0');
+		const offsetMinutes = -date.getTimezoneOffset();
+		const offsetSign = offsetMinutes >= 0 ? '+' : '-';
+		const absOffset = Math.abs(offsetMinutes);
+		const offsetHours = String(Math.floor(absOffset / 60)).padStart(2, '0');
+		const offsetMins = String(absOffset % 60).padStart(2, '0');
+		return `${localDateStamp(date)}T${hours}:${minutes}:${seconds}${offsetSign}${offsetHours}:${offsetMins}`;
+	}
+
+	const toRangeLabel = (range) =>
+		range?.startDate && range?.endDate ? `${range.startDate} to ${range.endDate}` : '';
+
+	const describeHoursCoverage = (summary) => {
+		if (!summary) return '';
+		if (summary.rangeState === 'active' && summary.activeRange) {
+			return `Active hours range: ${summary.activeRange.title || 'Untitled'} (${toRangeLabel(summary.activeRange)})`;
+		}
+		if (summary.rangeState === 'upcoming' && summary.nextRange) {
+			return `No active range today. Next range starts ${summary.nextRange.startDate}.`;
+		}
+		if (summary.rangeState === 'expired' && summary.latestRange) {
+			return `No active range today. Latest range ended ${summary.latestRange.endDate}.`;
+		}
+		return 'No regular hours ranges are configured.';
+	};
+
+	const describeWindowCoverage = (summary, maxDaysOut) => {
+		if (!summary) return '';
+		if (summary.firstUncoveredDate) {
+			return `Pickup/hour coverage runs out on ${summary.firstUncoveredDate} within the ${maxDaysOut}-day window.`;
+		}
+		return `Hours cover today through ${summary.windowEndDate}.`;
+	};
+
+	const normalizeNewsComparable = (news) => ({
+		title: String(news?.title || '').trim(),
+		body: String(news?.body || '').trim()
+	});
+
+	function withStampedNewsDate(currentData) {
+		const baseline = loadBaselineFromSession() || {};
+		const baselineNews = normalizeNewsComparable(baseline?.newsPosts);
+		const currentNews = normalizeNewsComparable(currentData?.newsPosts);
+		const newsChanged =
+			baselineNews.title !== currentNews.title || baselineNews.body !== currentNews.body;
+
+		if (!newsChanged) return currentData;
+
+		return {
+			...currentData,
+			newsPosts: {
+				...(currentData?.newsPosts || {}),
+				date: localIsoTimestamp()
+			}
+		};
+	}
+
 	onMount(async () => {
 		password = loadPasswordFromSession();
 		message = `Update cms.json (${localDateStamp()})`;
@@ -69,11 +134,12 @@
 
 		const draft = loadDraftFromStorage();
 		if (draft) {
-			allData = normalizePricing(draft);
+			allData = normalizeCmsData(draft);
+			draftSource = loadDraftSourceFromStorage();
 			saveDraftToStorage(allData);
 			loadBaselineFromSession();
 			unlocked = true;
-			status = isLocalDev ? 'Draft loaded (local).' : 'Draft loaded.';
+			status = isLocalDev ? 'Draft loaded (local).' : `Draft loaded from ${draftSource}.`;
 			return;
 		}
 
@@ -90,7 +156,7 @@
 		try {
 			const raw = window.sessionStorage.getItem(BASELINE_STORAGE_KEY);
 			if (!raw) return null;
-			return normalizePricing(JSON.parse(raw));
+			return normalizeCmsData(JSON.parse(raw));
 		} catch {
 			return null;
 		}
@@ -119,15 +185,35 @@
 		return targetBranch || inferBranchFromHost() || undefined;
 	}
 
+	function setDraftState(nextData, { source = 'live', baseline = true } = {}) {
+		allData = normalizeCmsData(nextData);
+		draftSource = source === 'preview' ? 'preview' : 'live';
+		saveDraftToStorage(allData);
+		saveDraftSourceToStorage(draftSource);
+		if (baseline) saveBaselineToSession(allData);
+	}
+
+	async function fetchRemoteCms(source = 'live') {
+		const res = await fetch('/.netlify/functions/get-cms-json', {
+			method: 'POST',
+			headers: { 'content-type': 'application/json' },
+			body: JSON.stringify({
+				password,
+				targetBranch: getRequestedTargetBranch(),
+				source
+			})
+		});
+		const data = await res.json().catch(() => ({}));
+		return { res, data };
+	}
+
 	async function reloadFromDisk() {
 		status = '';
 		busy = true;
 		try {
 			const res = await fetch('/cms.json', { cache: 'no-store' });
 			const text = await res.text();
-			allData = normalizePricing(JSON.parse(text));
-			saveDraftToStorage(allData);
-			saveBaselineToSession(allData);
+			setDraftState(JSON.parse(text), { source: 'live' });
 			status = 'Loaded from /cms.json';
 		} catch (e) {
 			status = `Failed to load /cms.json: ${e?.message || e}`;
@@ -144,24 +230,45 @@
 				status = 'Enter the password to unlock.';
 				return;
 			}
-			const res = await fetch('/.netlify/functions/get-cms-json', {
-				method: 'POST',
-				headers: { 'content-type': 'application/json' },
-				body: JSON.stringify({ password, targetBranch: getRequestedTargetBranch() })
-			});
-			const data = await res.json().catch(() => ({}));
+			const { res, data } = await fetchRemoteCms('live');
 			if (!res.ok) {
 				status = `Error (${res.status}): ${data?.error || 'Request failed'}`;
 				return;
 			}
 			setTargetBranch(data);
-
-			allData = normalizePricing(JSON.parse(String(data?.content || '{}')));
-			saveDraftToStorage(allData);
-			saveBaselineToSession(allData);
+			setDraftState(JSON.parse(String(data?.content || '{}')), { source: 'live' });
 			savePasswordToSession(password);
 			unlocked = true;
-			status = 'Unlocked.';
+			status = 'Unlocked from live.';
+		} catch (e) {
+			status = `Network error: ${e?.message || e}`;
+		} finally {
+			busy = false;
+		}
+	}
+
+	async function syncDraftWithRemote() {
+		if (isLocalDev || !password) return false;
+		const { res, data } = await fetchRemoteCms('preview');
+		if (!res.ok) return false;
+		setTargetBranch(data);
+		setDraftState(JSON.parse(String(data?.content || '{}')), { source: 'preview' });
+		return true;
+	}
+
+	async function resetToLive() {
+		if (isLocalDev || !password) return;
+		status = '';
+		busy = true;
+		try {
+			const { res, data } = await fetchRemoteCms('live');
+			if (!res.ok) {
+				status = `Error (${res.status}): ${data?.error || 'Request failed'}`;
+				return;
+			}
+			setTargetBranch(data);
+			setDraftState(JSON.parse(String(data?.content || '{}')), { source: 'live' });
+			status = 'Draft reset to live.';
 		} catch (e) {
 			status = `Network error: ${e?.message || e}`;
 		} finally {
@@ -170,8 +277,18 @@
 	}
 
 	async function saveDraft({ publish = false } = {}) {
-		if (!allData) return;
+		const latestDraft = withStampedNewsDate(
+			normalizeCmsData(loadDraftFromStorage() || allData || {})
+		);
+		if (!latestDraft) return;
+		allData = latestDraft;
+		saveDraftToStorage(allData);
+		saveDraftSourceToStorage(draftSource);
 		status = '';
+		if (publish && livePublishBlockedReason) {
+			status = livePublishBlockedReason;
+			return;
+		}
 		if (publish) {
 			publishing = true;
 		} else {
@@ -206,7 +323,16 @@
 			status = publish
 				? data?.message || 'Published live content.'
 				: data?.message || 'Saved preview content.';
-			saveBaselineToSession(allData);
+			if (!publish) {
+				draftSource = 'preview';
+				saveDraftSourceToStorage(draftSource);
+				const synced = await syncDraftWithRemote();
+				if (!synced) saveBaselineToSession(allData);
+			} else {
+				draftSource = 'live';
+				saveDraftSourceToStorage(draftSource);
+				saveBaselineToSession(allData);
+			}
 			openReviewDialog();
 		} catch (e) {
 			status = `Network error: ${e?.message || e}`;
@@ -235,10 +361,24 @@
 	function resetDraft() {
 		clearDraftStorage();
 		allData = null;
+		draftSource = 'live';
 		unlocked = false;
 		reviewDialogOpen = false;
 		status = 'Draft cleared.';
 	}
+
+	$: todayDate = getNowInTimezone(STORE_TIMEZONE).date;
+	$: maxPickupDaysOut = Math.max(1, Number(allData?.pickupSettings?.maxDaysOut) || 30);
+	$: hoursCoverage = allData
+		? getHoursCoverageSummary(allData, {
+				dateValue: todayDate,
+				maxDaysOut: maxPickupDaysOut
+			})
+		: null;
+	$: livePublishBlockedReason =
+		hoursCoverage && !hoursCoverage.todayCovered
+			? `Live publish blocked: no valid hours are configured for ${todayDate}. Add an active regular range or special hours for today first.`
+			: '';
 
 	const isRecord = (value) => value && typeof value === 'object' && !Array.isArray(value);
 
@@ -297,13 +437,26 @@
 			.trim()
 			.replace(/\b\w/g, (c) => c.toUpperCase());
 
-	const dayLabel = (value) => titleCase(value);
+	const getPathValue = (source, path) => {
+		if (!source || typeof path !== 'string') return undefined;
+		const tokens = [];
+		const pattern = /([^[.\]]+)|\[(\d+)\]/g;
+		for (const match of path.matchAll(pattern)) {
+			if (match[1] !== undefined) tokens.push(match[1]);
+			else if (match[2] !== undefined) tokens.push(Number(match[2]));
+		}
+		let current = source;
+		for (const token of tokens) {
+			if (current == null) return undefined;
+			current = current[token];
+		}
+		return current;
+	};
 
-	const hoursText = (hours) => {
-		if (!hours || hours.closed) return 'Closed';
-		const open = hours.open || '(unset)';
-		const close = hours.close || '(unset)';
-		return `${open} to ${close}`;
+	const presentHoursValue = (source, path, value) => {
+		if (!/\.(open|close)$/.test(String(path))) return undefined;
+		const closedPath = String(path).replace(/\.(open|close)$/, '.closed');
+		return getPathValue(source, closedPath) === true && String(value || '').trim() === '' ? 'Closed' : undefined;
 	};
 
 	const pricingTitleFor = (source, index) => {
@@ -333,50 +486,19 @@
 		if (String(path).startsWith('footerDescription.')) {
 			return `Footer Description - ${titleCase(String(path).replace('footerDescription.', ''))}`;
 		}
-		if (String(path).startsWith('hours.')) {
-			return `Hours - ${titleCase(String(path).replace('hours.', ''))}`;
-		}
 		if (String(path).startsWith('specialHours[')) {
 			return `Special Hours - ${titleCase(String(path).replace(/^specialHours\[\d+\]\.?/, ''))}`;
-		}
-		if (String(path).startsWith('closedRange[')) {
-			return `Closed Range - ${titleCase(String(path).replace(/^closedRange\[\d+\]\.?/, ''))}`;
 		}
 		return titleCase(String(path).replace(/\[(\d+)\]/g, ' $1 ').replace(/\./g, ' - '));
 	};
 
-	const buildFriendlyRows = (rows) => {
-		const changedHourDays = new Set();
-		const out = [];
-
-		for (const row of rows) {
-			const hourMatch = String(row.path).match(/^hours\.([a-z]+)\.(open|close|closed)$/i);
-			if (hourMatch) {
-				changedHourDays.add(hourMatch[1].toLowerCase());
-				continue;
-			}
-			out.push({
-				...row,
-				label: friendlyLabelForPath(row.path)
-			});
-		}
-
-		for (const day of [...changedHourDays].sort()) {
-			const before = diffBaselineData?.hours?.[day];
-			const after = diffCurrentData?.hours?.[day];
-			out.push({
-				type: 'changed',
-				path: `hours.${day}`,
-				label: `${dayLabel(day)} Hours`,
-				before,
-				after,
-				renderBefore: hoursText(before),
-				renderAfter: hoursText(after)
-			});
-		}
-
-		return out;
-	};
+	const buildFriendlyRows = (rows) =>
+		rows.map((row) => ({
+			...row,
+			label: friendlyLabelForPath(row.path),
+			renderBefore: presentHoursValue(diffBaselineData, row.path, row.before),
+			renderAfter: presentHoursValue(diffCurrentData, row.path, row.after)
+		}));
 
 	const collectDiffs = (before, after, path = '') => {
 		if (Object.is(before, after)) return [];
@@ -419,7 +541,7 @@
 	};
 
 	function computeDiffState() {
-		const current = normalizePricing(loadDraftFromStorage() || allData || {});
+		const current = normalizeCmsData(loadDraftFromStorage() || allData || {});
 		allData = current;
 		const baseline = loadBaselineFromSession();
 		if (!baseline) {
@@ -453,47 +575,6 @@
 		reviewDialogOpen = false;
 	}
 
-	function normalizePricing(data) {
-		if (!data || !Array.isArray(data.pricing)) return data;
-		const marker = '\n\n#### Highlights\n';
-		const toText = (s) =>
-			String(s || '').replace(/\*\*([^*]+)\*\*/g, '$1').replace(/__([^_]+)__/g, '$1');
-		const converted = data.pricing.map((item) => {
-			if (!item || (item.subtitle && item.highlights)) return item;
-			const entry = String(item.entry || '');
-			const out = {
-				title: item.title || '',
-				subtitle: '',
-				highlights: [],
-				howItWorks: '',
-				bestFor: '',
-				order: item.order ?? 0
-			};
-			if (entry.includes(marker)) {
-				const [subtitle, rest] = entry.split(marker);
-				out.subtitle = toText(subtitle.trim());
-				const sections = rest.split('\n\n#### ');
-				const highlightsBlock = sections[0] || '';
-				out.highlights = highlightsBlock
-					.split('\n')
-					.map((l) => l.trim())
-					.filter(Boolean)
-					.map((l) => toText(l.replace(/^[\-•]\s*/, '').trim()));
-				for (const sec of sections.slice(1)) {
-					const idx = sec.indexOf('\n');
-					if (idx === -1) continue;
-					const name = sec.slice(0, idx).trim().toLowerCase();
-					const body = toText(sec.slice(idx + 1).trim());
-					if (name === 'how it works') out.howItWorks = body;
-					if (name === 'best for') out.bestFor = body;
-				}
-			} else {
-				out.subtitle = toText(entry.trim());
-			}
-			return out;
-		});
-		return { ...data, pricing: converted };
-	}
 </script>
 
 <svelte:head>
@@ -520,7 +601,9 @@
 			</a>
 		</div>
 		<div class="adminRight">
-			<span class="branchBadge">{isLocalDev ? 'target: local' : `target: ${targetBranch || 'unknown'}`}</span>
+			<span class="branchBadge">
+				{isLocalDev ? 'target: local' : `target: ${targetBranch || 'unknown'} | source: ${draftSource}`}
+			</span>
 		</div>
 	</header>
 
@@ -531,9 +614,11 @@
 				<span>Password</span>
 				<input
 					class="input"
-					type="password"
+					type="text"
 					bind:value={password}
-					autocomplete="current-password"
+					autocomplete="off"
+					autocapitalize="none"
+					spellcheck="false"
 					on:keydown={(e) => e.key === 'Enter' && password && !busy && unlockProd()}
 				/>
 			</label>
@@ -552,8 +637,23 @@
 				<button class="btn" type="button" on:click={resetDraft} disabled={busy}>
 					Clear Draft
 				</button>
+				{#if !isLocalDev}
+					<button class="btn" type="button" on:click={resetToLive} disabled={busy || publishing}>
+						Reset to Live
+					</button>
+				{/if}
 				<a class="btn" href="/cms.json" target="_blank" rel="noreferrer">View Live cms.json</a>
 			</div>
+
+			{#if hoursCoverage}
+				<div class={`hoursSummary ${hoursCoverage.todayCovered ? 'ok' : 'warn'}`}>
+					<p><strong>Hours Status:</strong> {describeHoursCoverage(hoursCoverage)}</p>
+					<p><strong>Coverage Window:</strong> {describeWindowCoverage(hoursCoverage, maxPickupDaysOut)}</p>
+					{#if livePublishBlockedReason}
+						<p><strong>Publish Guard:</strong> {livePublishBlockedReason}</p>
+					{/if}
+				</div>
+			{/if}
 
 			<div class="grid">
 				{#each cmsSections as section}
@@ -647,7 +747,7 @@
 					Preview (Fresh)
 				</button>
 				{#if !isLocalDev}
-					<button class="btn publishAction" type="button" on:click={() => saveDraft({ publish: true })} disabled={!allData || busy || publishing}>
+					<button class="btn publishAction" type="button" on:click={() => saveDraft({ publish: true })} disabled={!allData || busy || publishing || Boolean(livePublishBlockedReason)}>
 						{publishing ? 'Publishing…' : 'Commit & Go Live'}
 					</button>
 				{/if}
@@ -839,6 +939,26 @@
 		margin-top: 10px;
 		font-size: 13px;
 		opacity: 0.85;
+	}
+	.hoursSummary {
+		margin: 0 0 12px;
+		padding: 12px;
+		border-radius: 12px;
+		border: 1px solid rgba(255, 255, 255, 0.14);
+		background: rgba(255, 255, 255, 0.04);
+		display: grid;
+		gap: 6px;
+	}
+	.hoursSummary.ok {
+		border-color: rgba(75, 212, 126, 0.35);
+	}
+	.hoursSummary.warn {
+		border-color: rgba(255, 199, 0, 0.42);
+	}
+	.hoursSummary p {
+		margin: 0;
+		font-size: 13px;
+		line-height: 1.45;
 	}
 	.reviewOverlay {
 		position: fixed;

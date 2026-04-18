@@ -11,6 +11,7 @@
 		{ key: 'friday', label: 'Fri' },
 		{ key: 'saturday', label: 'Sat' }
 	];
+	$: hasHours = Object.keys(hours || {}).length > 0;
 </script>
 
 <address>
@@ -30,7 +31,7 @@
 				{#each days as day}
 					<li>
 						<span class="day">{day.label}</span>
-						<span class="time">{formatDayHours(hours?.[day.key])}</span>
+						<span class="time">{hasHours ? formatDayHours(hours?.[day.key]) : 'Unavailable'}</span>
 					</li>
 				{/each}
 			</ul>

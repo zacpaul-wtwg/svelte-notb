@@ -7,8 +7,14 @@
 	import { page } from '$app/stores';
 	import { get } from 'svelte/store';
 	import { openGlobalCompareModal, openGlobalWishlistModal } from '$lib/modal-store';
-	import { getNowInTimezone, parseTimeToMinutes, resolveHoursForDate } from '$lib/cms/hours';
-	import { fetchRuntimeCms } from '$lib/cms/runtime-client';
+	import {
+		getNowInTimezone,
+		parseTimeToMinutes,
+		resolveHoursForDate,
+		STORE_TIMEZONE
+	} from '$lib/cms/hours';
+
+	export let allData = null;
 
 	let showMobileMenu = false;
 	let pendingMobileHref = '';
@@ -26,8 +32,6 @@
 	const DESKTOP_HOVER_ANIMATION_MS = 150;
 	const mobileWidths = tweened({}, { duration: NAV_BUTTON_ANIMATION_MS, easing: cubicOut });
 	const desktopHoverProgress = tweened({}, { duration: DESKTOP_HOVER_ANIMATION_MS, easing: cubicOut });
-	const STORE_TIMEZONE = 'America/New_York';
-	let cmsHours = null;
 	let hoursStatus = { label: 'Hours unavailable', detail: '', tone: 'closed' };
 
 	const navItems = [
@@ -215,17 +219,11 @@
 			if (!event.matches) showMobileMenu = false;
 			syncNavVars();
 		};
-		const refreshCmsHours = async () => {
-			const latest = await fetchRuntimeCms();
-			if (latest) cmsHours = latest;
-			hoursStatus = computeHoursStatus(cmsHours);
-		};
 		window.addEventListener('resize', syncNavVars);
 		window.addEventListener('keydown', handleKeydown);
 		window.addEventListener('pointerdown', handlePointerDown);
-		refreshCmsHours();
 		const hoursStatusTimer = window.setInterval(() => {
-			hoursStatus = computeHoursStatus(cmsHours);
+			hoursStatus = computeHoursStatus(allData);
 		}, 60_000);
 
 		if (mediaListener.addEventListener) {
@@ -251,6 +249,7 @@
 	$: if (showMobileMenu && !pendingMobileHref) {
 		mobileWidths.set(getWidthMap(getCurrentActiveHref()), { duration: 0 });
 	}
+	$: hoursStatus = computeHoursStatus(allData);
 </script>
 
 <nav bind:this={navEl}>

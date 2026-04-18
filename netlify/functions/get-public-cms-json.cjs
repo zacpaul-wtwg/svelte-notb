@@ -9,6 +9,7 @@
 // Endpoint: GET /.netlify/functions/get-public-cms-json
 
 const { connectLambda, getStore } = require('@netlify/blobs');
+const { normalizeCmsData } = require('../lib/cms-normalize.cjs');
 
 function json(statusCode, body) {
   return {
@@ -85,12 +86,12 @@ exports.handler = async (event) => {
           expectedKey: key,
         });
       }
-      return json(200, { allData, source: key });
+      return json(200, { allData: normalizeCmsData(allData), source: key });
     }
 
     // Production/custom-domain traffic reads from a single live key.
     const liveData = await store.get('live.json', { type: 'json' });
-    if (liveData) return json(200, { allData: liveData, source: 'live.json' });
+    if (liveData) return json(200, { allData: normalizeCmsData(liveData), source: 'live.json' });
 
     return json(404, { error: 'No live CMS content found in Blobs', expectedKey: 'live.json' });
   } catch (e) {

@@ -13,6 +13,7 @@
 // Endpoint: POST /.netlify/functions/update-cms-json
 
 const { connectLambda, getStore } = require('@netlify/blobs');
+const { normalizeCmsData } = require('../lib/cms-normalize.cjs');
 
 function json(statusCode, body) {
   return {
@@ -119,7 +120,7 @@ exports.handler = async (event) => {
 
   let allData;
   try {
-    allData = JSON.parse(raw);
+    allData = normalizeCmsData(JSON.parse(raw));
   } catch (e) {
     return json(400, { error: 'cms.json must be valid JSON', details: String(e?.message || e) });
   }

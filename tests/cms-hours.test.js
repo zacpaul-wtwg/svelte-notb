@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { resolveHoursForDate } from '../src/lib/cms/hours.js';
+import { getHoursCoverageSummary, resolveHoursForDate } from '../src/lib/cms/hours.js';
 
 const cms = {
 	regularHoursRanges: [
@@ -77,4 +77,28 @@ test('resolveHoursForDate returns none when no range matches', () => {
 		source: 'none',
 		hours: null
 	});
+});
+
+test('getHoursCoverageSummary marks expired regular ranges as uncovered today', () => {
+	const summary = getHoursCoverageSummary(cms, {
+		dateValue: '2027-01-01',
+		maxDaysOut: 7
+	});
+
+	assert.equal(summary.rangeState, 'expired');
+	assert.equal(summary.todayCovered, false);
+	assert.equal(summary.firstUncoveredDate, '2027-01-01');
+	assert.equal(summary.latestRange?.endDate, '2026-12-31');
+});
+
+test('getHoursCoverageSummary flags the first uncovered date inside the pickup window', () => {
+	const summary = getHoursCoverageSummary(cms, {
+		dateValue: '2026-12-29',
+		maxDaysOut: 5
+	});
+
+	assert.equal(summary.rangeState, 'active');
+	assert.equal(summary.todayCovered, true);
+	assert.equal(summary.firstUncoveredDate, '2027-01-01');
+	assert.equal(summary.windowEndDate, '2027-01-03');
 });

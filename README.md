@@ -43,13 +43,18 @@ This project currently integrates with:
   - merge hotfix into `main`
   - then merge `main` back into `develop` so both stay aligned
 
-## Git Hooks
+## Local Git Safety Hooks
 
-This repo does not ship repo-local Git hooks.
-If a local clone still has an old `core.hooksPath` configured from a previous setup, remove it with:
+This repo includes hooks in `.githooks/` to enforce safer flow:
+
+- block direct pushes from `main` (`pre-push`)
+- block merge commits while checked out on `main` (`pre-merge-commit`)
+
+Enable them in your local clone:
 
 ```bash
-git config --unset core.hooksPath
+git config core.hooksPath .githooks
+chmod +x .githooks/pre-push .githooks/pre-merge-commit
 ```
 
 ## Animation Policy
@@ -141,6 +146,5 @@ Optional publish credential:
 
 - `CMS_PUBLISH_PASSWORD`: when set, required for "Commit & Go Live" actions.
 
-build dates:
-4/10/26
-4/12/26
+## Builds
+- 04/10/2026 2:40 pm

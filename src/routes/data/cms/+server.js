@@ -2,13 +2,14 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { json } from '@sveltejs/kit';
 import { dev } from '$app/environment';
+import { normalizeCmsData } from '$lib/cms/normalize';
 
 export const prerender = false;
 
 const readStaticCms = async () => {
 	const cmsPath = path.resolve('static', 'cms.json');
 	const raw = await fs.readFile(cmsPath, 'utf-8');
-	return JSON.parse(raw);
+	return normalizeCmsData(JSON.parse(raw));
 };
 
 export async function GET({ fetch }) {
@@ -18,16 +19,22 @@ export async function GET({ fetch }) {
 			return json({ allData, source: 'static/cms.json' });
 		}
 
-		const runtimeRes = await fetch('/.netlify/functions/get-public-cms-json', {
+		const runtimeRes = await fetch(`/.netlify/functions/get-public-cms-json?ts=${Date.now()}`, {
 			cache: 'no-store'
 		});
 		if (runtimeRes.ok) {
 			const parsed = await runtimeRes.json();
-			return json(parsed, {
+			return json(
+				{
+					...parsed,
+					allData: normalizeCmsData(parsed?.allData ?? parsed)
+				},
+				{
 				headers: {
 					'cache-control': 'no-store'
 				}
-			});
+				}
+			);
 		}
 		const details = await runtimeRes.json().catch(() => ({}));
 		return json(
@@ -56,7 +63,7 @@ export async function POST({ request }) {
 			return json({ error: 'Missing allData' }, { status: 400 });
 		}
 		const cmsPath = path.resolve('static', 'cms.json');
-		await fs.writeFile(cmsPath, JSON.stringify(payload.allData, null, 2));
+		await fs.writeFile(cmsPath, JSON.stringify(normalizeCmsData(payload.allData), null, 2));
 		return json({ ok: true });
 	} catch (e) {
 		return json({ error: 'Failed to write cms.json', details: String(e?.message || e) }, { status: 500 });

@@ -1,5 +1,4 @@
 <script>
-	import { onMount } from 'svelte';
 	import Navbar from '$lib/components/Navbar.svelte';
 	import '../app.css';
 	import Footer from '$lib/components/Footer.svelte';
@@ -16,23 +15,16 @@
 		modalState,
 		setGlobalWishlistMode
 	} from '$lib/modal-store';
-	import { fetchRuntimeCms } from '$lib/cms/runtime-client';
-
-	let runtimeAllData = null;
-	$: allData = runtimeAllData ?? fallbackAllData;
+	export let data;
+	$: allData = data?.allData ?? fallbackAllData;
 	$: isCmsAdmin = $page.url.pathname.startsWith('/cms-admin');
 	$: isHome = $page.url.pathname === '/';
 	$: showGlobalHeroStrip = !isCmsAdmin && !isHome;
-
-	onMount(async () => {
-		const latest = await fetchRuntimeCms();
-		if (latest) runtimeAllData = latest;
-	});
 </script>
 
 {#if !isCmsAdmin}
 	<header>
-		<Navbar />
+		<Navbar {allData} />
 	</header>
 {/if}
 
