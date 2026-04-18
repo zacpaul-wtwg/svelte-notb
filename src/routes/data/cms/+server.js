@@ -19,7 +19,7 @@ export async function GET({ fetch }) {
 			return json({ allData, source: 'static/cms.json' });
 		}
 
-		const runtimeRes = await fetch('/.netlify/functions/get-public-cms-json', {
+		const runtimeRes = await fetch(`/.netlify/functions/get-public-cms-json?ts=${Date.now()}`, {
 			cache: 'no-store'
 		});
 		if (runtimeRes.ok) {
