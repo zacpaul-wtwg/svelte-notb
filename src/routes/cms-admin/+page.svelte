@@ -187,9 +187,11 @@
 	}
 
 	async function saveDraft({ publish = false } = {}) {
-		if (!allData) return;
+		const latestDraft = normalizeCmsData(loadDraftFromStorage() || allData || {});
+		if (!latestDraft) return;
+		allData = latestDraft;
+		saveDraftToStorage(allData);
 		status = '';
-		allData = normalizeCmsData(allData);
 		if (publish) {
 			publishing = true;
 		} else {
