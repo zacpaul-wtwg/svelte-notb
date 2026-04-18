@@ -428,9 +428,11 @@
 			<label class="field inlineField">
 				<span>Password</span>
 				<input
-					type="password"
+					type="text"
 					bind:value={password}
-					autocomplete="current-password"
+					autocomplete="off"
+					autocapitalize="none"
+					spellcheck="false"
 					on:input={(e) => savePasswordToSession(e.target.value)}
 				/>
 			</label>

@@ -59,6 +59,18 @@
 		return `${year}-${month}-${day}`;
 	}
 
+	function localIsoTimestamp(date = new Date()) {
+		const hours = String(date.getHours()).padStart(2, '0');
+		const minutes = String(date.getMinutes()).padStart(2, '0');
+		const seconds = String(date.getSeconds()).padStart(2, '0');
+		const offsetMinutes = -date.getTimezoneOffset();
+		const offsetSign = offsetMinutes >= 0 ? '+' : '-';
+		const absOffset = Math.abs(offsetMinutes);
+		const offsetHours = String(Math.floor(absOffset / 60)).padStart(2, '0');
+		const offsetMins = String(absOffset % 60).padStart(2, '0');
+		return `${localDateStamp(date)}T${hours}:${minutes}:${seconds}${offsetSign}${offsetHours}:${offsetMins}`;
+	}
+
 	const toRangeLabel = (range) =>
 		range?.startDate && range?.endDate ? `${range.startDate} to ${range.endDate}` : '';
 
@@ -83,6 +95,29 @@
 		}
 		return `Hours cover today through ${summary.windowEndDate}.`;
 	};
+
+	const normalizeNewsComparable = (news) => ({
+		title: String(news?.title || '').trim(),
+		body: String(news?.body || '').trim()
+	});
+
+	function withStampedNewsDate(currentData) {
+		const baseline = loadBaselineFromSession() || {};
+		const baselineNews = normalizeNewsComparable(baseline?.newsPosts);
+		const currentNews = normalizeNewsComparable(currentData?.newsPosts);
+		const newsChanged =
+			baselineNews.title !== currentNews.title || baselineNews.body !== currentNews.body;
+
+		if (!newsChanged) return currentData;
+
+		return {
+			...currentData,
+			newsPosts: {
+				...(currentData?.newsPosts || {}),
+				date: localIsoTimestamp()
+			}
+		};
+	}
 
 	onMount(async () => {
 		password = loadPasswordFromSession();
@@ -242,7 +277,9 @@
 	}
 
 	async function saveDraft({ publish = false } = {}) {
-		const latestDraft = normalizeCmsData(loadDraftFromStorage() || allData || {});
+		const latestDraft = withStampedNewsDate(
+			normalizeCmsData(loadDraftFromStorage() || allData || {})
+		);
 		if (!latestDraft) return;
 		allData = latestDraft;
 		saveDraftToStorage(allData);
@@ -577,9 +614,11 @@
 				<span>Password</span>
 				<input
 					class="input"
-					type="password"
+					type="text"
 					bind:value={password}
-					autocomplete="current-password"
+					autocomplete="off"
+					autocapitalize="none"
+					spellcheck="false"
 					on:keydown={(e) => e.key === 'Enter' && password && !busy && unlockProd()}
 				/>
 			</label>
