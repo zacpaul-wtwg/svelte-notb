@@ -24,8 +24,8 @@
       "10": "p",
       "11": "m",
       "closed": false,
-      "open": "09:00",
-      "close": "17:00"
+      "open": "10:00",
+      "close": "16:00"
     },
     "monday": {
       "0": "C",
@@ -84,9 +84,9 @@
       "9": " ",
       "10": "p",
       "11": "m",
-      "closed": true,
-      "open": "",
-      "close": ""
+      "closed": false,
+      "open": "10:00",
+      "close": "18:00"
     },
     "saturday": {
       "0": "1",
@@ -101,12 +101,31 @@
       "9": " ",
       "10": "p",
       "11": "m",
-      "closed": true,
-      "open": "",
-      "close": ""
+      "closed": false,
+      "open": "10:00",
+      "close": "18:00"
     },
     "areSpecialHoursActive": false,
     "specialHours": "__Memorial Day Weekend__\n- Friday 27th - Sunday 29th: 9 AM - 9 PM\n---\n- Monday 30th: 9 AM - 4 PM\n---\n"
+  },
+  "regularHoursRanges": [
+    {
+      "title": "Default 2026 Store Hours",
+      "startDate": "2026-01-01",
+      "endDate": "2026-12-31",
+      "hours": {
+        "sunday": { "closed": false, "open": "10:00", "close": "16:00" },
+        "monday": { "closed": true, "open": "", "close": "" },
+        "tuesday": { "closed": true, "open": "", "close": "" },
+        "wednesday": { "closed": true, "open": "", "close": "" },
+        "thursday": { "closed": true, "open": "", "close": "" },
+        "friday": { "closed": false, "open": "10:00", "close": "18:00" },
+        "saturday": { "closed": false, "open": "10:00", "close": "18:00" }
+      }
+    }
+  ],
+  "pickupSettings": {
+    "maxDaysOut": 30
   },
   "regularHoursStrict": {
     "title": "Regular Hours Strict",
@@ -201,9 +220,18 @@
   ],
   "specialHours": [
     {
+      "title": "Family Event",
       "occasion": "FAMILY EVENT",
       "isActive": false,
-      "dayOneHours": "CLOSED"
+      "dayOneHours": "CLOSED",
+      "days": [
+        {
+          "date": "2026-05-24",
+          "closed": true,
+          "open": "",
+          "close": ""
+        }
+      ]
     }
   ],
   "closedRange": [
