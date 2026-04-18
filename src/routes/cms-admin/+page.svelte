@@ -170,6 +170,22 @@
 		}
 	}
 
+	async function syncDraftWithRemote() {
+		if (isLocalDev || !password) return false;
+		const res = await fetch('/.netlify/functions/get-cms-json', {
+			method: 'POST',
+			headers: { 'content-type': 'application/json' },
+			body: JSON.stringify({ password, targetBranch: getRequestedTargetBranch() })
+		});
+		const data = await res.json().catch(() => ({}));
+		if (!res.ok) return false;
+		setTargetBranch(data);
+		allData = normalizeCmsData(JSON.parse(String(data?.content || '{}')));
+		saveDraftToStorage(allData);
+		saveBaselineToSession(allData);
+		return true;
+	}
+
 	async function saveDraft({ publish = false } = {}) {
 		if (!allData) return;
 		status = '';
@@ -208,7 +224,12 @@
 			status = publish
 				? data?.message || 'Published live content.'
 				: data?.message || 'Saved preview content.';
-			saveBaselineToSession(allData);
+			if (!publish) {
+				const synced = await syncDraftWithRemote();
+				if (!synced) saveBaselineToSession(allData);
+			} else {
+				saveBaselineToSession(allData);
+			}
 			openReviewDialog();
 		} catch (e) {
 			status = `Network error: ${e?.message || e}`;
@@ -299,6 +320,28 @@
 			.trim()
 			.replace(/\b\w/g, (c) => c.toUpperCase());
 
+	const getPathValue = (source, path) => {
+		if (!source || typeof path !== 'string') return undefined;
+		const tokens = [];
+		const pattern = /([^[.\]]+)|\[(\d+)\]/g;
+		for (const match of path.matchAll(pattern)) {
+			if (match[1] !== undefined) tokens.push(match[1]);
+			else if (match[2] !== undefined) tokens.push(Number(match[2]));
+		}
+		let current = source;
+		for (const token of tokens) {
+			if (current == null) return undefined;
+			current = current[token];
+		}
+		return current;
+	};
+
+	const presentHoursValue = (source, path, value) => {
+		if (!/\.(open|close)$/.test(String(path))) return undefined;
+		const closedPath = String(path).replace(/\.(open|close)$/, '.closed');
+		return getPathValue(source, closedPath) === true && String(value || '').trim() === '' ? 'Closed' : undefined;
+	};
+
 	const pricingTitleFor = (source, index) => {
 		const item = Array.isArray(source?.pricing) ? source.pricing[index] : null;
 		return typeof item?.title === 'string' ? item.title : '';
@@ -335,7 +378,9 @@
 	const buildFriendlyRows = (rows) =>
 		rows.map((row) => ({
 			...row,
-			label: friendlyLabelForPath(row.path)
+			label: friendlyLabelForPath(row.path),
+			renderBefore: presentHoursValue(diffBaselineData, row.path, row.before),
+			renderAfter: presentHoursValue(diffCurrentData, row.path, row.after)
 		}));
 
 	const collectDiffs = (before, after, path = '') => {

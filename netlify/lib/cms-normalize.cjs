@@ -119,7 +119,7 @@ function normalizeRegularHoursRanges(data) {
   const regularHoursRanges = Array.isArray(data && data.regularHoursRanges) ? data.regularHoursRanges : [];
   if (regularHoursRanges.length) {
     return regularHoursRanges.map((range, index) => ({
-      title: String((range && range.title) || '').trim() || `Range ${index + 1}`,
+      title: String((range && range.title) || '').trim(),
       startDate: isIsoDate(range && range.startDate) ? String(range.startDate) : '',
       endDate: isIsoDate(range && range.endDate) ? String(range.endDate) : '',
       hours: normalizeWeeklyHoursMap(range && range.hours, null),
