@@ -28,6 +28,7 @@
 	$: footerBody = resolveFooterDescription(allData);
 	$: specialHours = Array.isArray(allData?.specialHours) ? allData.specialHours : [];
 	$: regularHours = getRegularHoursForDate(allData, getNowInTimezone('America/New_York').date);
+	$: hasRegularHours = Object.keys(regularHours || {}).length > 0;
 </script>
 
 <footer class="site-footer">
@@ -62,7 +63,7 @@
 					{#each days as day}
 						<tr>
 							<td><strong>{day.label}:</strong></td>
-							<td>{formatDayHours(regularHours?.[day.key])}</td>
+							<td>{hasRegularHours ? formatDayHours(regularHours?.[day.key]) : 'Unavailable'}</td>
 						</tr>
 					{/each}
 				</tbody>

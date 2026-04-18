@@ -8,6 +8,8 @@ export const weekdayKeys = [
 	'saturday'
 ];
 
+export const STORE_TIMEZONE = 'America/New_York';
+
 export const parseTimeToMinutes = (value) => {
 	const match = String(value || '').match(/^([01]\d|2[0-3]):([0-5]\d)$/);
 	if (!match) return null;
@@ -39,6 +41,13 @@ export const parseIsoDate = (value) => {
 	return Number.isNaN(date.getTime()) ? null : date;
 };
 
+export const addDaysToIsoDate = (dateValue, days) => {
+	const date = parseIsoDate(dateValue);
+	if (!date) return '';
+	date.setUTCDate(date.getUTCDate() + Number(days || 0));
+	return date.toISOString().slice(0, 10);
+};
+
 const normalizeHoursEntry = (entry) => {
 	if (!entry || typeof entry !== 'object') return null;
 
@@ -63,16 +72,82 @@ const normalizeHoursEntry = (entry) => {
 	};
 };
 
-const findMatchingRegularRange = (cms, date) => {
+const getValidRegularRanges = (cms) => {
 	const regularRanges = Array.isArray(cms?.regularHoursRanges) ? cms.regularHoursRanges : [];
-	return regularRanges
+	return regularRanges.filter((range) => {
+		const start = parseIsoDate(range?.startDate);
+		const end = parseIsoDate(range?.endDate);
+		return Boolean(start && end && end >= start);
+	});
+};
+
+export const findMatchingRegularRange = (cms, date) =>
+	getValidRegularRanges(cms)
 		.filter((range) => {
 			const start = parseIsoDate(range?.startDate);
 			const end = parseIsoDate(range?.endDate);
-			if (!start || !end || end < start) return false;
-			return date >= start && date <= end;
+			return Boolean(start && end && date >= start && date <= end);
 		})
 		.sort((a, b) => String(b?.startDate || '').localeCompare(String(a?.startDate || '')))[0];
+
+export const getHoursCoverageSummary = (cms, { dateValue, maxDaysOut = 0 } = {}) => {
+	const baseDate = parseIsoDate(dateValue);
+	if (!baseDate) {
+		return {
+			date: '',
+			todayCovered: false,
+			rangeState: 'none',
+			activeRange: null,
+			nextRange: null,
+			latestRange: null,
+			windowEndDate: '',
+			firstUncoveredDate: ''
+		};
+	}
+
+	const validRanges = getValidRegularRanges(cms).sort((a, b) =>
+		String(a?.startDate || '').localeCompare(String(b?.startDate || ''))
+	);
+	const activeRange = findMatchingRegularRange(cms, baseDate) || null;
+	const nextRange =
+		validRanges.find((range) => {
+			const start = parseIsoDate(range?.startDate);
+			return Boolean(start && start > baseDate);
+		}) || null;
+	const latestRange =
+		[...validRanges].sort((a, b) => String(b?.endDate || '').localeCompare(String(a?.endDate || '')))[0] ||
+		null;
+
+	let rangeState = 'none';
+	if (activeRange) rangeState = 'active';
+	else if (nextRange) rangeState = 'upcoming';
+	else if (latestRange) rangeState = 'expired';
+
+	const todayDate = baseDate.toISOString().slice(0, 10);
+	const todayResolution = resolveHoursForDate(cms, todayDate);
+	const todayCovered = Boolean(todayResolution.hours);
+	const windowEndDate = addDaysToIsoDate(todayDate, maxDaysOut);
+
+	let firstUncoveredDate = '';
+	const windowDays = Math.max(0, Math.floor(Number(maxDaysOut) || 0));
+	for (let offset = 0; offset <= windowDays; offset += 1) {
+		const candidateDate = addDaysToIsoDate(todayDate, offset);
+		if (!resolveHoursForDate(cms, candidateDate).hours) {
+			firstUncoveredDate = candidateDate;
+			break;
+		}
+	}
+
+	return {
+		date: todayDate,
+		todayCovered,
+		rangeState,
+		activeRange,
+		nextRange,
+		latestRange,
+		windowEndDate,
+		firstUncoveredDate
+	};
 };
 
 export const resolveHoursForDate = (cms, dateValue) => {

@@ -1,22 +1,14 @@
 <script>
-	import { onMount } from 'svelte';
 	import Address from '$lib/components/Address.svelte';
 	import Container from '$lib/components/elements/Container.svelte';
 	import NavPillButton from '$lib/components/elements/NavPillButton.svelte';
 	import SectionHeader from '$lib/components/SectionHeader.svelte';
 	import TitleBar from '$lib/components/TitleBar.svelte';
 	import { fallbackAllData } from '$lib/cms/fallback';
-	import { getNowInTimezone, getRegularHoursForDate } from '$lib/cms/hours';
-	import { fetchRuntimeCms } from '$lib/cms/runtime-client';
-
-	let runtimeAllData = null;
-	$: allData = runtimeAllData ?? fallbackAllData;
-	$: contactHours = getRegularHoursForDate(allData, getNowInTimezone('America/New_York').date);
-
-	onMount(async () => {
-		const latest = await fetchRuntimeCms();
-		if (latest) runtimeAllData = latest;
-	});
+	import { getNowInTimezone, getRegularHoursForDate, STORE_TIMEZONE } from '$lib/cms/hours';
+	export let data;
+	$: allData = data?.allData ?? fallbackAllData;
+	$: contactHours = getRegularHoursForDate(allData, getNowInTimezone(STORE_TIMEZONE).date);
 </script>
 
 <TitleBar

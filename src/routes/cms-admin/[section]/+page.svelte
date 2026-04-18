@@ -5,6 +5,7 @@
 	import { cubicOut } from 'svelte/easing';
 	import { page } from '$app/stores';
 	import { cmsSectionByKey } from '$lib/cms/adminSchema';
+	import { getHoursCoverageSummary, getNowInTimezone, STORE_TIMEZONE } from '$lib/cms/hours';
 	import { normalizeCmsData } from '$lib/cms/normalize';
 	import {
 		loadDraftFromStorage,
@@ -38,6 +39,23 @@
 		return `${localDateStamp(date)}T${hours}:${minutes}:${seconds}${offsetSign}${offsetHours}:${offsetMins}`;
 	}
 
+	const toRangeLabel = (range) =>
+		range?.startDate && range?.endDate ? `${range.startDate} to ${range.endDate}` : '';
+
+	const describeHoursCoverage = (summary) => {
+		if (!summary) return '';
+		if (summary.rangeState === 'active' && summary.activeRange) {
+			return `Active range: ${summary.activeRange.title || 'Untitled'} (${toRangeLabel(summary.activeRange)})`;
+		}
+		if (summary.rangeState === 'upcoming' && summary.nextRange) {
+			return `No active range today. Next range starts ${summary.nextRange.startDate}.`;
+		}
+		if (summary.rangeState === 'expired' && summary.latestRange) {
+			return `No active range today. Latest range ended ${summary.latestRange.endDate}.`;
+		}
+		return 'No regular hours ranges are configured.';
+	};
+
 	let allData = null;
 	let status = '';
 	let busy = false;
@@ -66,6 +84,15 @@
 	$: sectionKey = $page.params.section;
 	$: schema = cmsSectionByKey[sectionKey];
 	$: sectionData = allData?.[sectionKey];
+	$: todayDate = getNowInTimezone(STORE_TIMEZONE).date;
+	$: maxPickupDaysOut = Math.max(1, Number(allData?.pickupSettings?.maxDaysOut) || 30);
+	$: hoursCoverage =
+		sectionKey === 'regularHoursRanges' && allData
+			? getHoursCoverageSummary(allData, {
+					dateValue: todayDate,
+					maxDaysOut: maxPickupDaysOut
+				})
+			: null;
 	$: if (sectionKey === 'faq' && Array.isArray(sectionData)) {
 		const missing = sectionData.some((item) => !item.id);
 		if (missing) {
@@ -419,6 +446,16 @@
 		{:else}
 			{#if sectionKey === 'regularHoursRanges'}
 				<div class="stack">
+					{#if hoursCoverage}
+						<div class={`hoursBanner ${hoursCoverage.todayCovered ? 'ok' : 'warn'}`}>
+							<p><strong>Status:</strong> {describeHoursCoverage(hoursCoverage)}</p>
+							{#if hoursCoverage.firstUncoveredDate}
+								<p><strong>Coverage Warning:</strong> Hours stop covering the pickup window on {hoursCoverage.firstUncoveredDate}.</p>
+							{:else}
+								<p><strong>Coverage Window:</strong> Hours cover today through {hoursCoverage.windowEndDate}.</p>
+							{/if}
+						</div>
+					{/if}
 					{#each ensureArray(sectionData) as range, rangeIdx}
 						<div class="card">
 							<div class="cardHeader rowBetween">
@@ -1251,6 +1288,25 @@
 		margin-top: 10px;
 		font-size: 13px;
 		opacity: 0.85;
+	}
+	.hoursBanner {
+		padding: 12px;
+		border-radius: 12px;
+		border: 1px solid rgba(255, 255, 255, 0.14);
+		background: rgba(255, 255, 255, 0.04);
+		display: grid;
+		gap: 6px;
+	}
+	.hoursBanner.ok {
+		border-color: rgba(75, 212, 126, 0.35);
+	}
+	.hoursBanner.warn {
+		border-color: rgba(255, 199, 0, 0.42);
+	}
+	.hoursBanner p {
+		margin: 0;
+		font-size: 13px;
+		line-height: 1.45;
 	}
 	.mobileStatus {
 		display: none;

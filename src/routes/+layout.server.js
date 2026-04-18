@@ -1,5 +1,9 @@
-export const prerender = true;
+import { loadCmsData } from '$lib/cms/loadCmsData';
 
-export async function load() {
-	return {};
+export const prerender = false;
+
+export async function load({ fetch }) {
+	return {
+		allData: await loadCmsData(fetch)
+	};
 }

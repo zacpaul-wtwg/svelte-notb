@@ -11,6 +11,7 @@
 		saveDraftSourceToStorage,
 		savePasswordToSession
 	} from '$lib/cms/adminDraft';
+	import { getHoursCoverageSummary, getNowInTimezone, STORE_TIMEZONE } from '$lib/cms/hours';
 	import { normalizeCmsData } from '$lib/cms/normalize';
 
 	let password = '';
@@ -57,6 +58,31 @@
 		const day = String(date.getDate()).padStart(2, '0');
 		return `${year}-${month}-${day}`;
 	}
+
+	const toRangeLabel = (range) =>
+		range?.startDate && range?.endDate ? `${range.startDate} to ${range.endDate}` : '';
+
+	const describeHoursCoverage = (summary) => {
+		if (!summary) return '';
+		if (summary.rangeState === 'active' && summary.activeRange) {
+			return `Active hours range: ${summary.activeRange.title || 'Untitled'} (${toRangeLabel(summary.activeRange)})`;
+		}
+		if (summary.rangeState === 'upcoming' && summary.nextRange) {
+			return `No active range today. Next range starts ${summary.nextRange.startDate}.`;
+		}
+		if (summary.rangeState === 'expired' && summary.latestRange) {
+			return `No active range today. Latest range ended ${summary.latestRange.endDate}.`;
+		}
+		return 'No regular hours ranges are configured.';
+	};
+
+	const describeWindowCoverage = (summary, maxDaysOut) => {
+		if (!summary) return '';
+		if (summary.firstUncoveredDate) {
+			return `Pickup/hour coverage runs out on ${summary.firstUncoveredDate} within the ${maxDaysOut}-day window.`;
+		}
+		return `Hours cover today through ${summary.windowEndDate}.`;
+	};
 
 	onMount(async () => {
 		password = loadPasswordFromSession();
@@ -222,6 +248,10 @@
 		saveDraftToStorage(allData);
 		saveDraftSourceToStorage(draftSource);
 		status = '';
+		if (publish && livePublishBlockedReason) {
+			status = livePublishBlockedReason;
+			return;
+		}
 		if (publish) {
 			publishing = true;
 		} else {
@@ -299,6 +329,19 @@
 		reviewDialogOpen = false;
 		status = 'Draft cleared.';
 	}
+
+	$: todayDate = getNowInTimezone(STORE_TIMEZONE).date;
+	$: maxPickupDaysOut = Math.max(1, Number(allData?.pickupSettings?.maxDaysOut) || 30);
+	$: hoursCoverage = allData
+		? getHoursCoverageSummary(allData, {
+				dateValue: todayDate,
+				maxDaysOut: maxPickupDaysOut
+			})
+		: null;
+	$: livePublishBlockedReason =
+		hoursCoverage && !hoursCoverage.todayCovered
+			? `Live publish blocked: no valid hours are configured for ${todayDate}. Add an active regular range or special hours for today first.`
+			: '';
 
 	const isRecord = (value) => value && typeof value === 'object' && !Array.isArray(value);
 
@@ -563,6 +606,16 @@
 				<a class="btn" href="/cms.json" target="_blank" rel="noreferrer">View Live cms.json</a>
 			</div>
 
+			{#if hoursCoverage}
+				<div class={`hoursSummary ${hoursCoverage.todayCovered ? 'ok' : 'warn'}`}>
+					<p><strong>Hours Status:</strong> {describeHoursCoverage(hoursCoverage)}</p>
+					<p><strong>Coverage Window:</strong> {describeWindowCoverage(hoursCoverage, maxPickupDaysOut)}</p>
+					{#if livePublishBlockedReason}
+						<p><strong>Publish Guard:</strong> {livePublishBlockedReason}</p>
+					{/if}
+				</div>
+			{/if}
+
 			<div class="grid">
 				{#each cmsSections as section}
 					<a class="card" href={`/cms-admin/${section.key}`}>
@@ -655,7 +708,7 @@
 					Preview (Fresh)
 				</button>
 				{#if !isLocalDev}
-					<button class="btn publishAction" type="button" on:click={() => saveDraft({ publish: true })} disabled={!allData || busy || publishing}>
+					<button class="btn publishAction" type="button" on:click={() => saveDraft({ publish: true })} disabled={!allData || busy || publishing || Boolean(livePublishBlockedReason)}>
 						{publishing ? 'Publishing…' : 'Commit & Go Live'}
 					</button>
 				{/if}
@@ -847,6 +900,26 @@
 		margin-top: 10px;
 		font-size: 13px;
 		opacity: 0.85;
+	}
+	.hoursSummary {
+		margin: 0 0 12px;
+		padding: 12px;
+		border-radius: 12px;
+		border: 1px solid rgba(255, 255, 255, 0.14);
+		background: rgba(255, 255, 255, 0.04);
+		display: grid;
+		gap: 6px;
+	}
+	.hoursSummary.ok {
+		border-color: rgba(75, 212, 126, 0.35);
+	}
+	.hoursSummary.warn {
+		border-color: rgba(255, 199, 0, 0.42);
+	}
+	.hoursSummary p {
+		margin: 0;
+		font-size: 13px;
+		line-height: 1.45;
 	}
 	.reviewOverlay {
 		position: fixed;
