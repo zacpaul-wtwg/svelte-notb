@@ -1,12 +1,12 @@
 import { json } from '@sveltejs/kit';
 import { env } from '$env/dynamic/private';
 import { loadCmsData } from '$lib/cms/loadCmsData';
+import { getNowInTimezone, parseIsoDate, parseTimeToMinutes } from '$lib/cms/hours';
 import {
-	getNowInTimezone,
-	parseIsoDate,
-	parseTimeToMinutes,
-	resolveHoursForDate
-} from '$lib/cms/hours';
+	PICKUP_SLOT_STEP_MINUTES,
+	getPickupTimeSlots,
+	normalizeMaxDaysOut
+} from '$lib/cms/pickup';
 import {
 	CURRENCY,
 	computeInvoiceTotal,
@@ -133,48 +133,62 @@ export async function POST({ request, fetch }) {
 		}
 
 		const now = getNowInTimezone(STORE_TIMEZONE);
-		if (pickupDate < now.date || (pickupDate === now.date && pickupTime < now.time)) {
+		if (pickupDate < now.date) {
+			return json({ error: 'Pickup time must be in the future.', code: 'pickup_in_past' }, { status: 400 });
+		}
+		if (pickupDate === now.date && parseTimeToMinutes(pickupTime) !== null && pickupTime < now.time) {
 			return json({ error: 'Pickup time must be in the future.' }, { status: 400 });
 		}
 
 		const cms = await loadCmsData(fetch);
-		const maxDaysOutInput = Number(cms?.pickupSettings?.maxDaysOut);
-		const maxDaysOut = Number.isFinite(maxDaysOutInput)
-			? Math.max(1, Math.min(365, Math.floor(maxDaysOutInput)))
-			: 30;
+		const maxDaysOut = normalizeMaxDaysOut(cms?.pickupSettings?.maxDaysOut);
 		const maxPickupDate = addDaysToIsoDate(now.date, maxDaysOut);
 		if (pickupDate > maxPickupDate) {
 			return json(
 				{
-					error: `Pickup date must be within ${maxDaysOut} day(s) from today.`
+					error: `Pickup date must be within ${maxDaysOut} day(s) from today.`,
+					code: 'pickup_out_of_range'
 				},
 				{ status: 400 }
 			);
 		}
-		const { hours } = resolveHoursForDate(cms, pickupDate);
-		if (!hours) {
+		const slotInfo = getPickupTimeSlots(cms, pickupDate, {
+			now,
+			stepMinutes: PICKUP_SLOT_STEP_MINUTES
+		});
+		if (slotInfo.status === 'unavailable') {
 			return json(
-				{ error: 'Store hours are unavailable for the selected pickup date.' },
+				{ error: 'Store hours are unavailable for the selected pickup date.', code: 'pickup_hours_unavailable' },
 				{ status: 400 }
 			);
 		}
-		if (hours.closed || !hours.open || !hours.close) {
-			return json({ error: 'Store is closed for the selected pickup date.' }, { status: 400 });
+		if (slotInfo.status === 'closed') {
+			return json({ error: 'Store is closed for the selected pickup date.', code: 'pickup_date_closed' }, { status: 400 });
 		}
-
-		const openMinutes = parseTimeToMinutes(hours.open);
-		const closeMinutes = parseTimeToMinutes(hours.close);
-		const pickupMinutes = parseTimeToMinutes(pickupTime);
-		if (
-			openMinutes === null ||
-			closeMinutes === null ||
-			pickupMinutes === null ||
-			pickupMinutes < openMinutes ||
-			pickupMinutes > closeMinutes
-		) {
+		if (slotInfo.status === 'no_slots_left') {
 			return json(
 				{
-					error: `Pickup time must be within open hours (${hours.open} - ${hours.close}).`
+					error: 'No pickup times remain for the selected pickup date.',
+					code: 'pickup_no_slots_left'
+				},
+				{ status: 400 }
+			);
+		}
+		const selectedSlot = slotInfo.slots.find((slot) => slot.value === pickupTime);
+		if (!selectedSlot) {
+			return json(
+				{
+					error: `Select one of the available 15-minute pickup times between ${slotInfo.hours.open} and ${slotInfo.hours.close}.`,
+					code: 'pickup_time_invalid'
+				},
+				{ status: 400 }
+			);
+		}
+		if (!selectedSlot.selectable) {
+			return json(
+				{
+					error: 'Pickup time must be in the future.',
+					code: 'pickup_time_past'
 				},
 				{ status: 400 }
 			);
@@ -218,6 +232,8 @@ export async function POST({ request, fetch }) {
 		return json({
 			ok: true,
 			orderId,
+			pickupDate,
+			pickupTime,
 			totals: {
 				vip: Number(totals.vip.toFixed(2)),
 				hiro: Number(totals.hiro.toFixed(2))
