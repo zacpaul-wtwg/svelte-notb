@@ -1,9 +1,11 @@
 <script>
+	import { onDestroy } from 'svelte';
 	import Container from '$lib/components/elements/Container.svelte';
 	import ColorDots from '$lib/components/ColorDots.svelte';
 	import { formatDealLabel, getDealDivisor } from '$lib/cart/deal';
 	import Ribbon from '$lib/components/ribbon.svelte';
 	import SpecTable from '$lib/components/SpecTable.svelte';
+	import { getCanonicalProductUrl } from '$lib/utility/productUrl';
 
 	export let product;
 	export let onClose = () => {};
@@ -18,6 +20,9 @@
 	let lightboxOpen = false;
 	$: displayPrice = Number(product?.price ?? 0).toFixed(2);
 	$: dealLabel = formatDealLabel(product?.brand || product?.deal);
+	$: productUrl = getCanonicalProductUrl(product?.id, product?.title);
+	let shareState = 'idle';
+	let shareResetTimeout = null;
 
 	const openLightbox = (event) => {
 		event.preventDefault();
@@ -44,6 +49,68 @@
 			nextImage();
 		}
 	};
+	const clearShareResetTimeout = () => {
+		if (shareResetTimeout) {
+			window.clearTimeout(shareResetTimeout);
+			shareResetTimeout = null;
+		}
+	};
+	const setShareState = (nextState) => {
+		shareState = nextState;
+		clearShareResetTimeout();
+		if (nextState !== 'idle') {
+			shareResetTimeout = window.setTimeout(() => {
+				shareState = 'idle';
+				shareResetTimeout = null;
+			}, 2000);
+		}
+	};
+	const fallbackCopyText = (value) => {
+		if (typeof document === 'undefined') return false;
+		const field = document.createElement('textarea');
+		field.value = value;
+		field.setAttribute('readonly', '');
+		field.style.position = 'fixed';
+		field.style.opacity = '0';
+		document.body.appendChild(field);
+		field.select();
+		field.setSelectionRange(0, field.value.length);
+		let copied = false;
+		try {
+			copied = document.execCommand('copy');
+		} finally {
+			document.body.removeChild(field);
+		}
+		return copied;
+	};
+	const copyProductLink = async () => {
+		if (!productUrl) {
+			setShareState('error');
+			return;
+		}
+		try {
+			if (typeof navigator !== 'undefined' && navigator.clipboard?.writeText) {
+				await navigator.clipboard.writeText(productUrl);
+				setShareState('copied');
+				return;
+			}
+			if (fallbackCopyText(productUrl)) {
+				setShareState('copied');
+				return;
+			}
+			setShareState('error');
+		} catch {
+			if (fallbackCopyText(productUrl)) {
+				setShareState('copied');
+				return;
+			}
+			setShareState('error');
+		}
+	};
+
+	onDestroy(() => {
+		clearShareResetTimeout();
+	});
 </script>
 
 <svelte:window on:keydown={handleKey} />
@@ -55,7 +122,42 @@
 			<div class="modal" role="dialog" aria-modal="true" aria-label="Product details">
 				<div class="modal-header">
 					<h2>{product.title}</h2>
-					<button class="modal-close" type="button" on:click={onClose}>×</button>
+					<div class="modal-actions">
+						<button
+							class="modal-share"
+							class:copied={shareState === 'copied'}
+							class:error={shareState === 'error'}
+							type="button"
+							aria-live="polite"
+							aria-label={
+								shareState === 'copied'
+									? 'Product link copied'
+									: shareState === 'error'
+										? 'Copy product link failed'
+										: 'Copy production product link'
+							}
+							on:click={copyProductLink}
+						>
+							<span class="modal-share-icon" aria-hidden="true">
+								<svg viewBox="0 0 24 24" focusable="false" aria-hidden="true">
+									<path
+										d="M10.59 13.41a1 1 0 0 0 1.41 1.41l3.83-3.83a3 3 0 0 0-4.24-4.24l-1.41 1.41a1 1 0 0 0 1.41 1.41L13 8.17a1 1 0 1 1 1.41 1.41L10.59 13.41zm2.82-2.82a1 1 0 0 0-1.41-1.41l-3.83 3.83a3 3 0 0 0 4.24 4.24l1.41-1.41a1 1 0 0 0-1.41-1.41L11 15.83a1 1 0 1 1-1.41-1.41l3.82-3.83z"
+										fill="currentColor"
+									/>
+								</svg>
+							</span>
+							<span class="modal-share-label">
+								{#if shareState === 'copied'}
+									Copied
+								{:else if shareState === 'error'}
+									Copy Failed
+								{:else}
+									Copy Link
+								{/if}
+							</span>
+						</button>
+						<button class="modal-close" type="button" on:click={onClose}>×</button>
+					</div>
 				</div>
 				<Container>
 					<div class="product-container">
@@ -439,6 +541,49 @@
 		margin: 0;
 		text-transform: uppercase;
 	}
+	.modal-actions {
+		display: flex;
+		align-items: center;
+		gap: 0.65rem;
+	}
+	.modal-share {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.45rem;
+		background: var(--white);
+		color: var(--grey);
+		border: none;
+		padding: 0.45rem 0.7rem;
+		cursor: pointer;
+		box-shadow: 3px 3px 0 var(--yellow-accent);
+		font-family: Langdon, Arial, sans-serif;
+		font-size: 0.95rem;
+		text-transform: uppercase;
+		line-height: 1;
+	}
+	.modal-share.copied {
+		background: #dff5e4;
+		color: #0e5a22;
+	}
+	.modal-share.error {
+		background: #ffe0e0;
+		color: #9c1b1b;
+	}
+	.modal-share-icon {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		width: 20px;
+		height: 20px;
+	}
+	.modal-share-icon svg {
+		display: block;
+		width: 20px;
+		height: 20px;
+	}
+	.modal-share-label {
+		white-space: nowrap;
+	}
 	.modal-close {
 		background: var(--white);
 		color: var(--grey);
@@ -448,5 +593,23 @@
 		font-size: 1.5em;
 		cursor: pointer;
 		box-shadow: 3px 3px 0 var(--yellow-accent);
+	}
+	@media screen and (max-width: 700px) {
+		.modal-header {
+			align-items: flex-start;
+			gap: 0.75rem;
+		}
+		.modal-header h2 {
+			flex: 1 1 auto;
+			font-size: 1.15rem;
+		}
+		.modal-actions {
+			flex-direction: column;
+			align-items: stretch;
+		}
+		.modal-share {
+			justify-content: center;
+			padding-inline: 0.65rem;
+		}
 	}
 </style>
