@@ -53,6 +53,7 @@
 
 {#if $modalState.wishlistOpen}
 	<WishlistModal
+		{allData}
 		onClose={closeGlobalWishlistModal}
 		mode={$modalState.wishlistMode}
 		onCheckout={() => setGlobalWishlistMode('checkout')}
