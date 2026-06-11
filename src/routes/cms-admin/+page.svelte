@@ -655,18 +655,25 @@
 				</div>
 			{/if}
 
-			<div class="grid">
-				{#each cmsSections as section}
-					<a class="card" href={`/cms-admin/${section.key}`}>
-						<div class="cardTitle">{section.label}</div>
+				<div class="grid">
+					{#each cmsSections as section}
+						<a class="card" href={`/cms-admin/${section.key}`}>
+							<div class="cardTitle">{section.label}</div>
+							<div class="cardMeta">
+								<code>{section.key}</code>
+								<span class="pill">{section.kind}</span>
+							</div>
+						</a>
+					{/each}
+					<a class="card" href="/cms-admin/pricecard">
+						<div class="cardTitle">Price Card Tool</div>
 						<div class="cardMeta">
-							<code>{section.key}</code>
-							<span class="pill">{section.kind}</span>
+							<code>pricecard</code>
+							<span class="pill">tool</span>
 						</div>
 					</a>
-				{/each}
-			</div>
-		{/if}
+				</div>
+			{/if}
 
 		{#if status}
 			<p class="status">{status}</p>
