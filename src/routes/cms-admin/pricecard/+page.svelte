@@ -16,7 +16,9 @@
 	let previewNote = 'No warnings.';
 	let shrinkTitleForOverset = true;
 	let autoFitDescription = true;
+	let autoFitSpecs = true;
 	let descBaseLevel = 0;
+	let specBaseLevel = 0;
 	let titleShrinkApplied = false;
 	let titleSubApplied = false;
 	let titleShrinkSelectionId = null;
@@ -24,6 +26,7 @@
 	let titleMain = '';
 	let titleSub = '';
 	let descFitLevel = 0;
+	let specFitLevel = 0;
 	let storedItemSettings = {};
 	let cardCanvasEl;
 	let leftBoxEl;
@@ -42,6 +45,10 @@
 	const DESC_MIN_FONT_SIZE = 9;
 	const DESC_STEP = 0.5;
 	const MAX_DESC_SIZE_LEVEL = Math.round((DESC_BASE_FONT_SIZE - DESC_MIN_FONT_SIZE) / DESC_STEP);
+	const SPEC_BASE_FONT_SIZE = 12;
+	const SPEC_MIN_FONT_SIZE = 8;
+	const SPEC_STEP = 0.5;
+	const MAX_SPEC_SIZE_LEVEL = Math.round((SPEC_BASE_FONT_SIZE - SPEC_MIN_FONT_SIZE) / SPEC_STEP);
 
 	const isLocalDev =
 		typeof window !== 'undefined' &&
@@ -126,7 +133,12 @@
 		descFitLevel = 0;
 	};
 
+	const resetSpecTreatment = () => {
+		specFitLevel = 0;
+	};
+
 	const clampDescLevel = (value) => Math.max(0, Math.min(MAX_DESC_SIZE_LEVEL, Number(value) || 0));
+	const clampSpecLevel = (value) => Math.max(0, Math.min(MAX_SPEC_SIZE_LEVEL, Number(value) || 0));
 
 	const checkTitleWrapped = () => {
 		if (!titleMainEl || titleSubApplied) return false;
@@ -262,6 +274,9 @@
 		const titleWrapped = checkTitleWrapped();
 		const titleOverflow = checkTitleOverflow();
 		const leftBoxOverflow = checkElementOverflow(leftBoxEl);
+		const rightColumnOverflow = Boolean(
+			leftBoxEl && rightColumnEl && rightColumnEl.scrollHeight - leftBoxEl.clientHeight > 1
+		);
 
 		if (
 			autoFitDescription &&
@@ -270,6 +285,17 @@
 		) {
 			descFitLevel += 1;
 			previewNote = 'Description auto-fit applied to keep body copy within the card.';
+			scheduleOversetCheck();
+			return;
+		}
+
+		if (
+			autoFitSpecs &&
+			rightColumnOverflow &&
+			specBaseLevel + specFitLevel < MAX_SPEC_SIZE_LEVEL
+		) {
+			specFitLevel += 1;
+			previewNote = 'Spec auto-fit applied to keep right-column details within the card.';
 			scheduleOversetCheck();
 			return;
 		}
@@ -304,7 +330,7 @@
 		if (leftBoxOverflow) {
 			nextWarnings.push('Left-side content exceeds the black card panel.');
 		}
-		if (leftBoxEl && rightColumnEl && rightColumnEl.scrollHeight - leftBoxEl.clientHeight > 1) {
+		if (rightColumnOverflow) {
 			nextWarnings.push('Right-side specs exceed the card height.');
 		}
 
@@ -313,8 +339,13 @@
 			previewNote = 'Loading selected product…';
 		} else if (nextWarnings.length) {
 			previewNote = `${nextWarnings.length} overset warning${nextWarnings.length === 1 ? '' : 's'} detected.`;
-		} else if (titleShrinkApplied) {
-			previewNote = 'Title shrink assist is active and card content fits within the fixed layout.';
+		} else if (titleShrinkApplied || descFitLevel || specFitLevel) {
+			const assists = [
+				titleShrinkApplied ? 'title assist' : '',
+				descFitLevel ? 'description auto-fit' : '',
+				specFitLevel ? 'spec auto-fit' : ''
+			].filter(Boolean);
+			previewNote = `${assists.join(', ')} active and card content fits within the fixed layout.`;
 		} else {
 			previewNote = 'Card content fits within the fixed layout.';
 		}
@@ -387,11 +418,15 @@
 	$: if (selectedId) {
 		shrinkTitleForOverset = storedItemSettings?.[selectedId]?.shrinkTitleForOverset ?? true;
 		autoFitDescription = storedItemSettings?.[selectedId]?.autoFitDescription ?? true;
+		autoFitSpecs = storedItemSettings?.[selectedId]?.autoFitSpecs ?? true;
 		descBaseLevel = clampDescLevel(storedItemSettings?.[selectedId]?.descBaseLevel ?? 0);
+		specBaseLevel = clampSpecLevel(storedItemSettings?.[selectedId]?.specBaseLevel ?? 0);
 	} else {
 		shrinkTitleForOverset = true;
 		autoFitDescription = true;
+		autoFitSpecs = true;
 		descBaseLevel = 0;
+		specBaseLevel = 0;
 	}
 	$: if (!shrinkTitleForOverset && (titleShrinkApplied || titleSubApplied || titleMain !== normalizedTitle || titleSub)) {
 		resetTitleTreatment();
@@ -399,15 +434,23 @@
 	$: if (!autoFitDescription && descFitLevel) {
 		resetDescriptionTreatment();
 	}
+	$: if (!autoFitSpecs && specFitLevel) {
+		resetSpecTreatment();
+	}
 	$: if (selectedId !== titleShrinkSelectionId) {
 		titleShrinkSelectionId = selectedId;
 		resetTitleTreatment();
 		resetDescriptionTreatment();
+		resetSpecTreatment();
 	}
 	$: effectiveDescLevel = clampDescLevel(descBaseLevel + descFitLevel);
 	$: effectiveDescFontSize = `${DESC_BASE_FONT_SIZE - effectiveDescLevel * DESC_STEP}pt`;
 	$: effectiveDescLineHeight =
 		effectiveDescLevel >= 7 ? 1.03 : effectiveDescLevel >= 5 ? 1.06 : effectiveDescLevel >= 3 ? 1.1 : 1.14;
+	$: effectiveSpecLevel = clampSpecLevel(specBaseLevel + specFitLevel);
+	$: effectiveSpecFontSize = `${SPEC_BASE_FONT_SIZE - effectiveSpecLevel * SPEC_STEP}pt`;
+	$: descSliderValue = MAX_DESC_SIZE_LEVEL - descBaseLevel;
+	$: specSliderValue = MAX_SPEC_SIZE_LEVEL - specBaseLevel;
 	$: scheduleOversetCheck();
 </script>
 
@@ -526,18 +569,64 @@
 									min="0"
 									max={MAX_DESC_SIZE_LEVEL}
 									step="1"
-									bind:value={descBaseLevel}
+									bind:value={descSliderValue}
 									aria-label="Description type size"
 									on:input={() => {
-										descBaseLevel = clampDescLevel(descBaseLevel);
+										descBaseLevel = clampDescLevel(MAX_DESC_SIZE_LEVEL - Number(descSliderValue));
+										autoFitDescription = false;
 										persistSelectedItemSettings({
-											descBaseLevel
+											descBaseLevel,
+											autoFitDescription
 										});
 										resetDescriptionTreatment();
 										scheduleOversetCheck();
 									}}
 								/>
 								<span class="sliderValue">{effectiveDescFontSize}</span>
+							</div>
+							<div class="toolbarControl compact">
+								<span class="toolbarControlLabel">Auto-fit specs</span>
+								<button
+									class:active={autoFitSpecs}
+									aria-pressed={autoFitSpecs}
+									aria-label="Toggle spec auto-fit"
+									class="toolbarSwitch"
+									type="button"
+									on:click={() => {
+										autoFitSpecs = !autoFitSpecs;
+										persistSelectedItemSettings({
+											autoFitSpecs
+										});
+										if (!autoFitSpecs) resetSpecTreatment();
+										scheduleOversetCheck();
+									}}
+								>
+									<span class="switchTrack"></span>
+									<span class="switchThumb"></span>
+								</button>
+							</div>
+							<div class="toolbarControl compact sliderControl">
+								<span class="toolbarControlLabel">Specs size</span>
+								<input
+									class="sizeSlider"
+									type="range"
+									min="0"
+									max={MAX_SPEC_SIZE_LEVEL}
+									step="1"
+									bind:value={specSliderValue}
+									aria-label="Spec type size"
+									on:input={() => {
+										specBaseLevel = clampSpecLevel(MAX_SPEC_SIZE_LEVEL - Number(specSliderValue));
+										autoFitSpecs = false;
+										persistSelectedItemSettings({
+											specBaseLevel,
+											autoFitSpecs
+										});
+										resetSpecTreatment();
+										scheduleOversetCheck();
+									}}
+								/>
+								<span class="sliderValue">{effectiveSpecFontSize}</span>
 							</div>
 							<span class:warn={oversetWarnings.length > 0} class="previewBadge compact">
 							{#if loadingProduct}
@@ -628,7 +717,11 @@
 													</div>
 											</div>
 										</div>
-											<div bind:this={rightColumnEl} class="container-right">
+											<div
+												bind:this={rightColumnEl}
+												class="container-right"
+												style={`font-size: ${effectiveSpecFontSize};`}
+											>
 												<div id="department-container">
 													<span class="department" id="department">{product.department.toUpperCase()}</span>
 												</div>
@@ -1015,6 +1108,7 @@
 	.container-right {
 		font-family: Langdon, sans-serif;
 		font-size: 12pt;
+		line-height: 1.08;
 		margin-left: 0.15in;
 		width: 2in;
 	}
@@ -1122,7 +1216,7 @@
 	.lists,
 	.singles {
 		margin-top: 0.05in;
-		font-size: 13pt;
+		font-size: 1.083em;
 	}
 
 	.single-result,
@@ -1139,12 +1233,13 @@
 		font-family: Langdon, sans-serif;
 	}
 
-		.department {
-			font-size: 16pt;
-			margin-bottom: 0.1in;
-			margin-top: 0.06in;
-			display: inline-block;
-		}
+	.department {
+		font-size: 16pt;
+		line-height: 1;
+		margin-bottom: 0.1in;
+		margin-top: 0.06in;
+		display: inline-block;
+	}
 
 	.single-price-block {
 		display: flex;

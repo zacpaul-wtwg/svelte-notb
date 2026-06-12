@@ -1,4 +1,5 @@
 let token;
+let tokenPromise;
 import { env } from '$env/dynamic/private';
 
 const decodeBase64Value = (value) => {
@@ -10,7 +11,7 @@ const decodeBase64Value = (value) => {
 	}
 };
 
-export const getToken = async function () {
+const fetchToken = async () => {
 	const openApiKey = env.CC_OPEN_API_KEY;
 	const pin = decodeBase64Value(env.CC_PIN_B64);
 	const password = env.CC_PASSWORD;
@@ -34,19 +35,41 @@ export const getToken = async function () {
 		body: raw
 	};
 
-	if (token) {
+	const response = await fetch(
+		'https://ssl-openapi-northoftheborder.comcash.com/employee/auth/signin',
+		requestOptions
+	);
+	const result = await response.json();
+	if (!response.ok || !result?.accessToken) {
+		throw new Error(result?.message || 'Comcash signin failed.');
+	}
+	return result;
+};
+
+export const clearToken = () => {
+	token = undefined;
+	tokenPromise = undefined;
+};
+
+export const getToken = async function ({ forceRefresh = false } = {}) {
+	if (forceRefresh) {
+		clearToken();
+	}
+
+	if (token?.accessToken) {
 		return token;
 	}
 
-	token = await fetch(
-		'https://ssl-openapi-northoftheborder.comcash.com/employee/auth/signin',
-		requestOptions
-	)
-		.then((response) => response.json())
-		.then((result) => {
-			return result;
-		})
-		.catch((error) => console.log('error', error));
+	if (!tokenPromise) {
+		tokenPromise = fetchToken()
+			.then((result) => {
+				token = result;
+				return result;
+			})
+			.finally(() => {
+				tokenPromise = undefined;
+			});
+	}
 
-	return token;
+	return tokenPromise;
 };
